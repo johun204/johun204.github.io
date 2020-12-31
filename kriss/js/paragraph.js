@@ -5,7 +5,7 @@ function ParagraphLabeling(){
   for(var i=0; i<menu_id.length; i++)
   {
     var txt = localStorage.getItem("Textarea_" + menu_id[i]);
-    if(/\w/.test(txt) == false) continue;
+    if(/\w/.test(txt) == false || txt == undefined) continue;
     try{
       txt = txt.replace(/\r\n/g, '\n');
       var paragraphs = txt.split('\n\n');
