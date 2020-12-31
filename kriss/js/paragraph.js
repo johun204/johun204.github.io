@@ -6,9 +6,10 @@ function ParagraphLabeling(){
   {
     var txt = localStorage.getItem("Textarea_" + menu_id[i]);
     if(/\w/.test(txt) == false) continue;
-    txt = txt.replace(/\r\n/g, '\n');
-    var paragraphs = txt.split('\n\n');
- 
+    try{
+      txt = txt.replace(/\r\n/g, '\n');
+      var paragraphs = txt.split('\n\n');
+    }catch(err){ continue; }
     cnt = 0;
     for (var j = 0; j < paragraphs.length; j++) {
       var lines = paragraphs[j].split('\n');
@@ -18,11 +19,11 @@ function ParagraphLabeling(){
           retLines.push(lines[k]);
         }
       }
-	  if (retLines.length > 0) {
-        index += 1;
-        cnt+=1;
+      if (retLines.length > 0) {
+        index++;
+        cnt++;
         result_html += "<tr><td>" + index + "</td><td>" + retLines.join(' ') + "</td><td>[" + (i==0?cnt:0) + "," + (i==1?cnt:0) + "," + (i==2?cnt:0) + "," + (i==3?cnt:0) + "," + (i==4?cnt:0) + "," + (i==5?cnt:0) + "]</td></tr>";
-	  }
+      }
     }
   }
   document.getElementById("Table_Paragraph").innerHTML = result_html + "</table>";

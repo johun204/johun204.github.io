@@ -1,7 +1,11 @@
 var texts;
 function newline2space(text) {
-  text = text.replace(/\r\n/g, '\n');
-  text = text.replace(/\n\n/g, '.');
+  try{
+    text = text.replace(/\r\n/g, '\n');
+  }catch(err){}
+  try{
+    text = text.replace(/\n\n/g, '.');
+  }catch(err){}
   var lines = text.split('\n');
   var retLines = [];
   for (var i = 0; i < lines.length; i++) {
