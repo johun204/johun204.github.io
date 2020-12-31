@@ -1,1 +1,53 @@
-var _0x5613=['msSaveBlob','getItem','</td><td>','split','toLowerCase','msie','text/plain;charset=UTF-8;','onload','87mCFiRX',']</td></tr>','push','13IACtES','getElementById','native','181745QrhHkk','download.xls','navigator','Trident','1963172SFRafi','join','</td><td>[','1152fTyrjE','Introduction','462QcMSDR','6199UcNsGj','Captions','2jGguFH','Table_Paragraph','userAgent','innerHTML','6TnudYu','1058647rWWiAn','download','__Xr_objURL_forCreatingFile__','Methods','click','<table\x20class=\x22table\x20table-bordered\x22><tr><td>index</td><td>paragraph_data</td><td>tag</td></tr>','search','createElement','<tr><td>','9661ARYmXV','appName','href','length','URL','revokeObjectURL','test','1062659uahKZF','Abstract','Summary','indexOf','createObjectURL'];var _0x130d=function(_0x5df88c,_0x9556ed){_0x5df88c=_0x5df88c-0x67;var _0x561320=_0x5613[_0x5df88c];return _0x561320;};var _0x30f1ff=_0x130d;(function(_0x26ddc7,_0x4a7686){var _0x375711=_0x130d;while(!![]){try{var _0x49e49b=parseInt(_0x375711(0x92))*-parseInt(_0x375711(0x7b))+parseInt(_0x375711(0x95))*-parseInt(_0x375711(0x71))+-parseInt(_0x375711(0x68))*-parseInt(_0x375711(0x6a))+-parseInt(_0x375711(0x82))+-parseInt(_0x375711(0x72))+parseInt(_0x375711(0x6b))*-parseInt(_0x375711(0x8f))+parseInt(_0x375711(0x99))*parseInt(_0x375711(0x6d));if(_0x49e49b===_0x4a7686)break;else _0x26ddc7['push'](_0x26ddc7['shift']());}catch(_0x1012a3){_0x26ddc7['push'](_0x26ddc7['shift']());}}}(_0x5613,0x8e0fe));function ParagraphLabeling(){var _0x2f5f1a=_0x130d,_0x5e0628=[_0x2f5f1a(0x83),_0x2f5f1a(0x69),'Main',_0x2f5f1a(0x75),_0x2f5f1a(0x84),_0x2f5f1a(0x6c)],_0x2bcf9f=0x0,_0x25dd3d=_0x2f5f1a(0x77);for(var _0x1523ba=0x0;_0x1523ba<_0x5e0628[_0x2f5f1a(0x7e)];_0x1523ba++){var _0x361dfd=localStorage[_0x2f5f1a(0x88)]('Textarea_'+_0x5e0628[_0x1523ba]);if(/\w/[_0x2f5f1a(0x81)](_0x361dfd)==![])continue;_0x361dfd=_0x361dfd['replace'](/\r\n/g,'\x0a');var _0x39750e=_0x361dfd['split']('\x0a\x0a');cnt=0x0;for(var _0x3ada59=0x0;_0x3ada59<_0x39750e[_0x2f5f1a(0x7e)];_0x3ada59++){var _0x1c4d96=_0x39750e[_0x3ada59][_0x2f5f1a(0x8a)]('\x0a'),_0x55cab2=[];for(var _0xb09db5=0x0;_0xb09db5<_0x1c4d96['length'];_0xb09db5++){/\w/[_0x2f5f1a(0x81)](_0x1c4d96[_0xb09db5])&&_0x55cab2[_0x2f5f1a(0x91)](_0x1c4d96[_0xb09db5]);}_0x55cab2[_0x2f5f1a(0x7e)]>0x0&&(_0x2bcf9f+=0x1,cnt+=0x1,_0x25dd3d+=_0x2f5f1a(0x7a)+_0x2bcf9f+_0x2f5f1a(0x89)+_0x55cab2[_0x2f5f1a(0x9a)]('\x20')+_0x2f5f1a(0x67)+(_0x1523ba==0x0?cnt:0x0)+','+(_0x1523ba==0x1?cnt:0x0)+','+(_0x1523ba==0x2?cnt:0x0)+','+(_0x1523ba==0x3?cnt:0x0)+','+(_0x1523ba==0x4?cnt:0x0)+','+(_0x1523ba==0x5?cnt:0x0)+_0x2f5f1a(0x90));}}document[_0x2f5f1a(0x93)](_0x2f5f1a(0x6e))['innerHTML']=_0x25dd3d+'</table>';}function saveToFile(){var _0x54bb0b=_0x130d;fileName=_0x54bb0b(0x96),content='\ufeff'+document[_0x54bb0b(0x93)]('Table_Paragraph')[_0x54bb0b(0x70)];if(navigator[_0x54bb0b(0x7c)]==='Netscape'&&navigator[_0x54bb0b(0x6f)][_0x54bb0b(0x78)](_0x54bb0b(0x98))!==-0x1||navigator[_0x54bb0b(0x6f)][_0x54bb0b(0x8b)]()[_0x54bb0b(0x85)](_0x54bb0b(0x8c))!==-0x1){var _0x829d02=new Blob([content],{'type':'text/plain','endings':_0x54bb0b(0x94)});window[_0x54bb0b(0x97)][_0x54bb0b(0x87)](_0x829d02,fileName);}else{var _0x829d02=new Blob([content],{'type':_0x54bb0b(0x8d)});objURL=window['URL'][_0x54bb0b(0x86)](_0x829d02);window['__Xr_objURL_forCreatingFile__']&&window[_0x54bb0b(0x7f)][_0x54bb0b(0x80)](window[_0x54bb0b(0x74)]);window[_0x54bb0b(0x74)]=objURL;var _0x1171ae=document[_0x54bb0b(0x79)]('a');_0x1171ae[_0x54bb0b(0x73)]=fileName,_0x1171ae[_0x54bb0b(0x7d)]=objURL,_0x1171ae[_0x54bb0b(0x76)]();}}window[_0x30f1ff(0x8e)]=function(){ParagraphLabeling();};
+function ParagraphLabeling(){
+  var menu_id = ["Abstract", "Introduction", "Main", "Methods", "Summary", "Captions"];
+  var index = 0;
+  var result_html = "<table class=\"table table-bordered\"><tr><td>index</td><td>paragraph_data</td><td>tag</td></tr>";
+  for(var i=0; i<menu_id.length; i++)
+  {
+    var txt = localStorage.getItem("Textarea_" + menu_id[i]);
+    if(/\w/.test(txt) == false) continue;
+    txt = txt.replace(/\r\n/g, '\n');
+    var paragraphs = txt.split('\n\n');
+ 
+    cnt = 0;
+    for (var j = 0; j < paragraphs.length; j++) {
+      var lines = paragraphs[j].split('\n');
+      var retLines = [];
+      for (var k = 0; k < lines.length; k++) {
+        if (/\w/.test(lines[k])) {
+          retLines.push(lines[k]);
+        }
+      }
+	  if (retLines.length > 0) {
+        index += 1;
+        cnt+=1;
+        result_html += "<tr><td>" + index + "</td><td>" + retLines.join(' ') + "</td><td>[" + (i==0?cnt:0) + "," + (i==1?cnt:0) + "," + (i==2?cnt:0) + "," + (i==3?cnt:0) + "," + (i==4?cnt:0) + "," + (i==5?cnt:0) + "]</td></tr>";
+	  }
+    }
+  }
+  document.getElementById("Table_Paragraph").innerHTML = result_html + "</table>";
+}
+function saveToFile() {
+  fileName = "download.xls";
+  content = "\ufeff" + document.getElementById("Table_Paragraph").innerHTML; //utf-8+BOM
+  if((navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) || (navigator.userAgent.toLowerCase().indexOf("msie") !== -1)){ //ie
+    var blob = new Blob([content], { type: "text/plain", endings: "native" });
+    window.navigator.msSaveBlob(blob, fileName);
+  }
+  else{ //chrome
+    var blob = new Blob([content], { type: 'text/plain;charset=UTF-8;' });
+    objURL = window.URL.createObjectURL(blob);
+            
+    if (window.__Xr_objURL_forCreatingFile__) {
+      window.URL.revokeObjectURL(window.__Xr_objURL_forCreatingFile__);
+    }
+    window.__Xr_objURL_forCreatingFile__ = objURL;
+    var a = document.createElement('a');
+    a.download = fileName;
+    a.href = objURL;
+    a.click();
+  }
+}
+window.onload = function(){
+  ParagraphLabeling();
+}

@@ -1,1 +1,71 @@
-var _0x3b15=['text/plain','display','1436753YwZTgr','onload','userAgent','\x20자동저장됨\x20<span\x20class=\x22glyphicon\x20glyphicon-floppy-saved\x22\x20aria-hidden=\x22true\x22>\x20<button\x20type=\x22button\x22\x20class=\x22close\x22\x20data-dismiss=\x22alert\x22\x20aria-label=\x22Close\x22><span\x20aria-hidden=\x22true\x22>&times;</span></button></div>','msie','Trident','논문과\x20관련된\x20배경과\x20논문의\x20동기\x20및\x20결과를\x20간략하게\x20소개','Abstract','1klVUmC','67kOxpyj','논문의\x20중심\x20내용에\x20대한\x20전체적인\x20요약','31928eSYEye','290jOHDBO','논문\x20image에\x20대한\x20개략적인\x20설명','download.txt','msSaveBlob','Methods','innerHTML','Captions','createElement','Introduction','399557fNgyUx','current_menu','Textarea_','style','getHours','click','toLowerCase','15629PYjCQM','<div\x20class=\x22alert\x20alert-success\x20alert-dismissible\x22\x20role=\x22alert\x22>','1sHBvuk','Menu_Desc','removeItem','getMinutes','29BjjDsr','setItem','\x0a\x0a==============================================================\x0a\x0a','4679uUkSnk','논문의\x20자세한\x20내용과\x20결과들을\x20기술','native','논문의\x20실험\x20방법','\x20<span\x20class=\x22glyphicon\x20glyphicon-ok\x22\x20aria-hidden=\x22true\x22>','getSeconds','Main','3OcqLaa','getElementById','search','length','논문의\x20주요\x20내용에\x20대한\x20결과\x20및\x20요약','value','block','577909edBghh','\x20text','getItem','1428505cerdlH','Summary','text/plain;charset=UTF-8;','__Xr_objURL_forCreatingFile__','URL','href'];var _0x23a2=function(_0x4696f8,_0x12185b){_0x4696f8=_0x4696f8-0x1ad;var _0x3b159b=_0x3b15[_0x4696f8];return _0x3b159b;};var _0x3752cb=_0x23a2;(function(_0x169df1,_0x1a1468){var _0x358d88=_0x23a2;while(!![]){try{var _0x59de8f=parseInt(_0x358d88(0x1b1))*parseInt(_0x358d88(0x1c8))+-parseInt(_0x358d88(0x1e5))*-parseInt(_0x358d88(0x1be))+parseInt(_0x358d88(0x1e3))*-parseInt(_0x358d88(0x1c1))+-parseInt(_0x358d88(0x1d2))*-parseInt(_0x358d88(0x1e2))+parseInt(_0x358d88(0x1da))*parseInt(_0x358d88(0x1ba))+parseInt(_0x358d88(0x1cf))+parseInt(_0x358d88(0x1b8))*-parseInt(_0x358d88(0x1e6));if(_0x59de8f===_0x1a1468)break;else _0x169df1['push'](_0x169df1['shift']());}catch(_0x3f98bc){_0x169df1['push'](_0x169df1['shift']());}}}(_0x3b15,0xb03b7));function LoadText(_0x4d619a){var _0x561240=_0x23a2;if(_0x4d619a==undefined)_0x4d619a=0x0;localStorage[_0x561240(0x1bf)](_0x561240(0x1b2),_0x4d619a);var _0x23faa1=[_0x561240(0x1e1),'Introduction',_0x561240(0x1c7),_0x561240(0x1ea),_0x561240(0x1d3),_0x561240(0x1ae)],_0xabe10f=[_0x561240(0x1e4),_0x561240(0x1e0),_0x561240(0x1c2),_0x561240(0x1c4),_0x561240(0x1cc),_0x561240(0x1e7)];document[_0x561240(0x1c9)]('Menu_Title')[_0x561240(0x1ad)]=_0x23faa1[_0x4d619a]+(_0x4d619a==0x2?_0x561240(0x1d0):''),document[_0x561240(0x1c9)](_0x561240(0x1bb))[_0x561240(0x1ad)]=_0xabe10f[_0x4d619a];for(var _0x51222c=0x0;_0x51222c<_0x23faa1[_0x561240(0x1cb)];_0x51222c++){var _0x4c302d=document[_0x561240(0x1c9)]('Textarea_'+_0x23faa1[_0x51222c]),_0x2b137e=document[_0x561240(0x1c9)]('Btn_'+_0x23faa1[_0x51222c]);if(_0x51222c==_0x4d619a){_0x4c302d[_0x561240(0x1b4)][_0x561240(0x1d9)]=_0x561240(0x1ce);var _0x146659=localStorage[_0x561240(0x1d1)](_0x561240(0x1b3)+_0x23faa1[_0x4d619a]);if(_0x146659!=undefined)_0x4c302d[_0x561240(0x1cd)]=_0x146659;_0x2b137e[_0x561240(0x1ad)]=_0x23faa1[_0x51222c]+(_0x51222c==0x2?'\x20text':'')+_0x561240(0x1c5);}else _0x4c302d['style'][_0x561240(0x1d9)]='none',_0x2b137e['innerHTML']=_0x23faa1[_0x51222c]+(_0x51222c==0x2?'\x20text':'');}}function AutoSave(_0x3bcc26){var _0x1eacec=_0x23a2;localStorage[_0x1eacec(0x1bf)](_0x3bcc26['id'],_0x3bcc26[_0x1eacec(0x1cd)]);var _0x1590f9=new Date(),_0x32beda=_0x1590f9[_0x1eacec(0x1b5)]()+'시\x20'+_0x1590f9[_0x1eacec(0x1bd)]()+'분\x20'+_0x1590f9[_0x1eacec(0x1c6)]()+'초';document[_0x1eacec(0x1c9)]('ToastBox')[_0x1eacec(0x1ad)]=_0x1eacec(0x1b9)+_0x32beda+_0x1eacec(0x1dd);}function AllClear(){var _0xbaacfd=_0x23a2;if(confirm('모든\x20문단의\x20내용을\x20전부\x20지우시겠습니까?\x0a지운\x20후에는\x20되돌릴\x20수\x20없습니다.')){var _0x107f9c=[_0xbaacfd(0x1e1),_0xbaacfd(0x1b0),_0xbaacfd(0x1c7),'Methods','Summary','Captions'];for(var _0x58f3c2=0x0;_0x58f3c2<_0x107f9c[_0xbaacfd(0x1cb)];_0x58f3c2++){var _0x290343=document['getElementById'](_0xbaacfd(0x1b3)+_0x107f9c[_0x58f3c2]);_0x290343[_0xbaacfd(0x1cd)]='',localStorage[_0xbaacfd(0x1bc)](_0xbaacfd(0x1b3)+_0x107f9c[_0x58f3c2]);}}}function saveToFile(){var _0x3df591=_0x23a2;fileName=_0x3df591(0x1e8),content='\ufeff';var _0x245254=[_0x3df591(0x1e1),'Introduction','Main',_0x3df591(0x1ea),_0x3df591(0x1d3),_0x3df591(0x1ae)];for(var _0x14afd4=0x0;_0x14afd4<_0x245254[_0x3df591(0x1cb)];_0x14afd4++){if(_0x14afd4>0x0)content+=_0x3df591(0x1c0);var _0x25b5c9=localStorage[_0x3df591(0x1d1)](_0x3df591(0x1b3)+_0x245254[_0x14afd4]);if(_0x25b5c9!=undefined)content+=_0x25b5c9;}if(navigator['appName']==='Netscape'&&navigator[_0x3df591(0x1dc)][_0x3df591(0x1ca)](_0x3df591(0x1df))!==-0x1||navigator[_0x3df591(0x1dc)][_0x3df591(0x1b7)]()['indexOf'](_0x3df591(0x1de))!==-0x1){var _0x3dd8cf=new Blob([content],{'type':_0x3df591(0x1d8),'endings':_0x3df591(0x1c3)});window['navigator'][_0x3df591(0x1e9)](_0x3dd8cf,fileName);}else{var _0x3dd8cf=new Blob([content],{'type':_0x3df591(0x1d4)});objURL=window[_0x3df591(0x1d6)]['createObjectURL'](_0x3dd8cf);window['__Xr_objURL_forCreatingFile__']&&window[_0x3df591(0x1d6)]['revokeObjectURL'](window['__Xr_objURL_forCreatingFile__']);window[_0x3df591(0x1d5)]=objURL;var _0x4cc5df=document[_0x3df591(0x1af)]('a');_0x4cc5df['download']=fileName,_0x4cc5df[_0x3df591(0x1d7)]=objURL,_0x4cc5df[_0x3df591(0x1b6)]();}}window[_0x3752cb(0x1db)]=function(){var _0x53f02a=_0x3752cb;LoadText(localStorage['getItem'](_0x53f02a(0x1b2)));};
+function LoadText(n){
+  if(n == undefined) n = 0;
+  localStorage.setItem("current_menu", n);
+  var menu_id = ["Abstract", "Introduction", "Main", "Methods", "Summary", "Captions"];
+  var menu_desc = ["논문의 중심 내용에 대한 전체적인 요약", "논문과 관련된 배경과 논문의 동기 및 결과를 간략하게 소개", "논문의 자세한 내용과 결과들을 기술", "논문의 실험 방법", "논문의 주요 내용에 대한 결과 및 요약", "논문 image에 대한 개략적인 설명"]
+  document.getElementById("Menu_Title").innerHTML = menu_id[n] + (n == 2 ? " text" : "");
+  document.getElementById("Menu_Desc").innerHTML = menu_desc[n];
+
+  for(var i=0; i<menu_id.length; i++)
+  {
+    var obj = document.getElementById("Textarea_" + menu_id[i]);
+    var btn_obj = document.getElementById("Btn_" + menu_id[i]);
+    if(i==n){
+      obj.style.display = "block";
+      var txt = localStorage.getItem("Textarea_" + menu_id[n]);
+      if(txt != undefined) obj.value = txt;
+      btn_obj.innerHTML = menu_id[i] + (i == 2 ? " text" : "") + " <span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\">";
+    }else{
+      obj.style.display = "none";
+      btn_obj.innerHTML = menu_id[i] + (i == 2 ? " text" : "");
+    }
+  }
+}
+function AutoSave(obj){
+  localStorage.setItem(obj.id, obj.value);
+  var d = new Date();
+  var nowTime = d.getHours() + "시 " + d.getMinutes() + "분 " + d.getSeconds() + "초";
+  document.getElementById("ToastBox").innerHTML = "<div class=\"alert alert-success alert-dismissible\" role=\"alert\">" + nowTime + " 자동저장됨 <span class=\"glyphicon glyphicon-floppy-saved\" aria-hidden=\"true\"> <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button></div>";
+}
+function AllClear(){
+  if(confirm("모든 문단의 내용을 전부 지우시겠습니까?\n지운 후에는 되돌릴 수 없습니다.")){
+	var menu_id = ["Abstract", "Introduction", "Main", "Methods", "Summary", "Captions"];
+	for(var i=0; i<menu_id.length; i++)
+    {
+      var obj = document.getElementById("Textarea_" + menu_id[i]);
+	  obj.value = "";
+	  localStorage.removeItem("Textarea_" + menu_id[i]);
+    }
+  }
+}
+function saveToFile() {
+  fileName = "download.txt";
+  content = "\ufeff"; //UTF-8+BOM
+  var menu_id = ["Abstract", "Introduction", "Main", "Methods", "Summary", "Captions"];
+  for(var i=0; i<menu_id.length; i++)
+  {
+    if(i > 0) content += "\n\n==============================================================\n\n";
+    var txt = localStorage.getItem("Textarea_" + menu_id[i])
+	if(txt != undefined) content += txt;
+  }
+  if( (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) || (navigator.userAgent.toLowerCase().indexOf("msie") !== -1) ){ //ie
+    var blob = new Blob([content], { type: "text/plain", endings: "native" });
+    window.navigator.msSaveBlob(blob, fileName);
+  }
+  else{ //chrome
+    var blob = new Blob([content], { type: 'text/plain;charset=UTF-8;' });
+    objURL = window.URL.createObjectURL(blob);
+            
+    if (window.__Xr_objURL_forCreatingFile__) {
+      window.URL.revokeObjectURL(window.__Xr_objURL_forCreatingFile__);
+    }
+    window.__Xr_objURL_forCreatingFile__ = objURL;
+    var a = document.createElement('a');
+    a.download = fileName;
+    a.href = objURL;
+    a.click();
+  }
+}
+window.onload = function(){
+  LoadText(localStorage.getItem("current_menu"));
+}

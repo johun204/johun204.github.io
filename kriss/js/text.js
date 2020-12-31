@@ -1,1 +1,123 @@
-var _0x490f=['\x22><div\x20class=\x22input-group\x22><input\x20type=\x22text\x22\x20class=\x22form-control\x22\x20id=\x22text','1eWEOmH',');\x22><span\x20class=\x22glyphicon\x20glyphicon-arrow-up\x22\x20aria-hidden=\x22true\x22></span>\x20합치기</button></span></div></li>','onbeforeunload','1NvVvoQ','click','<li\x20class=\x22list-group-item\x20list-group-item-info\x22>','text/plain','block','</div>','<tr><td>','join','value','<table\x20class=\x22table\x20table-bordered\x22><tr><td>index</td><td>category</td><td>numerical</td>','<tr><td>tag-','<td>word','\x22><span\x20class=\x22input-group-btn\x22><button\x20class=\x22btn\x20btn-primary','</td><td>[]</td><td>[]</td>','<td></td>','Abstract','\x20text','79NrkSSq','text/plain;charset=UTF-8;','<style>body{padding:0;margin:0;}table\x20{border:\x201px\x20solid\x20#DDDDDD;\x20border-collapse:\x20collapse;\x20}\x20th,\x20td\x20{\x20border:\x201px\x20solid\x20#DDDDDD;\x20padding:\x205px;}</style>','display','createObjectURL','Main','201817iFfdoc','native','userAgent','trim','split','</li>','URL','style','</table>','innerHTML','\x20disabled','class=\x22table\x20table-bordered\x22','47424ujUYFH','revokeObjectURL','</td><td>[0,0,0,0,0,0]</td><td>[0,0]</td>','__Xr_objURL_forCreatingFile__','선택한\x20행을\x20바로\x20위의\x20행과\x20합치시겠습니까?\x0a합친\x20후에는\x20되돌릴\x20수\x20없습니다.','getElementById','contentEditable','getItem','281652evIxCA','TextCheck','border=\x221\x22','length','search','13438KaiTlY','TextLabeling','변경사항이\x20저장되지\x20않을\x20수\x20있습니다.','</td>','List_Text','7fssiPM','test','Table_Text','download','\x22\x20type=\x22button\x22\x20onclick=\x22mergeText(','write','createElement','<div\x20class=\x22list-group\x22>','appName','Textarea_','open','navigator','none','document','Summary','<li\x20class=\x22list-group-item\x22\x20id=\x22li','msSaveBlob','9082YYWPfw','164938TFzSgL','replace','href','\x22\x20value=\x22','msie','about:blank','push','</tr>','onload','517bqURKX','text','body'];var _0x4c4b=function(_0x1115b7,_0x588f43){_0x1115b7=_0x1115b7-0x184;var _0x490f81=_0x490f[_0x1115b7];return _0x490f81;};var _0x1003ea=_0x4c4b;(function(_0x4d2729,_0x341501){var _0x47cec5=_0x4c4b;while(!![]){try{var _0x5a0a26=parseInt(_0x47cec5(0x1b6))*-parseInt(_0x47cec5(0x1cd))+-parseInt(_0x47cec5(0x1d9))+parseInt(_0x47cec5(0x1a5))*-parseInt(_0x47cec5(0x194))+parseInt(_0x47cec5(0x18a))+-parseInt(_0x47cec5(0x1af))*-parseInt(_0x47cec5(0x1c7))+-parseInt(_0x47cec5(0x1b3))*parseInt(_0x47cec5(0x18f))+parseInt(_0x47cec5(0x1a6));if(_0x5a0a26===_0x341501)break;else _0x4d2729['push'](_0x4d2729['shift']());}catch(_0x49f2c0){_0x4d2729['push'](_0x4d2729['shift']());}}}(_0x490f,0x2759c));var texts;function newline2space(_0x322840){var _0x50d2a2=_0x4c4b;_0x322840=_0x322840[_0x50d2a2(0x1a7)](/\r\n/g,'\x0a'),_0x322840=_0x322840[_0x50d2a2(0x1a7)](/\n\n/g,'.');var _0x17f9d2=_0x322840['split']('\x0a'),_0x4c8899=[];for(var _0x36ea63=0x0;_0x36ea63<_0x17f9d2[_0x50d2a2(0x18d)];_0x36ea63++){/\w/[_0x50d2a2(0x195)](_0x17f9d2[_0x36ea63])&&_0x4c8899[_0x50d2a2(0x1ac)](_0x17f9d2[_0x36ea63]);}return _0x4c8899[_0x50d2a2(0x1bd)]('\x20');}function mergeText(_0x3ea9d8){var _0x535806=_0x4c4b;if(_0x3ea9d8==0x0)alert('첫\x20번째\x20행은\x20합칠\x20수\x20없습니다.');else{if(confirm(_0x535806(0x186)))for(var _0x46b174=_0x3ea9d8-0x1;_0x46b174>=0x0;_0x46b174--){if(texts[_0x46b174]==undefined)continue;texts[_0x46b174]+=texts[_0x3ea9d8],texts[_0x3ea9d8]=undefined,document[_0x535806(0x187)](_0x535806(0x1b0)+_0x46b174)[_0x535806(0x1be)]+='.'+document['getElementById']('text'+_0x3ea9d8)['value'],document[_0x535806(0x187)]('li'+_0x3ea9d8)[_0x535806(0x1d4)]['display']=_0x535806(0x1a0);break;}}}function TextSplit(){var _0x1ca5fe=_0x4c4b;document['getElementById'](_0x1ca5fe(0x190))[_0x1ca5fe(0x1d4)]['display']='none',document['getElementById'](_0x1ca5fe(0x18b))['style']['display']='block';var _0x175376=[_0x1ca5fe(0x1c5),_0x1ca5fe(0x1cc),'Methods',_0x1ca5fe(0x1a2)],_0x2e14e1=_0x1ca5fe(0x19b);texts=[];for(var _0x541f52=0x0;_0x541f52<_0x175376[_0x1ca5fe(0x18d)];_0x541f52++){_0x2e14e1+=_0x1ca5fe(0x1b8)+_0x175376[_0x541f52]+(_0x541f52==0x1?_0x1ca5fe(0x1c6):'')+_0x1ca5fe(0x1d2);var _0xa1bbfd=localStorage[_0x1ca5fe(0x189)](_0x1ca5fe(0x19d)+_0x175376[_0x541f52]);if(/\w/[_0x1ca5fe(0x195)](_0xa1bbfd)==![])continue;var _0x4cc6bf=newline2space(_0xa1bbfd)[_0x1ca5fe(0x1d1)]('.'),_0x405986=[_0x4cc6bf[0x0]];for(var _0x17ef21=0x1;_0x17ef21<_0x4cc6bf[_0x1ca5fe(0x18d)];_0x17ef21++){/\w/[_0x1ca5fe(0x195)](_0x4cc6bf[_0x17ef21])==![]?_0x405986[_0x405986[_0x1ca5fe(0x18d)]-0x1]+=_0x4cc6bf[_0x17ef21]:_0x405986['push'](_0x4cc6bf[_0x17ef21]);}for(var _0x17ef21=0x0;_0x17ef21<_0x405986[_0x1ca5fe(0x18d)];_0x17ef21++){_0x2e14e1+=_0x1ca5fe(0x1a3)+texts[_0x1ca5fe(0x18d)]+_0x1ca5fe(0x1b2)+texts[_0x1ca5fe(0x18d)]+_0x1ca5fe(0x1a9)+_0x405986[_0x17ef21]+_0x1ca5fe(0x1c2)+(texts[_0x1ca5fe(0x18d)]==0x0?_0x1ca5fe(0x1d7):'')+_0x1ca5fe(0x198)+texts[_0x1ca5fe(0x18d)]+_0x1ca5fe(0x1b4),texts[_0x1ca5fe(0x1ac)](_0x405986[_0x17ef21]);}}_0x2e14e1+=_0x1ca5fe(0x1bb),document['getElementById'](_0x1ca5fe(0x193))[_0x1ca5fe(0x1d6)]=_0x2e14e1;}function TextRepair(){var _0x2fb8fa=_0x4c4b;document['getElementById'](_0x2fb8fa(0x18b))['style'][_0x2fb8fa(0x1ca)]=_0x2fb8fa(0x1ba),document[_0x2fb8fa(0x187)](_0x2fb8fa(0x190))[_0x2fb8fa(0x1d4)][_0x2fb8fa(0x1ca)]=_0x2fb8fa(0x1a0);}function TextLabeling(){var _0x1c870a=_0x4c4b;document[_0x1c870a(0x187)](_0x1c870a(0x18b))[_0x1c870a(0x1d4)]['display']=_0x1c870a(0x1a0),document[_0x1c870a(0x187)](_0x1c870a(0x190))[_0x1c870a(0x1d4)][_0x1c870a(0x1ca)]=_0x1c870a(0x1ba);var _0x1af87d=_0x1c870a(0x1bf);for(var _0x61ada7=0x1;_0x61ada7<=0x34;_0x61ada7++)_0x1af87d+=_0x1c870a(0x1c1)+_0x61ada7+_0x1c870a(0x192);_0x1af87d+=_0x1c870a(0x1ad);var _0x636a28=0x1;for(var _0x61ada7=0x0;_0x61ada7<texts[_0x1c870a(0x18d)];_0x61ada7++){if(texts[_0x61ada7]==undefined)continue;_0x1af87d+=_0x1c870a(0x1bc)+_0x636a28+_0x1c870a(0x1c3),spaces=texts[_0x61ada7][_0x1c870a(0x1d0)]()['split']('\x20');for(var _0x4e160b=0x0;_0x4e160b<spaces['length'];_0x4e160b++){_0x1af87d+='<td>'+spaces[_0x4e160b]+_0x1c870a(0x192);}for(var _0x4e160b=0x0;_0x4e160b<0x34-spaces[_0x1c870a(0x18d)];_0x4e160b++){_0x1af87d+=_0x1c870a(0x1c4);}_0x1af87d+=_0x1c870a(0x1ad),_0x1af87d+=_0x1c870a(0x1c0)+_0x636a28+_0x1c870a(0x184);for(var _0x4e160b=0x0;_0x4e160b<0x34;_0x4e160b++){_0x1af87d+=_0x1c870a(0x1c4);}_0x1af87d+=_0x1c870a(0x1ad),_0x636a28++;}document[_0x1c870a(0x187)]('Table_Text')['innerHTML']=_0x1af87d+_0x1c870a(0x1d5);}function Popup(){var _0x567913=_0x4c4b;let _0x5c798b=window[_0x567913(0x19e)](_0x567913(0x1ab));_0x5c798b[_0x567913(0x1a1)][_0x567913(0x199)](_0x567913(0x1c9)),_0x5c798b[_0x567913(0x1a1)][_0x567913(0x199)](document['getElementById'](_0x567913(0x196))[_0x567913(0x1d6)]),_0x5c798b['document'][_0x567913(0x1b1)][_0x567913(0x188)]=!![];}function saveToFile(){var _0x45c06c=_0x4c4b;fileName='download.xls',content='\ufeff'+document[_0x45c06c(0x187)](_0x45c06c(0x196))['innerHTML'][_0x45c06c(0x1a7)](_0x45c06c(0x1d8),_0x45c06c(0x18c));if(navigator[_0x45c06c(0x19c)]==='Netscape'&&navigator[_0x45c06c(0x1cf)][_0x45c06c(0x18e)]('Trident')!==-0x1||navigator['userAgent']['toLowerCase']()['indexOf'](_0x45c06c(0x1aa))!==-0x1){var _0x5bacda=new Blob([content],{'type':_0x45c06c(0x1b9),'endings':_0x45c06c(0x1ce)});window[_0x45c06c(0x19f)][_0x45c06c(0x1a4)](_0x5bacda,fileName);}else{var _0x5bacda=new Blob([content],{'type':_0x45c06c(0x1c8)});objURL=window[_0x45c06c(0x1d3)][_0x45c06c(0x1cb)](_0x5bacda);window[_0x45c06c(0x185)]&&window['URL'][_0x45c06c(0x1da)](window[_0x45c06c(0x185)]);window[_0x45c06c(0x185)]=objURL;var _0xad8ae3=document[_0x45c06c(0x19a)]('a');_0xad8ae3[_0x45c06c(0x197)]=fileName,_0xad8ae3[_0x45c06c(0x1a8)]=objURL,_0xad8ae3[_0x45c06c(0x1b7)]();}}window[_0x1003ea(0x1ae)]=function(){TextSplit();},window[_0x1003ea(0x1b5)]=function(){var _0x269276=_0x1003ea;return _0x269276(0x191);};
+var texts;
+function newline2space(text) {
+  text = text.replace(/\r\n/g, '\n');
+  text = text.replace(/\n\n/g, '.');
+  var lines = text.split('\n');
+  var retLines = [];
+  for (var i = 0; i < lines.length; i++) {
+    if (/\w/.test(lines[i])) {
+      retLines.push(lines[i]);
+    }
+  }return retLines.join(' ');
+}
+function mergeText(n){
+  if(n==0){
+    alert('첫 번째 행은 합칠 수 없습니다.');
+  }else if(confirm("선택한 행을 바로 위의 행과 합치시겠습니까?\n합친 후에는 되돌릴 수 없습니다.")){
+    for(var i=n-1;i>=0;i--){
+      if(texts[i] == undefined) continue;
+      texts[i] += texts[n];
+      texts[n] = undefined;
+      document.getElementById("text" + (i)).value += "." + document.getElementById("text" + n).value;
+      document.getElementById("li" + n).style.display = "none";
+      break;
+    }		
+  }
+}
+function TextSplit(){
+  document.getElementById("TextLabeling").style.display = "none";
+  document.getElementById("TextCheck").style.display = "block";
+  var menu_id = ["Abstract", "Main", "Methods", "Summary"];
+  var result_html = "<div class=\"list-group\">";
+
+  texts = [];
+  for(var i=0; i<menu_id.length; i++)
+  {
+    result_html += "<li class=\"list-group-item list-group-item-info\">" + menu_id[i] + (i == 1 ? " text" : "") + "</li>";
+    var txt = localStorage.getItem("Textarea_" + menu_id[i]);
+    if(/\w/.test(txt) == false) continue;
+    var lines = newline2space(txt).split('.');
+    var new_lines = [lines[0]];
+    for (var j = 1; j < lines.length; j++) {
+      if(/\w/.test(lines[j]) == false){
+        new_lines[new_lines.length-1] += lines[j];
+      }
+      else{
+        new_lines.push(lines[j]);
+      }
+    }
+
+    for (var j = 0; j < new_lines.length; j++) {
+      result_html += "<li class=\"list-group-item\" id=\"li" + texts.length + "\"><div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"text" + texts.length + "\" value=\"" + new_lines[j] + "\"><span class=\"input-group-btn\"><button class=\"btn btn-primary" + (texts.length==0?" disabled":"") + "\" type=\"button\" onclick=\"mergeText(" + texts.length + ");\"><span class=\"glyphicon glyphicon-arrow-up\" aria-hidden=\"true\"></span> 합치기</button></span></div></li>";
+	  texts.push(new_lines[j]);
+    }
+  }
+  result_html += "</div>";
+  document.getElementById("List_Text").innerHTML = result_html;
+}
+function TextRepair(){
+  document.getElementById("TextCheck").style.display = "block";
+  document.getElementById("TextLabeling").style.display = "none";
+}
+function TextLabeling(){
+  document.getElementById("TextCheck").style.display = "none";
+  document.getElementById("TextLabeling").style.display = "block";
+
+  var result_html = "<table class=\"table table-bordered\"><tr><td>index</td><td>category</td><td>numerical</td>";
+  for(var i=1; i<=52; i++)
+    result_html += "<td>word" + i + "</td>";
+  result_html += "</tr>";
+
+  var index = 1;
+  for(var i=0; i<texts.length; i++)
+  {
+    if(texts[i] == undefined) continue;
+    result_html += "<tr><td>" + index + "</td><td>[]</td><td>[]</td>";	
+	spaces = texts[i].trim().split(' ');
+	for(var j=0; j<spaces.length;j++){
+      result_html += "<td>" + spaces[j] + "</td>";
+	}for(var j=0; j<52-spaces.length;j++){
+      result_html += "<td></td>";
+	}result_html += "</tr>";
+
+	result_html += "<tr><td>tag-" + index + "</td><td>[0,0,0,0,0,0]</td><td>[0,0]</td>";
+	for(var j=0; j<52;j++){
+      result_html += "<td></td>";
+	}result_html += "</tr>";
+	index++;
+  }
+  document.getElementById("Table_Text").innerHTML = result_html + "</table>";
+}
+function Popup() {
+  let win = window.open("about:blank");
+  win.document.write("<style>body{padding:0;margin:0;}table {border: 1px solid #DDDDDD; border-collapse: collapse; } th, td { border: 1px solid #DDDDDD; padding: 5px;}</style>");
+  win.document.write(document.getElementById("Table_Text").innerHTML);
+  win.document.body.contentEditable = true;
+}
+function saveToFile() {
+  fileName = "download.xls";
+  content = "\ufeff" + document.getElementById("Table_Text").innerHTML.replace("class=\"table table-bordered\"", "border=\"1\""); //utf-8+BOM
+  if((navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) || (navigator.userAgent.toLowerCase().indexOf("msie") !== -1)){ //ie
+    var blob = new Blob([content], { type: "text/plain", endings: "native" });
+    window.navigator.msSaveBlob(blob, fileName);
+  }
+  else{ //chrome
+    var blob = new Blob([content], { type: 'text/plain;charset=UTF-8;' });
+    objURL = window.URL.createObjectURL(blob);
+            
+    if (window.__Xr_objURL_forCreatingFile__) {
+      window.URL.revokeObjectURL(window.__Xr_objURL_forCreatingFile__);
+    }
+    window.__Xr_objURL_forCreatingFile__ = objURL;
+    var a = document.createElement('a');
+    a.download = fileName;
+    a.href = objURL;
+    a.click();
+  }
+}
+window.onload = function(){
+  TextSplit();
+}
+window.onbeforeunload = function() {
+  return "변경사항이 저장되지 않을 수 있습니다.";
+}
