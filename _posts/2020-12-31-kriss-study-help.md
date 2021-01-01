@@ -12,11 +12,11 @@ author: "Dong Hun Cho"
 ## 소개
 * 입력된 본문 내용을 통해 문단, 단어 라벨링을 자동화 합니다.
 
-<img src="https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/4.png" />
+![문단 라벨링](https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/4.png)
 
-<img src="https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/6.png" />
+![문장 수정](https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/6.png)
 
-<img src="https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/7.png" />
+![단어 라벨링](https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/7.png)
 
 변환 후 결과를 반드시 재확인 해주세요.
 
