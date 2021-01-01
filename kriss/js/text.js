@@ -18,12 +18,13 @@ function mergeText(n){
   }else if(confirm("선택한 행을 바로 위의 행과 합치시겠습니까?\n합친 후에는 되돌릴 수 없습니다.")){
     for(var i=n-1;i>=0;i--){
       if(texts[i] == undefined) continue;
-      texts[i] += texts[n];
+      texts[i] += "." + texts[n];
       texts[n] = undefined;
       document.getElementById("text" + (i)).value += "." + document.getElementById("text" + n).value;
+	  document.getElementById("text" + n).value = "";
       document.getElementById("li" + n).style.display = "none";
       break;
-    }		
+    }
   }
 }
 function TextSplit(){
@@ -62,6 +63,7 @@ function TextRepair(){
   document.getElementById("TextLabeling").style.display = "none";
 }
 function TextLabeling(){
+  //~~~~text.value값으로 수정
   document.getElementById("TextCheck").style.display = "none";
   document.getElementById("TextLabeling").style.display = "block";
 
@@ -73,17 +75,49 @@ function TextLabeling(){
   var index = 1;
   for(var i=0; i<texts.length; i++)
   {
-    if(texts[i] == undefined) continue;
-    result_html += "<tr><td>" + index + "</td><td>[]</td><td>[]</td>";	
-	spaces = texts[i].trim().split(' ');
+	texts[i] = document.getElementById("text" + i).value;
+    if(texts[i] == undefined || /\w/.test(texts[i]) == false) continue;
+    result_html += "<tr><td>" + index + "</td><td>[]</td><td>[]</td>";
+
+	var spaces = texts[i].trim().split(' ');
+	var tags = [];
+	var category = [0, 0, 0, 0, 0, 0];
+	var m_cnt = 1, d_cnt = 1;
 	for(var j=0; j<spaces.length;j++){
       result_html += "<td>" + spaces[j] + "</td>";
+	  var tag = WordLabeling(spaces[j]);
+	  if(tag["tag"] == "m"){
+		tag["tag"] += m_cnt;
+		m_cnt++;
+	  }if(tag["tag"] == "d"){
+		tag["tag"] += d_cnt;
+		d_cnt++;
+	  }
+	  tags.push(tag);
+
+	  if(tag["tag"] == "mc"){
+		category[3]++;
+	  }else if(tag["tag"][0] == "m"){
+		category[0]++;
+	  }else if(tag["tag"][0] == "d"){
+		category[1]++;
+	  }else if(tag["tag"][0] == "p"){
+		category[2]++;
+	  }else if(tag["tag"] == "e"){
+		category[4]++;
+	  }else if(tag["tag"] == "s"){
+		category[5]++;
+	  }
 	}for(var j=0; j<52-spaces.length;j++){
       result_html += "<td></td>";
 	}result_html += "</tr>";
 
-	result_html += "<tr><td>tag-" + index + "</td><td>[0,0,0,0,0,0]</td><td>[0,0]</td>";
-	for(var j=0; j<52;j++){
+	result_html += "<tr><td>tag-" + index + "</td><td>[" + category[0] + "," + category[1] + "," + category[2] + "," + category[3] + "," + category[4] + "," + category[5] + "]</td><td>[]</td>";
+	for(var j=0; j<spaces.length;j++){
+	  var tag = tags[j];
+      result_html += "<td style=\"color:" + (tag["level"] == 1 ? "black" : (tag["level"] == 2 ? "blue" : "red")) + ";\">" + tag["tag"] + "</td>";
+	  //m, d, p, mc, e, s
+	}for(var j=0; j<52-spaces.length;j++){
       result_html += "<td></td>";
 	}result_html += "</tr>";
 	index++;
@@ -119,7 +153,4 @@ function saveToFile() {
 }
 window.onload = function(){
   TextSplit();
-}
-window.onbeforeunload = function() {
-  return "변경사항이 저장되지 않을 수 있습니다.";
 }

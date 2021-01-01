@@ -30,7 +30,7 @@ function ParagraphLabeling(){
 }
 function saveToFile() {
   fileName = "download.xls";
-  content = "\ufeff" + document.getElementById("Table_Paragraph").innerHTML; //utf-8+BOM
+  content = "\ufeff" + document.getElementById("Table_Paragraph").innerHTML.replace("class=\"table table-bordered\"", "border=\"1\""); //utf-8+BOM
   if((navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) || (navigator.userAgent.toLowerCase().indexOf("msie") !== -1)){ //ie
     var blob = new Blob([content], { type: "text/plain", endings: "native" });
     window.navigator.msSaveBlob(blob, fileName);
