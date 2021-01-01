@@ -23,19 +23,6 @@ author: "Dong Hun Cho"
 <img src="https://raw.githubusercontent.com/johun204/kisti-study-help/main/example.gif" />
 
 
-변환 후 초록색 표시 영역의 띄어쓰기를 반드시 재확인 해주세요.
-
-
-## 링크
-* [https://github.com/johun204/kisti-study-help](https://github.com/johun204/kisti-study-help) 
-
- 폴더 째로 압축 풀어 Release 폴더의 **"논문분석_도우미.exe"** 파일을 실행해 주세요.
-
-
-## 오류가 발생할 경우
-[.Net Framework](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-kor) 최신 버전을 설치하시거나, **백신에서 예외 프로그램에 추가**를 해주시면 됩니다.
-
-
 ## Contribution
   * Created by 조동훈
   * Supported by Korea Institute of Science and Technology Information(KISTI)
