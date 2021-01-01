@@ -8,7 +8,7 @@
     <link href="./css/bootstrap.min.css" rel="stylesheet">
     <link href="./css/ie10-viewport-bug-workaround.css" rel="stylesheet">
     <link href="./css/main.css" rel="stylesheet">
-	<script src="./js/word.js"></script>
+    <script src="./js/word.js"></script>
     <script src="./js/text.js"></script>
   </head>
   <body>
@@ -42,29 +42,28 @@
       </div>
     </nav>
     <div class="container">
-
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron" id="TextCheck">
         <h2>문장 오류 점검</h1>
         <p>단어 라벨링 전, 마지막으로 오류를 점검해보세요. 
-		  <br>문장을 직접 수정하실 수 있으며, 합치기 버튼을 클릭해 바로 위의 문장과 합칠 수 있습니다.
-		  <br>수정 완료 후 <button type="button" class="btn btn-primary" onclick="TextLabeling();"><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> 단어&문장 라벨링</button> 버튼을 눌러주세요.
-		</p>
-		<div id="List_Text" class="Cell_Div"></div>
-	  </div>
-	  <div class="jumbotron" id="TextLabeling">
+          <br>문장을 직접 수정하실 수 있으며, 합치기 버튼을 클릭해 바로 위의 문장과 합칠 수 있습니다.
+          <br>수정 완료 후 <button type="button" class="btn btn-primary" onclick="TextLabeling();"><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> 단어&문장 라벨링</button> 버튼을 눌러주세요.
+        </p>
+        <div id="List_Text" class="Cell_Div"></div>
+      </div>
+      <div class="jumbotron" id="TextLabeling">
         <h2>단어&문장 라벨링</h1>
         <p>입력한 본문의 내용을 단어&문장 라벨링 형식에 맞춰 변환합니다. 최종 변환 결과는 직접 확인하셔야합니다.
-		 <br> <span style="color:black">검정색 : 높은 정확도</span>, <span style="color:blue">파랑색 : 보통 정확도</span>, <span style="color:red">빨강색 : 낮은 정확도</span>
-		 <br>
-		 <button type="button" class="btn btn-primary" onclick="TextRepair()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> 문장 다시 수정하기</button>
-		 <button type="button" class="btn btn-success" onclick="saveToFile();"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> 엑셀로 다운로드</button>
-		 <button type="button" class="btn btn-warning" onclick="Popup();"><span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span> 새 창으로 보기</button>
-		</p>
-		<div id="Table_Text" class="Cell_Div" contenteditable>
-		  <table class="table table-bordered"><tr><td>index</td><td>category</td><td>numerical</td></tr></table>
-		</div>
-	  </div>
+          <br> <span style="color:black">검정색 : 높은 정확도</span>, <span style="color:blue">파랑색 : 보통 정확도</span>, <span style="color:red">빨강색 : 낮은 정확도</span>
+          <br>
+          <button type="button" class="btn btn-primary" onclick="TextRepair()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> 문장 다시 수정하기</button>
+          <button type="button" class="btn btn-success" onclick="saveToFile();"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> 엑셀로 다운로드</button>
+          <button type="button" class="btn btn-warning" onclick="Popup();"><span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span> 새 창으로 보기</button>
+        </p>
+        <div id="Table_Text" class="Cell_Div" contenteditable>
+          <table class="table table-bordered"><tr><td>index</td><td>category</td><td>numerical</td></tr></table>
+        </div>
+      </div>
     </div> <!-- /container -->
 
     <!-- Bootstrap core JavaScript
