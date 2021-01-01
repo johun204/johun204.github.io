@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "KRISS 데이터 구축 도구"
+title: "KRISS 데이터 구축 자동화 도구"
 author: "Dong Hun Cho"
 ---
 
