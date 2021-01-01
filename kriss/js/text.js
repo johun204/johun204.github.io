@@ -114,7 +114,7 @@ function TextLabeling(){
     result_html += "<tr><td>tag-" + index + "</td><td>[" + category[0] + "," + category[1] + "," + category[2] + "," + category[3] + "," + category[4] + "," + category[5] + "]</td><td>[]</td>";
     for(var j=0; j<spaces.length;j++){
       var tag = tags[j];
-      result_html += "<td style=\"color:" + (tag["level"] == 1 ? "black" : (tag["level"] == 2 ? "blue" : "red")) + ";\">" + tag["tag"] + "</td>";
+      result_html += "<td style=\"color:" + (tag["level"] == 1 ? "#000000" : (tag["level"] == 2 ? "#0000DD" : "#DD0000")) + ";\">" + tag["tag"] + "</td>";
     }for(var j=0; j<52-spaces.length;j++){
       result_html += "<td></td>";
     }result_html += "</tr>";
