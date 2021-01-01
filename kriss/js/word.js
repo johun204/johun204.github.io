@@ -14,12 +14,12 @@ function isMaterial(txt){
       if(txt.substring(index, index + chemi1[i].length) == chemi1[i]){
         index += chemi1[i].length;
         flag = false;
-		level = 1;
+        level = 1;
         break;
       }
     }
-	if(flag == false) continue;
-	for(var i=0;i<chemi2.length;i++){
+    if(flag == false) continue;
+    for(var i=0;i<chemi2.length;i++){
       if(index + chemi2[i].length > txt.length) continue;
       if(txt.substring(index, index + chemi2[i].length) == chemi2[i]){
         index += chemi2[i].length;

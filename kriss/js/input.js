@@ -29,12 +29,12 @@ function AutoSave(obj){
 }
 function AllClear(){
   if(confirm("모든 문단의 내용을 전부 지우시겠습니까?\n지운 후에는 되돌릴 수 없습니다.")){
-	var menu_id = ["Abstract", "Introduction", "Main", "Methods", "Summary", "Captions"];
-	for(var i=0; i<menu_id.length; i++)
+    var menu_id = ["Abstract", "Introduction", "Main", "Methods", "Summary", "Captions"];
+    for(var i=0; i<menu_id.length; i++)
     {
       var obj = document.getElementById("Textarea_" + menu_id[i]);
-	  obj.value = "";
-	  localStorage.removeItem("Textarea_" + menu_id[i]);
+      obj.value = "";
+      localStorage.removeItem("Textarea_" + menu_id[i]);
     }
   }
 }
@@ -46,7 +46,7 @@ function saveToFile() {
   {
     if(i > 0) content += "\n\n==============================================================\n\n";
     var txt = localStorage.getItem("Textarea_" + menu_id[i])
-	if(txt != undefined) content += txt;
+    if(txt != undefined) content += txt;
   }
   if( (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) || (navigator.userAgent.toLowerCase().indexOf("msie") !== -1) ){ //ie
     var blob = new Blob([content], { type: "text/plain", endings: "native" });
