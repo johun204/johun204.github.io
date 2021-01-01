@@ -1,25 +1,22 @@
 ---
 layout: post
-title: "KRISS 데이터 구축 도우미"
+title: "Video stabilization"
 author: "Dong Hun Cho"
 ---
 
-You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+Video stabilization using Harris Corner Detection.
 
-To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+## Overview
+<img src='https://github.com/johun204/Video-stabilization/raw/main/media/image1.gif'>
 
-Jekyll also offers powerful support for code snippets: like these
+ * After detecting corners using **Harris Corner Detection** in the previous frame and current frame,
+ Move the stabilization area by comparing similarity using **Histogram of Oriented Gradient (HOG)**.
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
+ * Improved **Histogram of Oriented Gradient (HOG)** calculation speed using **Integral Image**.
 
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
+## Result
+<img src='https://github.com/johun204/Video-stabilization/raw/main/media/image2.gif'>
 
-[jekyll-docs]: https://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+## Requirements
+
+* OpenCV >= 3.4
