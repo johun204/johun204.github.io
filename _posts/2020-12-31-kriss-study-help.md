@@ -4,22 +4,16 @@ title: "KRISS 데이터 구축 도우미"
 author: "Dong Hun Cho"
 ---
 
-You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+스마트IT 부서 데이터 구축 과정 일부를 자동화 하는 도구입니다.
 
-To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+## 소개
+* 입력된 본문 내용을 통해 문단, 단어 라벨링을 자동화 합니다.
 
-Jekyll also offers powerful support for code snippets: like these
+<img src="https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/4.png" />
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
+<img src="https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/6.png" />
 
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
+<img src="https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/7.png" />
 
-[jekyll-docs]: https://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+변환 후 결과를 반드시 재확인 해주세요.
+
