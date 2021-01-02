@@ -13,30 +13,6 @@ body
   max-height:600px;
   overflow:auto;
 }
-#txt_balloon
-{
-  position: absolute;
-  background: #5677f4;
-  color: #ffffff;
-  padding: 13px;
-  border-radius: 20rem;
-  font-size: 11pt;
-  box-shadow: 2px 2px 3px #d1d1d1;
-  z-index: 9999;
-}
-#txt_balloon:before{
-  top: 100%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-  border-color: rgba(56, 77, 157, 0);
-  border-top-color: #5677f4;
-  border-width: 11px;
-  margin-left: 1px;
-}
 footer
 {
   margin-bottom:10px;
