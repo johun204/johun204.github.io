@@ -51,12 +51,15 @@ function TextSplit(){
     }
 
     for (var j = 0; j < new_lines.length; j++) {
-      result_html += "<li class=\"list-group-item\" id=\"li" + texts.length + "\"><div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"text" + texts.length + "\" value=\"" + new_lines[j] + "\"><span class=\"input-group-btn\"><button class=\"btn btn-primary" + (texts.length==0?" disabled":"") + "\" type=\"button\" onclick=\"mergeText(" + texts.length + ");\"><span class=\"glyphicon glyphicon-arrow-up\" aria-hidden=\"true\"></span> 합치기</button></span></div></li>";
+      result_html += "<li class=\"list-group-item\" id=\"li" + texts.length + "\"><div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"text" + texts.length + "\"><span class=\"input-group-btn\"><button class=\"btn btn-primary" + (texts.length==0?" disabled":"") + "\" type=\"button\" onclick=\"mergeText(" + texts.length + ");\"><span class=\"glyphicon glyphicon-arrow-up\" aria-hidden=\"true\"></span> 합치기</button></span></div></li>";
       texts.push(new_lines[j]);
     }
   }
   result_html += "</div>";
   document.getElementById("List_Text").innerHTML = result_html;
+  for (var i = 0; i < texts.length; i++) {
+    var obj = document.getElementById("text" + i).value = texts[i];
+  }
 }
 function TextRepair(){
   document.getElementById("TextCheck").style.display = "block";

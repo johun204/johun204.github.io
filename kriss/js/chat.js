@@ -23,7 +23,6 @@ function ChatBtnClick(obj)
 function ChatOnload()
 {
   var chat_state = localStorage.getItem("chat_state");
-  console.log(chat_state);
   if(chat_state == "1"){
     document.getElementById("chat_room").style.display = "block";
     document.getElementById("chat_btn").style.bottom = document.getElementById("chat_room").offsetHeight + "px";
