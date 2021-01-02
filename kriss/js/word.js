@@ -70,7 +70,6 @@ function WordLabeling(txt){
 
   if(isNumeric(txt)) return {"tag":"n", "level":1, "similar":txt};
   if(isUnit(txt)) return {"tag":"u", "level":1, "similar":txt};
-  
 
   for(var i=0;i<txt.length;i++){
     if(/\w/.test(txt[i]) == false) continue;
@@ -105,7 +104,6 @@ function WordLabeling(txt){
   if(isDevice(txt)) return {"tag":"d", "level":1, "similar":txt};
 
   var transform = ["ical", "ies", "ion", "ism", "ity", "ing", "yed", "or", "ors", "ly", "ed", "es", "e", "s", "y", "d"];
-
   var tr_txt = [txt];
 
   for(var i=0;i<transform.length;i++){
