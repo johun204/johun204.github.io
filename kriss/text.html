@@ -10,6 +10,7 @@
     <link href="./css/main.css" rel="stylesheet">
     <script src="./js/word.js"></script>
     <script src="./js/text.js"></script>
+    <script src="./js/chat.js"></script>
   </head>
   <body>
     <!-- Fixed navbar -->
@@ -41,6 +42,11 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
+    <div id="chat_room">
+      <script type="text/javascript"> var uharoom = "johun204.github.io"; </script>
+      <script id="UHACHATSCRIPT" type="text/javascript" charset="utf-8" src="https://chat.uha.kr/chat.js"></script>
+    </div>
+    <div id="chat_btn"><button class="btn btn-default btn-sm" onclick="ChatBtnClick(this);">채팅 열기</button></div>
     <div class="container">
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron" id="TextCheck">
@@ -54,7 +60,7 @@
       <div class="jumbotron" id="TextLabeling">
         <h2>단어&문장 라벨링</h1>
         <p>입력한 본문의 내용을 단어&문장 라벨링 형식에 맞춰 변환합니다. 최종 변환 결과는 직접 확인하셔야합니다.
-          <br> <span style="color:black">검정색 : 높은 정확도</span>, <span style="color:#0000DD">파랑색 : 보통 정확도</span>, <span style="color:#DD0000">빨강색 : 낮은 정확도</span>
+          <br> <span style="color:black">높은 정확도</span>, <span style="color:#0000DD">보통 정확도</span>, <span style="color:#DD0000">낮은 정확도</span>
           <br>
           <button type="button" class="btn btn-primary" onclick="TextRepair()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> 문장 다시 수정하기</button>
           <button type="button" class="btn btn-success" onclick="saveToFile();"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> 엑셀로 다운로드</button>
