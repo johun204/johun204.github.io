@@ -23,17 +23,19 @@ footer
 }
 #chat_room
 {
-	position:fixed;
-	bottom:0px;
-	right:30px;
-	width:50%;
-	height:0px;
-	max-width:300px;
-	max-height:500px;
+  z-index:9999;
+  position:fixed;
+  bottom:0px;
+  right:30px;
+  width:50%;
+  height:0px;
+  max-width:300px;
+  max-height:500px;
 }
 #chat_btn
 {
-	position:fixed;
-	bottom:0px;
-	right:30px;
+  z-index:9999;
+  position:fixed;
+  bottom:0px;
+  right:30px;
 }
