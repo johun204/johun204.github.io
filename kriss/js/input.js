@@ -2,7 +2,7 @@ function LoadText(n){
   if(n == undefined) n = 0;
   localStorage.setItem("current_menu", n);
   var menu_id = ["Abstract", "Introduction", "Main", "Methods", "Summary", "Captions"];
-  var menu_desc = ["논문의 중심 내용에 대한 전체적인 요약", "논문과 관련된 배경과 논문의 동기 및 결과를 간략하게 소개", "논문의 자세한 내용과 결과들을 기술", "논문의 실험 방법", "논문의 주요 내용에 대한 결과 및 요약", "논문 image에 대한 개략적인 설명"]
+  var menu_desc = ["논문의 중심 내용에 대한 전체적인 요약<br>제목 밑 문단, Abstract, Introduction 맨 첫 문단", "논문과 관련된 배경과 논문의 동기 및 결과를 간략하게 소개<br>Introduction, Main, Concepts, Background, Overview, Related work, Abstract 다음 첫 문단", "논문의 자세한 내용과 결과들을 기술<br>Results, Discussion, Analysis, Modeling, Main~summary 사이", "논문의 실험 방법<br>Experimental, Method, Design, Setup", "논문의 주요 내용에 대한 결과 및 요약<br>Conclusions, Summary, Outlook, Future Work", "논문 image에 대한 개략적인 설명"]
   document.getElementById("Menu_Title").innerHTML = menu_id[n] + (n == 2 ? " text" : "");
   document.getElementById("Menu_Desc").innerHTML = menu_desc[n];
 
