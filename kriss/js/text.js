@@ -39,7 +39,7 @@ function TextSplit(){
     result_html += "<li class=\"list-group-item list-group-item-info\">" + menu_id[i] + (i == 1 ? " text" : "") + "</li>";
     var txt = localStorage.getItem("Textarea_" + menu_id[i]);
     if(/\w/.test(txt) == false || txt == undefined) continue;
-    var lines = newline2space(txt).split('.');
+    var lines = newline2space(txt).split("?").join(".").split(".");
     var new_lines = [lines[0]];
     for (var j = 1; j < lines.length; j++) {
       if(/\w/.test(lines[j]) == false){
