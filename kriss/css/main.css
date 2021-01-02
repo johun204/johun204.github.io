@@ -28,7 +28,8 @@ footer
   bottom:0px;
   right:30px;
   width:50%;
-  height:0px;
+  height:50%;
+  display:none;
   max-width:300px;
   max-height:500px;
 }
