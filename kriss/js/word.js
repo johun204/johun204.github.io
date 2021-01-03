@@ -46,7 +46,7 @@ function isNumeric(txt){
 }
 function isUnit(txt){
   if(/\w/.test(txt) == false) return false;
-  var unit = ["°C", "Ω", "g", "ml", "mL", "nm", "^", "+", "-", "*", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ","];
+  var unit = ["℃", "Å", "Δ", "τ", "±", "≒", "°C", "Ω", "g", "ml", "mL", "nm", "^", "+", "-", "*", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ","];
   var index = 0;
   while(index < txt.length){
     var flag = true;
@@ -122,5 +122,7 @@ function WordLabeling(txt){
       }
     }
   }
+
+  if(isNumeric(txt)) return {"tag":"n", "level":2, "similar":txt};
   return {"tag":"o", "level":3, "similar":txt};
 }
