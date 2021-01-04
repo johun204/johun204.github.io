@@ -58,7 +58,7 @@ function isNumeric(txt){
 }
 function isUnit(txt){
   if(/\w/.test(txt) == false) return false;
-  var unit1 = ["℃", "Å", "Δ", "τ", "±", "≒", "°C", "Ω", "V", "W", "Gb", "GB", "ml", "mL", "nm", "μm", "mm", "μ", "%", "^", "_", "+", "-", "*", "/"];
+  var unit1 = ["℃", "Å", "Δ", "τ", "±", "≒", "°C", "Ω", "Θ", "V", "W", "Gb", "GB", "ml", "mL", "nm", "μm", "mm", "°", "μ", "%", "^", "_", "+", "-", "*", "/"];
   var unit2 = ["g", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ","];
   var index = 0, level = 0;
   while(index < txt.length){
@@ -68,12 +68,12 @@ function isUnit(txt){
       if(txt.substring(index, index + unit1[i].length) == unit1[i]){
         index += unit1[i].length;
         flag = false;
-		level = 1;
+        level = 1;
         break;
       }
     }
     if(flag == false) continue;
-	for(var i=0;i<unit2.length;i++){
+    for(var i=0;i<unit2.length;i++){
       if(index + unit2[i].length > txt.length) continue;
       if(txt.substring(index, index + unit2[i].length) == unit2[i]){
         index += unit2[i].length;
@@ -81,7 +81,7 @@ function isUnit(txt){
         break;
       }
     }
-	if(flag) return 0;
+    if(flag) return 0;
   }return level;
 }
 function WordLabeling(txt){

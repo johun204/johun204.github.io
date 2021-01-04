@@ -44,63 +44,68 @@
     <div class="container">
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
+        <del> <script>alert("현재 개발중인 기능입니다.");</script>
         <h2>그래프 도구</h1>
         <p>
+          그래프 이미지를 불러온 후 X축 최대/최소값, Y축의 최대/최소값을 클릭해주세요.
+          <br>범위를 입력하시면 원하는 지점의 좌표를 확인할 수 있습니다.
+          <br>
+          <canvas style="border:1px solid #DDDDDD; background: #FFFFFF;" id="graph_canvas" width="600" height="500"></canvas>
+          <input type="file" onchange="handleImageView(this.files)">
           <table class="table table-bordered table-condensed">
             <thead>
-              <tr><th>#</th><th>범위</th><th>#</th></tr>
+              <tr><th>#</th><th>좌표</th><th>범위</th><th>Log Scale</th></tr>
             </thead>
             <tbody>
               <tr>
-                <th>X축</th>
+                <th><p>X축</p></th>
                 <td>
-                  <p class="col-xs-1 form-control-static">10^</p>
-                  <div class="col-xs-2">
-                    <input type="number" class="form-control" placeholder="승수" value="0">
-                  </div>
-                  <p class="col-xs-1 form-control-static">*</p>
-                  <div class="col-xs-2">
-                    <input type="number" class="form-control" placeholder="(nm)">
+                  <p class="form-control-static">100,100</p>
+                </td>
+                <td>
+                  <div class="form-inline">
+                    <p class="form-control-static">[</p>
+                    <input type="number" class="form-control" placeholder="최소값">
+                    <p class="form-control-static">,</p>
+                    <input type="number" class="form-control" placeholder="최대값">
+                    <p class="form-control-static">]</p>
                   </div>
                 </td>
                 <td>
-                  <p class="col-xs-1 form-control-static">10^</p>
-                  <div class="col-xs-2">
-                    <input type="number" class="form-control" placeholder="승수" value="0">
-                  </div>
-                  <p class="col-xs-1 form-control-static">*</p>
-                  <div class="col-xs-2">
-                    <input type="number" class="form-control" placeholder="(nm)">
-                  </div>
-                </td>
-                <td>
-                  <label class="radio-inline">
-                    <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1"> Linear Scale
-                  </label>
-                  <label class="radio-inline">
-                    <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2"> Log Scale
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="inlineRadio1" value="option1"> Log Scale
                   </label>
                 </td>
               </tr>
               <tr>
-                <th>Y축</th>
-                <td>~</td>
-                <td>~</td>
+                <th><p>Y축</p></th>
+                <td>
+                  <p class="form-control-static">100,100</p>
+                </td>
+                <td>
+                  <div class="form-inline">
+                    <p class="form-control-static">[</p>
+                    <input type="number" class="form-control" placeholder="최소값">
+                    <p class="form-control-static">,</p>
+                    <input type="number" class="form-control" placeholder="최대값">
+                    <p class="form-control-static">]</p>
+                  </div>
+                </td>
+                <td>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="inlineRadio1" value="option1"> Log Scale
+                  </label>
+                </td>
               </tr>
             </tbody>
           </table>
-          <div class="input-group input-group-sm">
-            <span class="input-group-addon"><input type="text" class="form-control" aria-label="Amount (to the nearest dollar)"  aria-describedby="sizing-addon3"></span>
-            <span class="input-group-addon">~</span>
-            <span class="input-group-addon"><input type="text" class="form-control" aria-label="Amount (to the nearest dollar)" aria-describedby="sizing-addon3"></span>
-          </div>
         </p>
-        <canvas style="border:1px solid grey;" id="my_canvas" width="300" height="300"></canvas>
+        </del>
       </div>
     </div> <!-- /container -->
     <footer class="footer">
       <div class="text-center mt-5 mb-0">
-        The MIT License<br>	
+        The MIT License<br>    
         Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.
       </div>
     </footer>

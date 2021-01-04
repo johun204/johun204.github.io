@@ -8,6 +8,7 @@
     <link href="./css/bootstrap.min.css" rel="stylesheet">
     <link href="./css/ie10-viewport-bug-workaround.css" rel="stylesheet">
     <link href="./css/main.css" rel="stylesheet">
+    <script src="./js/restore.js" type="text/javascript" charset="utf-8"></script>
     <script src="./js/word.js" type="text/javascript" charset="utf-8"></script>
     <script src="./js/text.js" type="text/javascript" charset="utf-8"></script>
   </head>
@@ -29,6 +30,7 @@
             <li><a href="./input.html"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> 논문 본문입력</a></li>
             <li><a href="./paragraph.html"><span class="glyphicon glyphicon-tag" aria-hidden="true"></span> 문단 라벨링</a></li>
             <li class="active"><a href="./text.html"><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> 단어&문장 라벨링</a></li>
+            <li><a href="./graph.html"><span class="glyphicon glyphicon-picture" aria-hidden="true"></span> 그래프 도구</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> 도움말 <span class="caret"></span></a>
               <ul class="dropdown-menu">
@@ -54,7 +56,7 @@
       <div class="jumbotron" id="TextLabeling">
         <h2>단어&문장 라벨링</h1>
         <p>입력한 본문의 내용을 단어&문장 라벨링 형식에 맞춰 변환합니다. 최종 변환 결과는 직접 확인하셔야합니다.
-          <br>[<span style="color:black">높은 정확도</span>, <span style="color:#0000DD">보통 정확도</span>, <span style="color:#DD0000">낮은 정확도</span>]
+          <br>(<span style="color:black">높은 정확도</span>, <span style="color:#0000DD">보통 정확도</span>, <span style="color:#DD0000">낮은 정확도</span>)
           <br>
           <button type="button" class="btn btn-primary" onclick="TextRepair()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> 문장 다시 수정하기</button>
           <button type="button" class="btn btn-success" onclick="saveToFile();"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> 엑셀로 다운로드</button>
@@ -67,7 +69,7 @@
     </div> <!-- /container -->
     <footer class="footer">
       <div class="text-center mt-5 mb-0">
-        The MIT License<br>	
+        The MIT License<br>    
         Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.
       </div>
     </footer>

@@ -37,7 +37,7 @@ function TextSplit(){
   for(var i=0; i<menu_id.length; i++)
   {
     result_html += "<li class=\"list-group-item list-group-item-info\">" + menu_id[i] + (i == 1 ? " text" : "") + "</li>";
-    var txt = localStorage.getItem("Textarea_" + menu_id[i]);
+    var txt = restore(localStorage.getItem("Textarea_" + menu_id[i]));
     if(/\w/.test(txt) == false || txt == undefined) continue;
     var lines = newline2space(txt).split("?").join(".").split(".");
     var new_lines = [lines[0]];
@@ -46,22 +46,22 @@ function TextSplit(){
         new_lines[new_lines.length-1] += lines[j];
       }else if(isNumeric(lines[j].trim())){
         new_lines[new_lines.length-1] += "." + lines[j];
-	  }else{
+      }else{
         var tmp1 = new_lines[new_lines.length-1].trim().split(" ");
         var tmp2 = lines[j].trim().split(" ");
-		tmp1 = removeSpecial(tmp1[tmp1.length-1]);
-		tmp2 = removeSpecial(tmp2[0]);
+        tmp1 = removeSpecial(tmp1[tmp1.length-1]);
+        tmp2 = removeSpecial(tmp2[0]);
 
         if(isNumeric(new_lines[new_lines.length-1][new_lines[new_lines.length-1].length-1]) && isNumeric(lines[j][0])){
           new_lines[new_lines.length-1] += "." + lines[j];
         }else if(tmp1 == "Fig" && isNumeric(tmp2[0])){
-		  new_lines[new_lines.length-1] += "." + lines[j];
+          new_lines[new_lines.length-1] += "." + lines[j];
         }else if(tmp1 == "Ref" && isNumeric(tmp2[0])){
-		  new_lines[new_lines.length-1] += "." + lines[j];
+          new_lines[new_lines.length-1] += "." + lines[j];
         }else if(tmp1 == "e" && tmp2 == "g"){
-		  new_lines[new_lines.length-1] += "." + lines[j];
+          new_lines[new_lines.length-1] += "." + lines[j];
         }else if(tmp1 == "i" && tmp2 == "e"){
-		  new_lines[new_lines.length-1] += "." + lines[j];
+          new_lines[new_lines.length-1] += "." + lines[j];
         }else{
           new_lines.push(lines[j]);
         }
@@ -101,7 +101,7 @@ function TextLabeling(){
     var spaces = texts[i].trim().split(' ');
     var tags = [];
     var category = [0, 0, 0, 0, 0, 0];
-	var numerical = [];
+    var numerical = [];
     var m_cnt = 1, d_cnt = 1;
     for(var j=0; j<spaces.length;j++){
       result_html += "<td>" + spaces[j] + "</td>";
@@ -148,7 +148,7 @@ function TextLabeling(){
     }else{
       result_html += "0,0";
     }
-	result_html += "]</td>";
+    result_html += "]</td>";
     for(var j=0; j<spaces.length;j++){
       var tag = tags[j];
       result_html += "<td style=\"color:" + (tag["level"] == 1 ? "#000000" : (tag["level"] == 2 ? "#0000DD" : "#DD0000")) + ";\">" + tag["tag"] + "</td>";

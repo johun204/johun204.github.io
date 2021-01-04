@@ -4,7 +4,7 @@ function ParagraphLabeling(){
   var result_html = "<table class=\"table table-bordered\"><tr><td>index</td><td>paragraph_data</td><td>tag</td></tr>";
   for(var i=0; i<menu_id.length; i++)
   {
-    var txt = localStorage.getItem("Textarea_" + menu_id[i]);
+    var txt = restore(localStorage.getItem("Textarea_" + menu_id[i]));
     if(/\w/.test(txt) == false || txt == undefined) continue;
     try{
       txt = txt.replace(/\r\n/g, '\n');
