@@ -1,3 +1,15 @@
+function removeSpecial(txt){
+  for(var i=0;i<txt.length;i++){
+    if(/\w/.test(txt[i]) == false) continue;
+    txt = txt.substring(i, txt.length);
+    break;
+  }
+  for(var i=0;i<txt.length;i++){
+    if(/\w/.test(txt[txt.length - i - 1]) == false) continue;
+    txt = txt.substring(0, txt.length - i);
+    break;
+  }return txt;
+}
 function isMaterial(txt){
   if(/[0-9]/.test(txt[0])) return false;
   if(/\w/.test(txt) == false) return false;
@@ -83,16 +95,7 @@ function WordLabeling(txt){
   var u_result = isUnit(txt);
   if(u_result) return {"tag":"u", "level":u_result, "similar":txt}; //숫자는 level2
 
-  for(var i=0;i<txt.length;i++){
-    if(/\w/.test(txt[i]) == false) continue;
-    txt = txt.substring(i, txt.length);
-    break;
-  }
-  for(var i=0;i<txt.length;i++){
-    if(/\w/.test(txt[txt.length - i - 1]) == false) continue;
-    txt = txt.substring(0, txt.length - i);
-    break;
-  }
+  txt = removeSpecial(txt);
   var exception = ["In", "At", "As", "I"];
   for(var i=0;i<exception.length;i++){
     if(txt == exception[i]){

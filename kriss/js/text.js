@@ -49,9 +49,18 @@ function TextSplit(){
 	  }else{
         var tmp1 = new_lines[new_lines.length-1].trim().split(" ");
         var tmp2 = lines[j].trim().split(" ");
-        if(isNumeric(tmp1[tmp1.length-1]) && isNumeric(tmp2[0])){
+		tmp1 = removeSpecial(tmp1[tmp1.length-1]);
+		tmp2 = removeSpecial(tmp2[0]);
+
+        if(isNumeric(new_lines[new_lines.length-1][new_lines[new_lines.length-1].length-1]) && isNumeric(lines[j][0])){
           new_lines[new_lines.length-1] += "." + lines[j];
-        }else if((tmp1[tmp1.length-1] == "Fig" || tmp1[tmp1.length-1] == "Figure") && isNumeric(tmp2[0][0])){
+        }else if(tmp1 == "Fig" && isNumeric(tmp2[0])){
+		  new_lines[new_lines.length-1] += "." + lines[j];
+        }else if(tmp1 == "Ref" && isNumeric(tmp2[0])){
+		  new_lines[new_lines.length-1] += "." + lines[j];
+        }else if(tmp1 == "e" && tmp2 == "g"){
+		  new_lines[new_lines.length-1] += "." + lines[j];
+        }else if(tmp1 == "i" && tmp2 == "e"){
 		  new_lines[new_lines.length-1] += "." + lines[j];
         }else{
           new_lines.push(lines[j]);

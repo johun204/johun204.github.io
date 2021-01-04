@@ -1,3 +1,7 @@
+function windowToCanvas(canvas, x, y) {
+  var bbox = canvas.getBoundingClientRect(); //viewport 기준으로 나의 위치 알려줌
+  return { x: x - bbox.left * (canvas.width / bbox.width), y: y - bbox.top * (canvas.height / bbox.height) };
+}
 function CLIPBOARD_CLASS(canvas_id, autoresize) {
   var _self = this;
   var canvas = document.getElementById(canvas_id);
@@ -5,7 +9,14 @@ function CLIPBOARD_CLASS(canvas_id, autoresize) {
 
   //handlers
   document.addEventListener('paste', function (e) { _self.paste_auto(e); }, false);
-
+  canvas.onmousemove = function (e){
+    var loc = windowToCanvas(canvas, e.clientX, e.clientY);
+    console.log(loc.x + ", " + loc.y);
+  };
+  canvas.onclick = function (e){
+    var loc = windowToCanvas(canvas, e.clientX, e.clientY);
+    alert(loc.x + ", " + loc.y);
+  };
   //on paste
   this.paste_auto = function (e) {
     if (e.clipboardData) {
@@ -42,11 +53,30 @@ function CLIPBOARD_CLASS(canvas_id, autoresize) {
         //clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
-      ctx.drawImage(pastedImage, 0, 0);
+      //ctx.drawImage(pastedImage, 0, 0);
+    ctx.drawImage(pastedImage, 0, 0, canvas.width, canvas.height);
     };
     pastedImage.src = source;
   };
 }
+
+function handleImageView(files){    
+  var file = files[0];
+  if(!file.type.match(/image.*/)){
+    alert("이미지 파일을 선택해주세요!");
+  }      
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.getElementById("graph_canvas");
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+    img.src = e.target.result;
+  }
+  reader.readAsDataURL(file);
+}
 window.onload = function(){
-  var CLIPBOARD = new CLIPBOARD_CLASS("my_canvas", true);
+  var CLIPBOARD = new CLIPBOARD_CLASS("graph_canvas", false);
 }
