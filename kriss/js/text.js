@@ -44,12 +44,20 @@ function TextSplit(){
     for (var j = 1; j < lines.length; j++) {
       if(/\w/.test(lines[j]) == false){
         new_lines[new_lines.length-1] += lines[j];
-      }
-      else{
-        new_lines.push(lines[j]);
+      }else if(isNumeric(lines[j].trim())){
+        new_lines[new_lines.length-1] += "." + lines[j];
+	  }else{
+        var tmp1 = new_lines[new_lines.length-1].trim().split(" ");
+        var tmp2 = lines[j].trim().split(" ");
+        if(isNumeric(tmp1[tmp1.length-1]) && isNumeric(tmp2[0])){
+          new_lines[new_lines.length-1] += "." + lines[j];
+        }else if((tmp1[tmp1.length-1] == "Fig" || tmp1[tmp1.length-1] == "Figure") && isNumeric(tmp2[0][0])){
+		  new_lines[new_lines.length-1] += "." + lines[j];
+        }else{
+          new_lines.push(lines[j]);
+        }
       }
     }
-
     for (var j = 0; j < new_lines.length; j++) {
       result_html += "<li class=\"list-group-item\" id=\"li" + texts.length + "\"><div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"text" + texts.length + "\"><span class=\"input-group-btn\"><button class=\"btn btn-primary" + (texts.length==0?" disabled":"") + "\" type=\"button\" onclick=\"mergeText(" + texts.length + ");\"><span class=\"glyphicon glyphicon-arrow-up\" aria-hidden=\"true\"></span> 합치기</button></span></div></li>";
       texts.push(new_lines[j]);
@@ -84,6 +92,7 @@ function TextLabeling(){
     var spaces = texts[i].trim().split(' ');
     var tags = [];
     var category = [0, 0, 0, 0, 0, 0];
+	var numerical = [];
     var m_cnt = 1, d_cnt = 1;
     for(var j=0; j<spaces.length;j++){
       result_html += "<td>" + spaces[j] + "</td>";
@@ -95,6 +104,8 @@ function TextLabeling(){
         tag["tag"] += d_cnt;
         d_cnt++;
       }
+      if(tag["tag"] == "m0")tag["tag"] = "m";
+      if(tag["tag"] == "d0")tag["tag"] = "d";
       tags.push(tag);
 
       if(tag["tag"] == "mc"){
@@ -110,11 +121,25 @@ function TextLabeling(){
       }else if(tag["tag"] == "s"){
         category[5]++;
       }
+
+      if(tags[j]["tag"] == "u" && j > 0 && tags[j - 1]["tag"] == "n"){
+        numerical.push(j);
+      }
+
     }for(var j=0; j<52-spaces.length;j++){
       result_html += "<td></td>";
     }result_html += "</tr>";
 
-    result_html += "<tr><td>tag-" + index + "</td><td>[" + category[0] + "," + category[1] + "," + category[2] + "," + category[3] + "," + category[4] + "," + category[5] + "]</td><td>[]</td>";
+    result_html += "<tr><td>tag-" + index + "</td><td>[" + category[0] + "," + category[1] + "," + category[2] + "," + category[3] + "," + category[4] + "," + category[5] + "]</td><td>[";
+    if(numerical.length > 0){
+      for(var j=0; j<numerical.length;j++){
+        if(j>0)result_html += ",";
+        result_html += "[" + spaces[numerical[j]-1] + "," + spaces[numerical[j]].replace(",","") + "]";
+      }
+    }else{
+      result_html += "0,0";
+    }
+	result_html += "]</td>";
     for(var j=0; j<spaces.length;j++){
       var tag = tags[j];
       result_html += "<td style=\"color:" + (tag["level"] == 1 ? "#000000" : (tag["level"] == 2 ? "#0000DD" : "#DD0000")) + ";\">" + tag["tag"] + "</td>";
