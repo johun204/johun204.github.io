@@ -12,6 +12,8 @@ body
   background-color:#FFFFFF;
   max-height:600px;
   overflow:auto;
+  font-family:'Malgun Gothic';
+  font-size:11pt;
 }
 footer
 {
@@ -20,23 +22,4 @@ footer
 .jumbotron{
   padding-top:10px;
   padding-bottom:20px;
-}
-#chat_room
-{
-  z-index:9999;
-  position:fixed;
-  bottom:0px;
-  right:30px;
-  width:50%;
-  height:50%;
-  display:none;
-  max-width:300px;
-  max-height:500px;
-}
-#chat_btn
-{
-  z-index:9999;
-  position:fixed;
-  bottom:0px;
-  right:30px;
 }
