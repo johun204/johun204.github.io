@@ -51,14 +51,14 @@ function isDevice(txt){
 }
 function isNumeric(txt){
   var regex = /^[+\-]?(([1-9][0-9]{0,2}(,[0-9]{3})*)|[0-9]+){1}(\.[0-9]+)?$/g;
+  txt = txt.replace(/,/g, "").replace(/±/g, "");
   if(regex.test(txt)){
-    txt = txt.replace(/,/g, "");
     return isNaN(txt) ? false : true;
   }return false;
 }
 function isUnit(txt){
   if(/\w/.test(txt) == false) return false;
-  var unit1 = ["℃", "Å", "Δ", "τ", "±", "≒", "°C", "Ω", "Θ", "V", "W", "Gb", "GB", "ml", "mL", "nm", "μm", "mm", "°", "μ", "%", "^", "_", "+", "-", "*", "/"];
+  var unit1 = ["℃", "Å", "Δ", "τ", "±", "≒", "°C", "Ω", "Θ", "eV", "Gb", "GB", "mA", "ml", "mL", "nm", "μm", "mm", "V", "W", "°", "μ", "%", "^", "_", "+", "-", "*", "/"];
   var unit2 = ["g", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ","];
   var index = 0, level = 0;
   while(index < txt.length){

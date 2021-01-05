@@ -1,5 +1,5 @@
 function windowToCanvas(canvas, x, y) {
-  var bbox = canvas.getBoundingClientRect(); //viewport 기준으로 나의 위치 알려줌
+  var bbox = canvas.getBoundingClientRect();
   return { x: x - bbox.left * (canvas.width / bbox.width), y: y - bbox.top * (canvas.height / bbox.height) };
 }
 function CLIPBOARD_CLASS(canvas_id, autoresize) {
@@ -40,17 +40,14 @@ function CLIPBOARD_CLASS(canvas_id, autoresize) {
       }
     }
   };
-  //draw pasted image to canvas
   this.paste_createImage = function (source) {
     var pastedImage = new Image();
     pastedImage.onload = function () {
       if(autoresize == true){
-        //resize
         canvas.width = pastedImage.width;
         canvas.height = pastedImage.height;
       }
       else{
-        //clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
       //ctx.drawImage(pastedImage, 0, 0);
