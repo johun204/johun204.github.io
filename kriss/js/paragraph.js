@@ -7,7 +7,7 @@ function ParagraphLabeling(){
     var txt = restore(localStorage.getItem("Textarea_" + menu_id[i]));
     if(/\w/.test(txt) == false || txt == undefined) continue;
     try{
-      txt = txt.replace(/\r\n/g, '\n');
+      txt = txt.replace(/\r\n/gi, '\n');
       var paragraphs = txt.split('\n\n');
     }catch(err){ continue; }
     cnt = 0;

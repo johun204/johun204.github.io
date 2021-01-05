@@ -1,8 +1,11 @@
 var texts;
+String.prototype.replaceAll = function(org, dest) {
+    return this.split(org).join(dest);
+}
 function newline2space(text) {
   try{
-    text = text.replace(/\r\n/g, '\n');
-    text = text.replace(/\n\n/g, '.');
+    text = text.replace(/\r\n/gi, '\n');
+    text = text.replace(/\n\n/gi, '.');
     var lines = text.split('\n');
   }catch(err){ return ''; }
   var retLines = [];
@@ -98,7 +101,7 @@ function TextLabeling(){
     if(texts[i] == undefined || /\w/.test(texts[i]) == false) continue;
     result_html += "<tr><td>" + index + "</td><td>[]</td><td>[]</td>";
 
-    var spaces = texts[i].trim().replace(", ", ",").replace(",", ", ").split(" ");
+    var spaces = texts[i].trim().replaceAll(", ", ",").replaceAll(",", ", ").split(" ");
     var tags = [];
     var category = [0, 0, 0, 0, 0, 0];
     var numerical = [];
@@ -143,7 +146,7 @@ function TextLabeling(){
     if(numerical.length > 0){
       for(var j=0; j<numerical.length;j++){
         if(j>0)result_html += ",";
-        result_html += "[" + spaces[numerical[j]-1] + "," + spaces[numerical[j]].replace(",","") + "]";
+        result_html += "[" + spaces[numerical[j]-1] + "," + spaces[numerical[j]].replaceAll(",","") + "]";
       }
     }else{
       result_html += "0,0";
