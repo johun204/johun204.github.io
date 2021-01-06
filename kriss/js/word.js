@@ -58,7 +58,7 @@ function isNumeric(txt){
 }
 function isUnit(txt){
   if(/\w/.test(txt) == false) return false;
-  var unit1 = ["℃", "Å", "Δ", "τ", "±", "≒", "°C", "Ω", "Θ", "eV", "Gb", "GB", "mA", "ml", "mL", "nm", "μm", "mm", "V", "W", "A", "°", "μ", "%", "^", "_", "+", "-", "*", "/"];
+  var unit1 = ["℃", "Å", "Δ", "τ", "±", "≒", "°C", "Ω", "Θ", "eV", "Gb", "GB", "mA", "ml", "mL", "cm", "nm", "μm", "mm", "V", "W", "A", "°", "μ", "%", "^", "_", "+", "-", "*", "/"];
   var unit2 = ["g", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ","];
   var index = 0, level = 0;
   while(index < txt.length){
