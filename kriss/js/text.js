@@ -57,9 +57,9 @@ function TextSplit(){
 
         if(isNumeric(new_lines[new_lines.length-1][new_lines[new_lines.length-1].length-1]) && isNumeric(lines[j][0])){
           new_lines[new_lines.length-1] += "." + lines[j];
-        }else if(tmp1 == "Fig" && isNumeric(tmp2[0])){
+        }else if((tmp1 == "Fig" || tmp1 == "Figs") && isNumeric(tmp2[0])){
           new_lines[new_lines.length-1] += "." + lines[j];
-        }else if(tmp1 == "Ref" && isNumeric(tmp2[0])){
+        }else if((tmp1 == "Ref" || tmp1 == "Refs") && isNumeric(tmp2[0])){
           new_lines[new_lines.length-1] += "." + lines[j];
         }else if(tmp1 == "e" && tmp2 == "g"){
           new_lines[new_lines.length-1] += "." + lines[j];
@@ -105,19 +105,36 @@ function TextLabeling(){
     var tags = [];
     var category = [0, 0, 0, 0, 0, 0];
     var numerical = [];
+    var md = [];
     var m_cnt = 1, d_cnt = 1;
     for(var j=0; j<spaces.length;j++){
       result_html += "<td>" + spaces[j] + "</td>";
       var tag = WordLabeling(spaces[j]);
       if(tag["tag"] == "m"){
-        tag["tag"] += m_cnt;
-        m_cnt++;
+        for(var k=0; k<j; k++){
+          if(tags[k]["tag"][0] == "m" && tags[k]["similar"] == tag["similar"]){
+            tag["tag"] = tags[k]["tag"];
+            break;
+          }
+        }
+        if(tag["tag"] == "m"){
+          tag["tag"] += m_cnt;
+          m_cnt++;
+        }md.push({"index":j,"tag":tag["tag"]});
       }if(tag["tag"] == "d"){
-        tag["tag"] += d_cnt;
-        d_cnt++;
+        for(var k=0; k<j; k++){
+          if(tags[k]["tag"][0] == "d" && tags[k]["similar"] == tag["similar"]){
+            tag["tag"] = tags[k]["tag"];
+            break;
+          }
+        }
+        if(tag["tag"] == "d"){
+          tag["tag"] += d_cnt;
+          d_cnt++;
+        }md.push({"index":j,"tag":tag["tag"]});
       }
-      if(tag["tag"] == "m0")tag["tag"] = "m";
-      if(tag["tag"] == "d0")tag["tag"] = "d";
+      if(tag["tag"] == "m_")tag["tag"] = "m";
+      if(tag["tag"] == "d_")tag["tag"] = "d";
       tags.push(tag);
 
       if(tag["tag"] == "mc"){
@@ -138,13 +155,13 @@ function TextLabeling(){
         numerical.push(j);
       }
 
-    }for(var j=0; j<52-spaces.length;j++){
+    }for(var j=0; j<52-spaces.length; j++){
       result_html += "<td></td>";
     }result_html += "</tr>";
 
     result_html += "<tr><td>tag-" + index + "</td><td>[" + category[0] + "," + category[1] + "," + category[2] + "," + category[3] + "," + category[4] + "," + category[5] + "]</td><td>[";
     if(numerical.length > 0){
-      for(var j=0; j<numerical.length;j++){
+      for(var j=0; j<numerical.length; j++){
         if(j>0)result_html += ",";
         result_html += "[" + spaces[numerical[j]-1] + "," + spaces[numerical[j]].replaceAll(",","") + "]";
       }
@@ -152,10 +169,19 @@ function TextLabeling(){
       result_html += "0,0";
     }
     result_html += "]</td>";
-    for(var j=0; j<spaces.length;j++){
+    for(var j=0; j<spaces.length; j++){
       var tag = tags[j];
-      result_html += "<td style=\"color:" + (tag["level"] == 1 ? "#000000" : (tag["level"] == 2 ? "#0000DD" : "#DD0000")) + ";\">" + tag["tag"] + "</td>";
-    }for(var j=0; j<52-spaces.length;j++){
+      result_html += "<td style=\"color:" + (tag["level"] == 1 ? "#000000" : (tag["level"] == 2 ? "#0000DD" : "#DD0000")) + ";\">";
+      if(md.length > 0 && tag["tag"] != "o" && tag["tag"] != "u" && (tag["tag"].length != 2 || /[0-9]/.test(tag["tag"][1]) == false )){
+        var min = 0;
+        for(var k=1; k<md.length; k++){
+          if(Math.abs(md[min]["index"] - j) > Math.abs(md[k]["index"] - j)) min = k;
+          else break;
+        }
+        result_html += md[min]["tag"];
+      }result_html += tag["tag"];
+      result_html += "</td>";
+    }for(var j=0; j<52-spaces.length; j++){
       result_html += "<td></td>";
     }result_html += "</tr>";
     index++;
@@ -169,7 +195,7 @@ function Popup() {
   win.document.body.contentEditable = true;
 }
 function saveToFile() {
-  fileName = "download.xls";
+  fileName = "downloads.xls";
   content = "\ufeff" + document.getElementById("Table_Text").innerHTML.replace("class=\"table table-bordered\"", "border=\"1\""); //utf-8+BOM
   if((navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) || (navigator.userAgent.toLowerCase().indexOf("msie") !== -1)){ //ie
     var blob = new Blob([content], { type: "text/plain", endings: "native" });
