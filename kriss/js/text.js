@@ -101,7 +101,9 @@ function TextLabeling(){
     if(texts[i] == undefined || /\w/.test(texts[i]) == false) continue;
     result_html += "<tr><td>" + index + "</td><td>[]</td><td>[]</td>";
 
-    var spaces = texts[i].trim().replaceAll(", ", ",").replaceAll(",", ", ").split(" ");
+    var txt = texts[i].trim().replaceAll(", ", ",").replaceAll(",", ", ");
+	while(txt.indexOf("  ") > -1)txt = txt.replaceAll("  ", " ");
+    var spaces = txt.split(" ");
     var tags = [];
     var category = [0, 0, 0, 0, 0, 0];
     var numerical = [];
