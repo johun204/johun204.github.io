@@ -133,6 +133,9 @@ function TextLabeling(){
           d_cnt++;
         }md.push({"index":j,"tag":tag["tag"]});
       }
+      if(tag["tag"] == "n" && j>0 && (tags[j-1]["similar"] == "Fig" || tags[j-1]["similar"] == "Figs" || tags[j-1]["similar"] == "Figure" || tags[j-1]["similar"] == "Ref")){
+        tag["tag"] = "o";
+      }
       if(tag["tag"] == "m_")tag["tag"] = "m";
       if(tag["tag"] == "d_")tag["tag"] = "d";
       tags.push(tag);
