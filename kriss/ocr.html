@@ -4,11 +4,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> 논문 본문입력 </title>
+    <title> OCR 도구 </title>
     <link href="./css/bootstrap.min.css" rel="stylesheet">
     <link href="./css/ie10-viewport-bug-workaround.css" rel="stylesheet">
     <link href="./css/main.css" rel="stylesheet">
-    <script src="./js/input.js" type="text/javascript" charset="utf-8"></script>
+    <script src='./js/tesseract.min.js'></script>
+    <script src="./js/ocr.js" type="text/javascript" charset="utf-8"></script>
   </head>
   <body>
     <!-- Fixed navbar -->
@@ -25,10 +26,10 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="./input.html"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> 논문 본문입력</a></li>
+            <li><a href="./input.html"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> 논문 본문입력</a></li>
             <li><a href="./paragraph.html"><span class="glyphicon glyphicon-tag" aria-hidden="true"></span> 문단 라벨링</a></li>
             <li><a href="./text.html"><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> 단어&문장 라벨링</a></li>
-            <li><a href="./ocr.html"><span class="glyphicon glyphicon-text-background" aria-hidden="true"></span> OCR 도구</a></li>
+            <li class="active"><a href="./ocr.html"><span class="glyphicon glyphicon-text-background" aria-hidden="true"></span> OCR 도구</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> 도움말 <span class="caret"></span></a>
               <ul class="dropdown-menu">
@@ -42,28 +43,34 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-    <div id="ToastBox"></div>
     <div class="container">
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
-        <h2 id="Menu_Title">Abstract</h1>
-        <p id="Menu_Desc">논문의 중심 내용에 대한 전체적인 요약</p>
-        <div class="btn-group" role="group" aria-label="...">
-          <button type="button" class="btn btn-default" id="Btn_Abstract" onclick="LoadText(0)">Abstract</span></button>
-          <button type="button" class="btn btn-default" id="Btn_Introduction" onclick="LoadText(1)">Introduction</button>
-          <button type="button" class="btn btn-default" id="Btn_Main" onclick="LoadText(2)">Main text</button>
-          <button type="button" class="btn btn-default" id="Btn_Methods" onclick="LoadText(3)">Methods</button>
-          <button type="button" class="btn btn-default" id="Btn_Summary" onclick="LoadText(4)">Summary</button>
-          <button type="button" class="btn btn-default" id="Btn_Captions" onclick="LoadText(5)">Captions</button>
-        </div>
-        <button type="button" class="btn btn-danger" onclick="AllClear();"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 모두 지우기</button>
-        <textarea class="form-control" id="Textarea_Abstract" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-        <textarea class="form-control" id="Textarea_Introduction" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-        <textarea class="form-control" id="Textarea_Main" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-        <textarea class="form-control" id="Textarea_Methods" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-        <textarea class="form-control" id="Textarea_Summary" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-        <textarea class="form-control" id="Textarea_Captions" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-        <br>입력한 내용을 텍스트 파일로 다운로드하실 수 있습니다. <button type="button" class="btn btn-success" onclick="saveToFile();"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> 다운로드</button>
+        <h2>OCR 도구</h1>
+        <p>
+          복사가 안되는 텍스트나, 깨지는 특수문자를 변환할 수 있습니다.
+          <br>이미지 파일을 선택하거나, Ctrl+V를 통해 클립보드의 이미지를 붙여 넣을 수 있습니다.
+          <br>
+          
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr><th>이미지</th><th>결과</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="width:50%">
+                  <canvas style="border:1px solid #DDDDDD; background: #FFFFFF;width:100%;" id="ocr_canvas"></canvas>
+                  <input type="file" onchange="handleImageView(this.files)">
+                </td>
+                <td style="width:50%">
+                  <div class="form-inline">
+                    <p class="form-control-static" id="ocr_results">변환할 이미지를 선택해 주세요.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </p>
       </div>
     </div> <!-- /container -->
     <footer class="footer">
