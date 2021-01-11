@@ -4,11 +4,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> 그래프 도구 </title>
+    <title> Q&A </title>
     <link href="./css/bootstrap.min.css" rel="stylesheet">
     <link href="./css/ie10-viewport-bug-workaround.css" rel="stylesheet">
     <link href="./css/main.css" rel="stylesheet">
-    <script src="./js/graph.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./js/restore.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./js/qna.js" type="text/javascript" charset="utf-8"></script>
   </head>
   <body>
     <!-- Fixed navbar -->
@@ -51,62 +52,13 @@
     <div class="container">
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
-        <h2>그래프 도구</h1>
-        <p>
-          그래프 이미지를 불러온 후 X축 최대/최소값, Y축의 최대/최소값을 클릭해주세요.
-          <br>범위를 입력하시면 원하는 지점의 좌표를 확인할 수 있습니다.
-          <br>파일 선택이나 Ctrl+V를 통해 클립보드의 이미지를 붙여 넣을 수 있습니다.
-          <br>
-          <canvas style="border:1px solid #DDDDDD; background: #FFFFFF;" id="graph_canvas" width="600" height="500"></canvas>
-          <input type="file" onchange="handleImageView(this.files)">
-          <table class="table table-bordered table-condensed">
-            <thead>
-              <tr><th>#</th><th>좌표</th><th>범위</th><th>Log Scale</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th><p>X축</p></th>
-                <td>
-                  <p class="form-control-static">100,100</p>
-                </td>
-                <td>
-                  <div class="form-inline">
-                    <p class="form-control-static">[</p>
-                    <input type="number" class="form-control" placeholder="최소값">
-                    <p class="form-control-static">,</p>
-                    <input type="number" class="form-control" placeholder="최대값">
-                    <p class="form-control-static">]</p>
-                  </div>
-                </td>
-                <td>
-                  <label class="checkbox-inline">
-                    <input type="checkbox" id="inlineRadio1" value="option1"> Log Scale
-                  </label>
-                </td>
-              </tr>
-              <tr>
-                <th><p>Y축</p></th>
-                <td>
-                  <p class="form-control-static">100,100</p>
-                </td>
-                <td>
-                  <div class="form-inline">
-                    <p class="form-control-static">[</p>
-                    <input type="number" class="form-control" placeholder="최소값">
-                    <p class="form-control-static">,</p>
-                    <input type="number" class="form-control" placeholder="최대값">
-                    <p class="form-control-static">]</p>
-                  </div>
-                </td>
-                <td>
-                  <label class="checkbox-inline">
-                    <input type="checkbox" id="inlineRadio1" value="option1"> Log Scale
-                  </label>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <h2>Q&A 도구</h1>
+        <p>입력된 내용을 문단별로 구분합니다.
+          <br>한 번의 클릭으로 Papago 번역과 복사가 가능합니다.
         </p>
+        <div id="Table_Qna" class="Cell_Div">
+        <table class="table table-bordered"><tr><td>paragraph_data</td><td>Papago</td></tr></table>
+        </div>
       </div>
     </div> <!-- /container -->
     <footer class="footer">
