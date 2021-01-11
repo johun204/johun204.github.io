@@ -54,7 +54,7 @@
       <div class="jumbotron">
         <h2 id="Menu_Title">Abstract</h1>
         <p id="Menu_Desc">논문의 중심 내용에 대한 전체적인 요약</p>
-        <div class="btn-group" role="group" aria-label="...">
+        <div class="btn-group" style="margin-bottom:3px;" role="group" aria-label="...">
           <button type="button" class="btn btn-default" id="Btn_Abstract" onclick="LoadText(0)">Abstract</span></button>
           <button type="button" class="btn btn-default" id="Btn_Introduction" onclick="LoadText(1)">Introduction</button>
           <button type="button" class="btn btn-default" id="Btn_Main" onclick="LoadText(2)">Main text</button>
@@ -62,7 +62,7 @@
           <button type="button" class="btn btn-default" id="Btn_Summary" onclick="LoadText(4)">Summary</button>
           <button type="button" class="btn btn-default" id="Btn_Captions" onclick="LoadText(5)">Captions</button>
         </div>
-        <button type="button" class="btn btn-danger" onclick="AllClear();"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 모두 지우기</button>
+        <button type="button" class="btn btn-danger" style="margin-bottom:3px;" onclick="AllClear();"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 모두 지우기</button>
         <textarea class="form-control" id="Textarea_Abstract" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
         <textarea class="form-control" id="Textarea_Introduction" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
         <textarea class="form-control" id="Textarea_Main" rows="26" onchange="AutoSave(this)" placeholder="문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
