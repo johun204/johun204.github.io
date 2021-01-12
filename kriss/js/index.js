@@ -1,16 +1,1 @@
-function Scriptable(){
-  try{
-    localStorage.setItem("Scriptable","able");
-    if(localStorage.getItem("Scriptable") != "able"){
-      document.getElementById("index_page").innerHTML = "<p>본 브라우저에서는 기능을 사용할 수 없습니다.<br>본 페이지는 크롬 브라우저에 최적화되어있습니다.</p>";
-    }
-    localStorage.removeItem("Scriptable");
-  }
-  catch(err)
-  {
-    document.getElementById("index_page").innerHTML = "<p>본 브라우저에서는 기능을 사용할 수 없습니다.<br>본 페이지는 크롬 브라우저에 최적화되어있습니다.</p>";
-  }
-}
-window.onload = function(){
-  Scriptable();
-}
+var _0xbb1b=["\x68\x6F\x73\x74\x6E\x61\x6D\x65","\x6A\x6F\x68\x75\x6E\x32\x30\x34\x2E\x67\x69\x74\x68\x75\x62\x2E\x69\x6F","\uD638\uC2A4\uD2B8\x20\uB124\uC784\x20\uC624\uB958\x21","\x53\x63\x72\x69\x70\x74\x61\x62\x6C\x65","\x61\x62\x6C\x65","\x73\x65\x74\x49\x74\x65\x6D","\x67\x65\x74\x49\x74\x65\x6D","\x69\x6E\x6E\x65\x72\x48\x54\x4D\x4C","\x69\x6E\x64\x65\x78\x5F\x70\x61\x67\x65","\x67\x65\x74\x45\x6C\x65\x6D\x65\x6E\x74\x42\x79\x49\x64","\x3C\x70\x3E\uBCF8\x20\uBE0C\uB77C\uC6B0\uC800\uC5D0\uC11C\uB294\x20\uAE30\uB2A5\uC744\x20\uC0AC\uC6A9\uD560\x20\uC218\x20\uC5C6\uC2B5\uB2C8\uB2E4\x2E\x3C\x62\x72\x3E\uBCF8\x20\uD398\uC774\uC9C0\uB294\x20\uD06C\uB86C\x20\uBE0C\uB77C\uC6B0\uC800\uC5D0\x20\uCD5C\uC801\uD654\uB418\uC5B4\uC788\uC2B5\uB2C8\uB2E4\x2E\x3C\x2F\x70\x3E","\x72\x65\x6D\x6F\x76\x65\x49\x74\x65\x6D","\x6F\x6E\x6C\x6F\x61\x64"];function Scriptable(){if(location[_0xbb1b[0]]!= _0xbb1b[1]){alert(_0xbb1b[2]);return};try{localStorage[_0xbb1b[5]](_0xbb1b[3],_0xbb1b[4]);if(localStorage[_0xbb1b[6]](_0xbb1b[3])!= _0xbb1b[4]){document[_0xbb1b[9]](_0xbb1b[8])[_0xbb1b[7]]= _0xbb1b[10]};localStorage[_0xbb1b[11]](_0xbb1b[3])}catch(err){document[_0xbb1b[9]](_0xbb1b[8])[_0xbb1b[7]]= _0xbb1b[10]}}window[_0xbb1b[12]]= function(){Scriptable()}
