@@ -12,7 +12,7 @@ body
   background-color:#FFFFFF;
   max-height:600px;
   overflow:auto;
-  font-family:'Malgun Gothic', '맑은 고딕';
+  font-family:'맑은 고딕', 'Malgun Gothic' !important;
   font-size:11pt;
 }
 footer
