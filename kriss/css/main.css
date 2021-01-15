@@ -10,6 +10,7 @@ body
 {
   border:1px solid #DDDDDD;
   background-color:#FFFFFF;
+  color:#000000;
   max-height:600px;
   overflow:auto;
   font-family:'맑은 고딕', 'Malgun Gothic' !important;
