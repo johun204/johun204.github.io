@@ -4,23 +4,15 @@ title: "KRISS 데이터 구축 자동화 도구"
 author: "Dong Hun Cho"
 ---
 
+
 한국표준과학연구원(KRISS) 국가소재연구데이터센터 소재 연구데이터 구축 사업
 
 스마트IT 부서 데이터 구축 과정을 자동화 하는 도구입니다.
 
-
 ## 소개
-* 입력된 본문 내용을 통해 문단, 단어 라벨링을 자동화 합니다.
+* 입력된 본문 내용을 통해 자동으로 문단, 단어 라벨링을 수행합니다.
 
-![문단 라벨링](https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/4.png)
-
-![문장 수정](https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/6.png)
-
-![단어 라벨링](https://raw.githubusercontent.com/johun204/kriss-study-help/main/img/7.png)
-
-변환 후 결과를 반드시 재확인 해주세요.
-
-
+![동작 화면](https://raw.githubusercontent.com/johun204/kriss-study-help/main/example.gif)
 
 ## 링크
-* [https://johun204.github.io/kriss](https://johun204.github.io/kriss) 
+* [https://johun204.github.io/kriss](https://johun204.github.io/kriss)
