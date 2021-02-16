@@ -72,7 +72,7 @@
         <button class="nav-link active" id="Split-tab" data-bs-toggle="tab" data-bs-target="#Split" type="button" role="tab" aria-controls="Split" aria-selected="true" onclick="ClearLabeling();"><i class="bi-list-ol"></i> 문장 나누기</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Introduction-tab" data-bs-toggle="tab" data-bs-target="#Introduction" type="button" role="tab" aria-controls="Introduction" aria-selected="false" onclick="TextLabeling();"><i class="bi-tags"></i> 단어&문장 라벨링</button>
+        <button class="nav-link" id="Labeling-tab" data-bs-toggle="tab" data-bs-target="#Labeling" type="button" role="tab" aria-controls="Labeling" aria-selected="false" onclick="TextLabeling();"><i class="bi-tags"></i> 단어&문장 라벨링</button>
       </li>
     </ul>
     <div class="tab-content" id="myTabContent">
@@ -80,13 +80,13 @@
         <div id="List_Text" class="Cell_Div"></div>
         <div class="input-group">
           <div class="input-group-text" title="해당 라벨링 규칙은 최우선으로 적용됩니다.">최우선 라벨링 규칙</div>
-          <input type="text" class="form-control" id="FirstLabelingRule" title="해당 라벨링 규칙은 최우선으로 적용됩니다." placeholder="라벨링 규칙을 '단어:태그' 형태로 입력해 주세요. 쉼표로 구분할 수 있습니다. ex) UV:o, µA:u">
+          <input type="text" class="form-control" id="FirstLabelingRule" title="해당 라벨링 규칙은 최우선으로 적용됩니다." placeholder="라벨링 규칙을 '단어:태그' 형태로 입력해 주세요. 쉼표로 구분할 수 있습니다. ex) UV:o, Ω:u">
         </div>
         <p>
           <br>합치기 버튼을 클릭하면 바로 위의 문장과 합칠 수 있습니다. 수정이 끝나면 <a href="#" class="btn invalid" role="button" data-bs-toggle="button"><i class="bi-tags"></i> 단어&문장 라벨링</a> 탭을 눌러주세요.
         </p>
       </div>
-      <div class="tab-pane fade" id="Introduction" role="tabpanel" aria-labelledby="Introduction-tab">
+      <div class="tab-pane fade" id="Labeling" role="tabpanel" aria-labelledby="Labeling-tab">
         <div id="Table_Text" class="Cell_Div" contenteditable>
           <table class="table table-bordered"><tr><td>index</td><td>category</td><td>numerical</td></tr></table>
         </div>
