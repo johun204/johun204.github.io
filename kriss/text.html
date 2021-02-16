@@ -12,9 +12,9 @@
     
     <!-- Custom styles for this template -->
     <link href="sticky-footer-navbar.css" rel="stylesheet">
-	<script src="./js/restore.js" type="text/javascript"></script>
-	<script src="./js/word.js" type="text/javascript"></script>
-	<script src="./js/text.js" type="text/javascript"></script>
+    <script src="./js/restore.js" type="text/javascript"></script>
+    <script src="./js/word.js" type="text/javascript"></script>
+    <script src="./js/text.js" type="text/javascript"></script>
   </head>
   <body class="d-flex flex-column h-100">
     
@@ -44,7 +44,7 @@
             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
               <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
               <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
-			  <li><a class="dropdown-item" target="_blank" href="/kriss2">(구버전) 구축 도우미</a></li>
+              <li><a class="dropdown-item" target="_blank" href="/kriss2">(구버전) 구축 도우미</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -66,37 +66,37 @@
 <main class="flex-shrink-0">
   <div class="container">
     <h2 class="mt-5">단어&문장 라벨링</h2> 
-	<br>
+    <br>
     <ul class="nav nav-tabs" id="myTab" role="tablist">
-	  <li class="nav-item" role="presentation">
-		<button class="nav-link active" id="Split-tab" data-bs-toggle="tab" data-bs-target="#Split" type="button" role="tab" aria-controls="Split" aria-selected="true" onclick="ClearLabeling();"><i class="bi-list-ol"></i> 문장 나누기</button>
-	  </li>
-	  <li class="nav-item" role="presentation">
-		<button class="nav-link" id="Introduction-tab" data-bs-toggle="tab" data-bs-target="#Introduction" type="button" role="tab" aria-controls="Introduction" aria-selected="false" onclick="TextLabeling();"><i class="bi-tags"></i> 단어&문장 라벨링</button>
-	  </li>
-	</ul>
-	<div class="tab-content" id="myTabContent">
-	  <div class="tab-pane fade show active" id="Split" role="tabpanel" aria-labelledby="Split-tab">
-	    <div id="List_Text" class="Cell_Div"></div>
-		<div class="input-group">
-      <div class="input-group-text" title="해당 라벨링 규칙은 최우선으로 적용됩니다.">최우선 라벨링 규칙</div>
-      <input type="text" class="form-control" id="FirstLabelingRule" title="최우선 라벨링 규칙을 양식에 맞추어 입력해 주세요. ex) ON/OFF:po, I:o" placeholder="우선적으로 라벨링 할 규칙을 입력해 주세요. ex) ON/OFF:po, I:o" value="ON/OFF:po, I:o">
-    </div>
-		<p>
-		  <br>문장을 직접 수정하실 수 있으며, 합치기 버튼을 클릭해 바로 위의 문장과 합칠 수 있습니다.
-		  <br>수정 완료 후 <a href="#" class="btn invalid" role="button" data-bs-toggle="button"><i class="bi-tags"></i> 단어&문장 라벨링</a> 탭을 눌러주세요.
-		</p>
-	  </div>
-	  <div class="tab-pane fade" id="Introduction" role="tabpanel" aria-labelledby="Introduction-tab">
-	    <div id="Table_Text" class="Cell_Div" contenteditable>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="Split-tab" data-bs-toggle="tab" data-bs-target="#Split" type="button" role="tab" aria-controls="Split" aria-selected="true" onclick="ClearLabeling();"><i class="bi-list-ol"></i> 문장 나누기</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="Introduction-tab" data-bs-toggle="tab" data-bs-target="#Introduction" type="button" role="tab" aria-controls="Introduction" aria-selected="false" onclick="TextLabeling();"><i class="bi-tags"></i> 단어&문장 라벨링</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="Split" role="tabpanel" aria-labelledby="Split-tab">
+        <div id="List_Text" class="Cell_Div"></div>
+        <div class="input-group">
+          <div class="input-group-text" title="해당 라벨링 규칙은 최우선으로 적용됩니다.">최우선 라벨링 규칙</div>
+          <input type="text" class="form-control" id="FirstLabelingRule" title="최우선 라벨링 규칙을 양식에 맞추어 입력해 주세요. ex) ON/OFF:po, I:o" placeholder="우선적으로 라벨링 할 규칙을 입력해 주세요. ex) ON/OFF:po, I:o" value="ON/OFF:po, I:o">
+        </div>
+        <p>
+          <br>문장을 직접 수정하실 수 있으며, 합치기 버튼을 클릭해 바로 위의 문장과 합칠 수 있습니다.
+          <br>수정 완료 후 <a href="#" class="btn invalid" role="button" data-bs-toggle="button"><i class="bi-tags"></i> 단어&문장 라벨링</a> 탭을 눌러주세요.
+        </p>
+      </div>
+      <div class="tab-pane fade" id="Introduction" role="tabpanel" aria-labelledby="Introduction-tab">
+        <div id="Table_Text" class="Cell_Div" contenteditable>
           <table class="table table-bordered"><tr><td>index</td><td>category</td><td>numerical</td></tr></table>
         </div>
-		<p>
-		  <br>*<span style="color:black">높은 정확도</span>, <span style="color:#0000DD">보통 정확도</span>, <span style="color:#DD0000">낮은 정확도</span>
+        <p>
+          <br>*<span style="color:black">높은 정확도</span>, <span style="color:#0000DD">보통 정확도</span>, <span style="color:#DD0000">낮은 정확도</span>
           <br>입력한 내용을 엑셀 파일로 다운로드하실 수 있습니다. <button type="button" class="btn btn-success" onclick="saveToFile();"><i class="bi-download"></i> 다운로드</button>
-		</p>
-	  </div>
-	</div>
+        </p>
+      </div>
+    </div>
   </div>
 </main>
 
