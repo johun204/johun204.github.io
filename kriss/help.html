@@ -1,117 +1,76 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" class="h-100">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> 사용방법 </title>
-    <link href="./css/bootstrap.min.css" rel="stylesheet">
-    <link href="./css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-    <link href="./css/main.css" rel="stylesheet">
-  </head>
-  <body>
-    <!-- Fixed navbar -->
-    <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/kriss">KRISS 스마트IT</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="./input.html"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> 논문 본문입력</a></li>
-            <li><a href="./paragraph.html"><span class="glyphicon glyphicon-tag" aria-hidden="true"></span> 문단 라벨링</a></li>
-            <li><a href="./text.html"><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> 단어&문장 라벨링</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> 도구 <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="./qna.html">Q&A 도구</a></li>
-                <li><a href="./ocr.html">OCR 도구</a></li>
-                <li><a href="https://www.station.re.kr/web/kriss-materials-data-center" target="_blank">Station-X</a></li>
-              </ul>
-            </li>
-            <li class="dropdown active">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> 도움말 <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li class="active"><a href="./help.html">사용방법</a></li>
-                <li><a href="mailto:johun204@gmail.com">E-mail</a></li>
-                <li><a href="https://github.com/johun204/kriss-study-help" target="_blank">Github</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
-    <div class="container">
-      <!-- Main component for a primary marketing message or call to action -->
-      <div class="jumbotron">
-        <h2>사용방법</h2>
-        <br>
-        <div class="panel panel-primary">
-          <div class="panel-heading">본문입력 방법</div>
-          <div class="panel-body">
-            <img src="./img/1.png" class="img-responsive">
-          </div>
-          <div class="panel-footer">상단에서 본문입력 메뉴를 선택합니다.</div>
+    <meta name="description" content="KRISS 스마트IT 데이터 구축 도우미">
+    <meta name="author" content="Dong Hun Cho">
+    <title>사용방법</title>
 
-          <div class="panel-body">
-            <img src="./img/2.png" class="img-responsive">
-          </div>
-          <div class="panel-footer">
-          <div class="btn-group" role="group" aria-label="...">
-          <button type="button" class="btn btn-default" id="Btn_Abstract">Abstract</span></button>
-          <button type="button" class="btn btn-default" id="Btn_Introduction">Introduction</button>
-          <button type="button" class="btn btn-default" id="Btn_Main">Main text</button>
-          <button type="button" class="btn btn-default" id="Btn_Methods">Methods</button>
-          <button type="button" class="btn btn-default" id="Btn_Summary">Summary</button>
-          <button type="button" class="btn btn-default" id="Btn_Captions">Captions</button>
-        </div> 버튼을 통해 단락을 구분하여 본문을 입력합니다.<br>문단은 엔터 두 번으로 구분하여 입력할 수 있습니다.<br>입력한 내용은 자동으로 저장되며, 텍스트 파일로 다운로드하실 수도 있습니다.</div>
-        </div>
-        <div class="panel panel-primary">
-          <div class="panel-heading">문단 라벨링 방법</div>
-          <div class="panel-body">
-            <img src="./img/3.png" class="img-responsive">
-          </div>
-          <div class="panel-footer">상단에서 문단 라벨링 메뉴를 선택합니다.</div>
-          <div class="panel-body">
-            <img src="./img/4.png" class="img-responsive">
-          </div>
-          <div class="panel-footer">입력한 본문의 내용을 문단 라벨링 형식에 맞춰 변환합니다.<br>아래 내용을 드래그하여 엑셀에 복사 붙여넣기 할 수 있으며, 엑셀 파일로 다운로드하실 수도 있습니다.</div>
-        </div>
-        <div class="panel panel-primary">
-          <div class="panel-heading">단어&문장 라벨링 방법</div>
-          <div class="panel-body">
-            <img src="./img/5.png" class="img-responsive">
-          </div>
-          <div class="panel-footer">상단에서 단어&문장 라벨링 메뉴를 선택합니다.</div>
-          <div class="panel-body">
-            <img src="./img/6.png" class="img-responsive">
-          </div>
-          <div class="panel-footer">마침표를 기준으로 문장을 나누기 때문에, 잘못 나누어진 문장은 <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> 합치기</button> 버튼을 클릭하여 수정할 수 있습니다.
-          <br>수정이 완료된 후 <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> 단어&문장 라벨링</button> 버튼을 클릭하면 라벨링 양식에 맞춰 변환합니다.</div>
-          <div class="panel-body">
-            <img src="./img/7.png" class="img-responsive">
-          </div>
-          <div class="panel-footer">결과화면 입니다.</div>
-        </div>
+    <!-- Bootstrap core CSS -->
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom styles for this template -->
+    <link href="sticky-footer-navbar.css" rel="stylesheet">
+  </head>
+  <body class="d-flex flex-column h-100">
+    
+<header>
+  <!-- Fixed navbar -->
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/kriss">KRISS 스마트IT</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav me-auto mb-2 mb-md-0">
+          <li class="nav-item">
+            <a class="nav-link" href="./input.html"><i class="bi-file-text"></i> 논문 본문입력</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./paragraph.html"><i class="bi-tag"></i> 문단 라벨링</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./text.html"><i class="bi-tags"></i> 단어&문장 라벨링</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi-wrench"></i> 도구
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+              <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
+              <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi-question-circle"></i> 도움말
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+              <li><a class="dropdown-item" href="./help.html">사용방법</a></li>
+              <li><a class="dropdown-item" href="mailto:johun204@gmail.com">E-mail</a></li>
+            </ul>
+          </li>
+        </ul>
       </div>
-    </div> <!-- /container -->
-    <footer class="footer">
-      <div class="text-center mt-5 mb-0">
-        Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.
-      </div>
-    </footer>
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./js/jquery-1.12.4.min.js"></script>
-    <script src="./js/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="./js/ie10-viewport-bug-workaround.js"></script>
+    </div>
+  </nav>
+</header>
+
+<!-- Begin page content -->
+<main class="flex-shrink-0">
+  <div class="container">
+    <h2 class="mt-5">사용방법</h2>
+    <p class="lead"><br>준비중입니다.</p>
+  </div>
+</main>
+
+<footer class="footer mt-auto py-3 bg-light">
+  <div class="container">
+    <span class="text-muted">Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.</span>
+  </div>
+</footer>
+    <script src="./js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
