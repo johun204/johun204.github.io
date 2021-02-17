@@ -16,106 +16,102 @@
   </head>
   <body class="d-flex flex-column h-100">
     
-<header>
-  <!-- Fixed navbar -->
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/kriss">KRISS 스마트IT</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav me-auto mb-2 mb-md-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="./input.html"><i class="bi-file-text-fill"></i> 논문 본문입력</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./paragraph.html"><i class="bi-tag"></i> 문단 라벨링</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./text.html"><i class="bi-tags"></i> 단어&문장 라벨링</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi-wrench"></i> 도구
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-              <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
-              <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
-              <li><a class="dropdown-item" target="_blank" href="/kriss2">(구버전) 구축 도우미</a></li>
+    <header>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/kriss">KRISS 스마트IT</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+             <li class="nav-item">
+               <a class="nav-link active" aria-current="page" href="./input.html"><i class="bi-file-text-fill"></i> 논문 본문입력</a>
+             </li>
+             <li class="nav-item">
+               <a class="nav-link" href="./paragraph.html"><i class="bi-tag"></i> 문단 라벨링</a>
+             </li>
+             <li class="nav-item">
+               <a class="nav-link" href="./text.html"><i class="bi-tags"></i> 단어&문장 라벨링</a>
+             </li>
+             <li class="nav-item dropdown">
+               <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-wrench"></i> 도구</a>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                 <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
+                 <li><a class="dropdown-item" href="./pdf.html">PDF 뷰어</a></li>
+                 <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
+                 <li><a class="dropdown-item" target="_blank" href="/kriss2">(구버전) 구축 도우미</a></li>
+               </ul>
+             </li>
+             <li class="nav-item dropdown">
+               <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-question-circle"></i> 도움말</a>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                 <li><a class="dropdown-item" href="mailto:johun204@gmail.com">E-mail</a></li>
+               </ul>
+             </li>
             </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi-question-circle"></i> 도움말
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+          </div>
+        </div>
+      </nav>
+    </header>
 
-              <li><a class="dropdown-item" href="mailto:johun204@gmail.com">E-mail</a></li>
-            </ul>
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+      <div class="container">
+        <h2 class="mt-5">논문 본문입력 <button type="button" class="btn btn-danger" style="margin-bottom:3px;" onclick="AllClear();"><i class="bi-eraser-fill"></i> 모두 지우기</button></h2> 
+        <br>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="Abstract-tab" data-bs-toggle="tab" data-bs-target="#Abstract" type="button" role="tab" aria-controls="Abstract" aria-selected="true">Abstract</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="Introduction-tab" data-bs-toggle="tab" data-bs-target="#Introduction" type="button" role="tab" aria-controls="Introduction" aria-selected="false">Introduction</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="Main-tab" data-bs-toggle="tab" data-bs-target="#Main" type="button" role="tab" aria-controls="Main" aria-selected="false">Main text</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="Methods-tab" data-bs-toggle="tab" data-bs-target="#Methods" type="button" role="tab" aria-controls="Methods" aria-selected="false">Methods</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="Summary-tab" data-bs-toggle="tab" data-bs-target="#Summary" type="button" role="tab" aria-controls="Summary" aria-selected="false">Summary</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="Captions-tab" data-bs-toggle="tab" data-bs-target="#Captions" type="button" role="tab" aria-controls="Captions" aria-selected="false">Captions</button>
           </li>
         </ul>
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="Abstract" role="tabpanel" aria-labelledby="Abstract-tab">
+            <textarea class="form-control" id="Textarea_Abstract" rows="26" onchange="AutoSave(this)" placeholder="논문의 중심 내용에 대한 전체적인 요약&#13;&#10;제목 밑 문단, Abstract, Introduction 맨 첫 문단&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
+          </div>
+          <div class="tab-pane fade" id="Introduction" role="tabpanel" aria-labelledby="Introduction-tab">
+            <textarea class="form-control" id="Textarea_Introduction" rows="26" onchange="AutoSave(this)" placeholder="논문과 관련된 배경과 논문의 동기 및 결과를 간략하게 소개&#13;&#10;Introduction, Main, Concepts, Background, Overview, Related work, Abstract 다음 첫 문단&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
+          </div>
+          <div class="tab-pane fade" id="Main" role="tabpanel" aria-labelledby="Main-tab">
+            <textarea class="form-control" id="Textarea_Main" rows="26" onchange="AutoSave(this)" placeholder="논문의 자세한 내용과 결과들을 기술&#13;&#10;Results, Discussion, Analysis, Modeling, Main~summary 사이&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
+          </div>
+          <div class="tab-pane fade" id="Methods" role="tabpanel" aria-labelledby="Methods-tab">
+            <textarea class="form-control" id="Textarea_Methods" rows="26" onchange="AutoSave(this)" placeholder="논문의 실험 방법&#13;&#10;Experimental, Method, Design, Setup&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
+          </div>
+          <div class="tab-pane fade" id="Summary" role="tabpanel" aria-labelledby="Summary-tab">
+            <textarea class="form-control" id="Textarea_Summary" rows="26" onchange="AutoSave(this)" placeholder="논문의 주요 내용에 대한 결과 및 요약&#13;&#10;Conclusions, Summary, Outlook, Future Work&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
+          </div>
+          <div class="tab-pane fade" id="Captions" role="tabpanel" aria-labelledby="Captions-tab">
+            <textarea class="form-control" id="Textarea_Captions" rows="26" onchange="AutoSave(this)" placeholder="논문 image에 대한 개략적인 설명&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
+          </div>
+        </div>
+        <p>
+          <br>입력한 내용을 텍스트 파일로 다운로드하실 수 있습니다. <button type="button" class="btn btn-success" onclick="saveToFile();"><i class="bi-download"></i> 다운로드</button>
+        </p>
       </div>
-    </div>
-  </nav>
-</header>
+    </main>
 
-<!-- Begin page content -->
-<main class="flex-shrink-0">
-  <div class="container">
-    <h2 class="mt-5">논문 본문입력 <button type="button" class="btn btn-danger" style="margin-bottom:3px;" onclick="AllClear();"><i class="bi-eraser-fill"></i> 모두 지우기</button></h2> 
-    <br>
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="Abstract-tab" data-bs-toggle="tab" data-bs-target="#Abstract" type="button" role="tab" aria-controls="Abstract" aria-selected="true">Abstract</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Introduction-tab" data-bs-toggle="tab" data-bs-target="#Introduction" type="button" role="tab" aria-controls="Introduction" aria-selected="false">Introduction</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Main-tab" data-bs-toggle="tab" data-bs-target="#Main" type="button" role="tab" aria-controls="Main" aria-selected="false">Main text</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Methods-tab" data-bs-toggle="tab" data-bs-target="#Methods" type="button" role="tab" aria-controls="Methods" aria-selected="false">Methods</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Summary-tab" data-bs-toggle="tab" data-bs-target="#Summary" type="button" role="tab" aria-controls="Summary" aria-selected="false">Summary</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Captions-tab" data-bs-toggle="tab" data-bs-target="#Captions" type="button" role="tab" aria-controls="Captions" aria-selected="false">Captions</button>
-      </li>
-    </ul>
-    <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade show active" id="Abstract" role="tabpanel" aria-labelledby="Abstract-tab">
-        <textarea class="form-control" id="Textarea_Abstract" rows="26" onchange="AutoSave(this)" placeholder="논문의 중심 내용에 대한 전체적인 요약&#13;&#10;제목 밑 문단, Abstract, Introduction 맨 첫 문단&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
+    <footer class="footer mt-auto py-3 bg-light">
+      <div class="container">
+        <span class="text-muted">Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.</span>
       </div>
-      <div class="tab-pane fade" id="Introduction" role="tabpanel" aria-labelledby="Introduction-tab">
-        <textarea class="form-control" id="Textarea_Introduction" rows="26" onchange="AutoSave(this)" placeholder="논문과 관련된 배경과 논문의 동기 및 결과를 간략하게 소개&#13;&#10;Introduction, Main, Concepts, Background, Overview, Related work, Abstract 다음 첫 문단&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-      </div>
-      <div class="tab-pane fade" id="Main" role="tabpanel" aria-labelledby="Main-tab">
-        <textarea class="form-control" id="Textarea_Main" rows="26" onchange="AutoSave(this)" placeholder="논문의 자세한 내용과 결과들을 기술&#13;&#10;Results, Discussion, Analysis, Modeling, Main~summary 사이&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-      </div>
-      <div class="tab-pane fade" id="Methods" role="tabpanel" aria-labelledby="Methods-tab">
-        <textarea class="form-control" id="Textarea_Methods" rows="26" onchange="AutoSave(this)" placeholder="논문의 실험 방법&#13;&#10;Experimental, Method, Design, Setup&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-      </div>
-      <div class="tab-pane fade" id="Summary" role="tabpanel" aria-labelledby="Summary-tab">
-        <textarea class="form-control" id="Textarea_Summary" rows="26" onchange="AutoSave(this)" placeholder="논문의 주요 내용에 대한 결과 및 요약&#13;&#10;Conclusions, Summary, Outlook, Future Work&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-      </div>
-      <div class="tab-pane fade" id="Captions" role="tabpanel" aria-labelledby="Captions-tab">
-        <textarea class="form-control" id="Textarea_Captions" rows="26" onchange="AutoSave(this)" placeholder="논문 image에 대한 개략적인 설명&#13;&#10;&#13;&#10;*문단 구분은 엔터 두 번으로 가능합니다. 입력 내용은 자동 저장됩니다."></textarea>
-      </div>
-    </div>
-    <p>
-      <br>입력한 내용을 텍스트 파일로 다운로드하실 수 있습니다. <button type="button" class="btn btn-success" onclick="saveToFile();"><i class="bi-download"></i> 다운로드</button>
-    </p>
-  </div>
-</main>
-
-<footer class="footer mt-auto py-3 bg-light">
-  <div class="container">
-    <span class="text-muted">Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.</span>
-  </div>
-</footer>
+    </footer>
     <script src="./js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

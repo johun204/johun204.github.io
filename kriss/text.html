@@ -18,92 +18,88 @@
   </head>
   <body class="d-flex flex-column h-100">
     
-<header>
-  <!-- Fixed navbar -->
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/kriss">KRISS 스마트IT</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav me-auto mb-2 mb-md-0">
-          <li class="nav-item">
-            <a class="nav-link" href="./input.html"><i class="bi-file-text"></i> 논문 본문입력</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./paragraph.html"><i class="bi-tag"></i> 문단 라벨링</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="./text.html"><i class="bi-tags-fill"></i> 단어&문장 라벨링</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi-wrench"></i> 도구
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-              <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
-              <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
-              <li><a class="dropdown-item" target="_blank" href="/kriss2">(구버전) 구축 도우미</a></li>
+    <header>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/kriss">KRISS 스마트IT</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+             <li class="nav-item">
+               <a class="nav-link" href="./input.html"><i class="bi-file-text"></i> 논문 본문입력</a>
+             </li>
+             <li class="nav-item">
+               <a class="nav-link" href="./paragraph.html"><i class="bi-tag"></i> 문단 라벨링</a>
+             </li>
+             <li class="nav-item">
+               <a class="nav-link active" aria-current="page" href="./text.html"><i class="bi-tags-fill"></i> 단어&문장 라벨링</a>
+             </li>
+             <li class="nav-item dropdown">
+               <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-wrench"></i> 도구</a>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                 <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
+                 <li><a class="dropdown-item" href="./pdf.html">PDF 뷰어</a></li>
+                 <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
+                 <li><a class="dropdown-item" target="_blank" href="/kriss2">(구버전) 구축 도우미</a></li>
+               </ul>
+             </li>
+             <li class="nav-item dropdown">
+               <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-question-circle"></i> 도움말</a>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                 <li><a class="dropdown-item" href="mailto:johun204@gmail.com">E-mail</a></li>
+               </ul>
+             </li>
             </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi-question-circle"></i> 도움말
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+          </div>
+        </div>
+      </nav>
+    </header>
 
-              <li><a class="dropdown-item" href="mailto:johun204@gmail.com">E-mail</a></li>
-            </ul>
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+      <div class="container">
+        <h2 class="mt-5">단어&문장 라벨링</h2> 
+        <br>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="Split-tab" data-bs-toggle="tab" data-bs-target="#Split" type="button" role="tab" aria-controls="Split" aria-selected="true" onclick="ClearLabeling();"><i class="bi-list-ol"></i> 문장 나누기</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="Labeling-tab" data-bs-toggle="tab" data-bs-target="#Labeling" type="button" role="tab" aria-controls="Labeling" aria-selected="false" onclick="TextLabeling();"><i class="bi-tags"></i> 단어&문장 라벨링</button>
           </li>
         </ul>
-      </div>
-    </div>
-  </nav>
-</header>
-
-<!-- Begin page content -->
-<main class="flex-shrink-0">
-  <div class="container">
-    <h2 class="mt-5">단어&문장 라벨링</h2> 
-    <br>
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="Split-tab" data-bs-toggle="tab" data-bs-target="#Split" type="button" role="tab" aria-controls="Split" aria-selected="true" onclick="ClearLabeling();"><i class="bi-list-ol"></i> 문장 나누기</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Labeling-tab" data-bs-toggle="tab" data-bs-target="#Labeling" type="button" role="tab" aria-controls="Labeling" aria-selected="false" onclick="TextLabeling();"><i class="bi-tags"></i> 단어&문장 라벨링</button>
-      </li>
-    </ul>
-    <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade show active" id="Split" role="tabpanel" aria-labelledby="Split-tab">
-        <div id="List_Text" class="Cell_Div"></div>
-        <div class="input-group">
-          <div class="input-group-text" title="해당 라벨링 규칙은 최우선으로 적용됩니다.">최우선 라벨링 규칙</div>
-          <input type="text" class="form-control" id="FirstLabelingRule" title="해당 라벨링 규칙은 최우선으로 적용됩니다." placeholder="라벨링 규칙을 '단어:태그' 형태로 입력해 주세요. 쉼표로 구분할 수 있습니다. ex) UV:o, Ω:u">
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="Split" role="tabpanel" aria-labelledby="Split-tab">
+            <div id="List_Text" class="Cell_Div"></div>
+            <div class="input-group">
+         <div class="input-group-text" title="해당 라벨링 규칙은 최우선으로 적용됩니다.">최우선 라벨링 규칙</div>
+         <input type="text" class="form-control" id="FirstLabelingRule" title="해당 라벨링 규칙은 최우선으로 적용됩니다." placeholder="라벨링 규칙을 '단어:태그' 형태로 입력해 주세요. 쉼표로 구분할 수 있습니다. ex) UV:o, Ω:u">
+            </div>
+            <p>
+         <br>합치기 버튼을 클릭하면 바로 위의 문장과 합칠 수 있습니다. 수정이 끝나면 <a href="#" class="btn invalid" role="button" data-bs-toggle="button"><i class="bi-tags"></i> 단어&문장 라벨링</a> 탭을 눌러주세요.
+            </p>
+          </div>
+          <div class="tab-pane fade" id="Labeling" role="tabpanel" aria-labelledby="Labeling-tab">
+            <div id="Table_Text" class="Cell_Div" contenteditable>
+         <table class="table table-bordered"><tr><td>index</td><td>category</td><td>numerical</td></tr></table>
+            </div>
+            <p>
+         <br>*<span style="color:black">높은 정확도</span>, <span style="color:#0000DD">보통 정확도</span>, <span style="color:#DD0000">낮은 정확도</span>
+         <br>입력한 내용을 엑셀 파일로 다운로드하실 수 있습니다. <button type="button" class="btn btn-success" onclick="saveToFile();"><i class="bi-download"></i> 다운로드</button>
+            </p>
+          </div>
         </div>
-        <p>
-          <br>합치기 버튼을 클릭하면 바로 위의 문장과 합칠 수 있습니다. 수정이 끝나면 <a href="#" class="btn invalid" role="button" data-bs-toggle="button"><i class="bi-tags"></i> 단어&문장 라벨링</a> 탭을 눌러주세요.
-        </p>
       </div>
-      <div class="tab-pane fade" id="Labeling" role="tabpanel" aria-labelledby="Labeling-tab">
-        <div id="Table_Text" class="Cell_Div" contenteditable>
-          <table class="table table-bordered"><tr><td>index</td><td>category</td><td>numerical</td></tr></table>
-        </div>
-        <p>
-          <br>*<span style="color:black">높은 정확도</span>, <span style="color:#0000DD">보통 정확도</span>, <span style="color:#DD0000">낮은 정확도</span>
-          <br>입력한 내용을 엑셀 파일로 다운로드하실 수 있습니다. <button type="button" class="btn btn-success" onclick="saveToFile();"><i class="bi-download"></i> 다운로드</button>
-        </p>
-      </div>
-    </div>
-  </div>
-</main>
+    </main>
 
-<footer class="footer mt-auto py-3 bg-light">
-  <div class="container">
-    <span class="text-muted">Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.</span>
-  </div>
-</footer>
+    <footer class="footer mt-auto py-3 bg-light">
+      <div class="container">
+        <span class="text-muted">Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.</span>
+      </div>
+    </footer>
     <script src="./js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

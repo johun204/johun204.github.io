@@ -17,70 +17,66 @@
   </head>
   <body class="d-flex flex-column h-100">
     
-<header>
-  <!-- Fixed navbar -->
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/kriss">KRISS 스마트IT</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav me-auto mb-2 mb-md-0">
-          <li class="nav-item">
-            <a class="nav-link" href="./input.html"><i class="bi-file-text"></i> 논문 본문입력</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="./paragraph.html"><i class="bi-tag-fill"></i> 문단 라벨링</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./text.html"><i class="bi-tags"></i> 단어&문장 라벨링</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi-wrench"></i> 도구
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-              <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
-              <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
-              <li><a class="dropdown-item" target="_blank" href="/kriss2">(구버전) 구축 도우미</a></li>
+    <header>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/kriss">KRISS 스마트IT</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+             <li class="nav-item">
+               <a class="nav-link" href="./input.html"><i class="bi-file-text"></i> 논문 본문입력</a>
+             </li>
+             <li class="nav-item">
+               <a class="nav-link active" aria-current="page" href="./paragraph.html"><i class="bi-tag-fill"></i> 문단 라벨링</a>
+             </li>
+             <li class="nav-item">
+               <a class="nav-link" href="./text.html"><i class="bi-tags"></i> 단어&문장 라벨링</a>
+             </li>
+             <li class="nav-item dropdown">
+               <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-wrench"></i> 도구</a>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                 <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
+                 <li><a class="dropdown-item" href="./pdf.html">PDF 뷰어</a></li>
+                 <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
+                 <li><a class="dropdown-item" target="_blank" href="/kriss2">(구버전) 구축 도우미</a></li>
+               </ul>
+             </li>
+             <li class="nav-item dropdown">
+               <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-question-circle"></i> 도움말</a>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                <li><a class="dropdown-item" href="mailto:johun204@gmail.com">E-mail</a></li>
+               </ul>
+             </li>
             </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi-question-circle"></i> 도움말
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+          </div>
+        </div>
+      </nav>
+    </header>
 
-              <li><a class="dropdown-item" href="mailto:johun204@gmail.com">E-mail</a></li>
-            </ul>
-          </li>
-        </ul>
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+      <div class="container">
+        <h2 class="mt-5">문단 라벨링</h2>
+        <p class="lead">
+          <br>입력한 본문의 내용을 문단 라벨링 형식에 맞춰 변환합니다.
+          <br>드래그하여 엑셀에 복사 붙여넣기 할 수 있습니다.
+        </p>
+        <div id="Table_Paragraph" class="Cell_Div" contenteditable>
+          <table class="table table-bordered"><tr><td>index</td><td>paragraph_data</td><td>tag</td></tr></table>
+        </div>
+        <br>입력한 내용을 엑셀 파일로 다운로드하실 수 있습니다. <button type="button" class="btn btn-success" onclick="saveToFile();"><i class="bi-download"></i> 다운로드</button>
       </div>
-    </div>
-  </nav>
-</header>
+    </main>
 
-<!-- Begin page content -->
-<main class="flex-shrink-0">
-  <div class="container">
-    <h2 class="mt-5">문단 라벨링</h2>
-    <p class="lead">
-      <br>입력한 본문의 내용을 문단 라벨링 형식에 맞춰 변환합니다.
-      <br>드래그하여 엑셀에 복사 붙여넣기 할 수 있습니다.
-    </p>
-    <div id="Table_Paragraph" class="Cell_Div" contenteditable>
-      <table class="table table-bordered"><tr><td>index</td><td>paragraph_data</td><td>tag</td></tr></table>
-    </div>
-    <br>입력한 내용을 엑셀 파일로 다운로드하실 수 있습니다. <button type="button" class="btn btn-success" onclick="saveToFile();"><i class="bi-download"></i> 다운로드</button>
-  </div>
-</main>
-
-<footer class="footer mt-auto py-3 bg-light">
-  <div class="container">
-    <span class="text-muted">Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.</span>
-  </div>
-</footer>
+    <footer class="footer mt-auto py-3 bg-light">
+      <div class="container">
+        <span class="text-muted">Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.</span>
+      </div>
+    </footer>
     <script src="./js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
