@@ -5,8 +5,7 @@
 main > .container {
   padding: 40px 15px 0;
 }
-.Cell_Div
-{
+.Cell_Div {
   border:1px solid #DDDDDD;
   background-color:#FFFFFF;
   color:#000000;
@@ -15,9 +14,12 @@ main > .container {
   font-family:'맑은 고딕', 'Malgun Gothic' !important;
   font-size:11pt;
 }
-.btn.invalid{
+.btn.invalid {
   border-color:#aeb2b6 #aeb2b6 #fff;
 }
 .table-bordered>:not(caption)>*>*{
   border-width: 0px !important;
+}
+.noborder {
+  border: 0px !important;
 }
