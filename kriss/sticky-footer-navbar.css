@@ -15,6 +15,7 @@ main > .container {
   font-size:11pt;
 }
 .btn.invalid {
+  margin-top:3px;
   border-color:#aeb2b6 #aeb2b6 #fff;
 }
 .table-bordered>:not(caption)>*>*{
