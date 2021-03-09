@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="KRISS 스마트IT 데이터 구축 도우미">
     <meta name="author" content="Dong Hun Cho">
-    <title>데이터 구축 도우미</title>
+    <title>줄 번호 제거</title>
 
     <!-- Bootstrap core CSS -->
     <link href="./css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Custom styles for this template -->
     <link href="sticky-footer-navbar.css" rel="stylesheet">
-    <link href="image.css" rel="stylesheet">
-    <script src="./js/image.js" type="text/javascript"></script>
+    <script src="./js/num-remove.js" type="text/javascript"></script>
   </head>
   <body class="d-flex flex-column h-100">
     
@@ -62,13 +61,10 @@
     <!-- Begin page content -->
     <main class="flex-shrink-0">
       <div class="container">
-        <h2 class="mt-5">이미지 추출 도구</h2>
-        <p class="lead">
-          <div class="mb-3">
-            <label for="formFile" class="form-label">PDF 파일을 업로드하면 원본 이미지를 추출합니다.<br><small>*누락되는 이미지가 있을 수도 있습니다.</small></label>
-            <input class="form-control" type="file" id="formFile" onchange="handlePDF(this.files)">
-          </div>
-          <div id="Table_Image" class="Cell_Div"></div>
+        <h2 class="mt-5">줄 번호 제거 <button type="button" class="btn btn-success" style="margin-bottom:3px;" onclick="num_remove();"><i class="bi-eraser-fill"></i> 제거</button></h2> 
+        <br>
+        <p>
+          <textarea class="form-control" id="txt" rows="26" placeholder="PDF 본문 복사 시 줄번호가 함께 복사되는 경우, 줄번호를 제거합니다.&#13;&#10;&#13;&#10;예시)&#13;&#10;1 ~~~~~~&#13;&#10;2 ~~~~~~&#13;&#10;3 ~~~~~~&#13;&#10;&#13;&#10;↓&#13;&#10;&#13;&#10;~~~~~~&#13;&#10;~~~~~~&#13;&#10;~~~~~~"></textarea>
         </p>
       </div>
     </main>
