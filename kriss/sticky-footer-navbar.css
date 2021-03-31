@@ -24,6 +24,6 @@ main > .container {
 .noborder {
   border: 0px !important;
 }
-.list-group-item {
-  background-color: transparent !important;
+.list-group-item:not(.list-group-item-primary) {
+  background-color: transparent;
 }
