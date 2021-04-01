@@ -17,7 +17,6 @@
     <script src="./js/darkmode-js.min.js"></script>
     <script>
       function addDarkmodeWidget() {
-        if(localStorage.getItem("aprilfool") == undefined)location.href="/kriss";
         if(localStorage.getItem("darkmode") == undefined) localStorage.setItem("darkmode", "false");
         const options = { bottom: '64px', right: '32px', left: 'unset', time: '0.5s', mixColor: '#fff', backgroundColor: '#fff', buttonColorDark: '#212529', buttonColorLight: '#fff', saveInCookies: true, label: '🌓', autoMatchOsTheme: true }
         const darkmode = new Darkmode(options);
