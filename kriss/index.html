@@ -1636,10 +1636,13 @@ function aprilfool(){
   alert("만우절 장난이에요!!! 메롱");
   location.href="./index2.html";
 }
+function f(){
+  if(localStorage.getItem("aprilfool") != undefined)location.href="./index2.html";
+}f();
 window.onload = function(){
   setTimeout("aprilfool()", 10000);
   if(localStorage.getItem("aprilfool") != undefined)location.href="./index2.html";
-}if(localStorage.getItem("aprilfool") != undefined)location.href="./index2.html";
+}
 </script>
 </head>
 <body id="t" style="font-family: 'Segoe UI',Arial,'Malgun Gothic',Gulim,sans-serif; font-size: 75%" jstcache="0" class="neterror">
