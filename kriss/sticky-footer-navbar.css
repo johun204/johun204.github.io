@@ -63,6 +63,6 @@ tr:first-child {
 #FirstLabelingRule {
   border-top-width: 0px;
 }
-textarea {
+.tab-pane>textarea {
   border-top-width: 0px !important;
 }
