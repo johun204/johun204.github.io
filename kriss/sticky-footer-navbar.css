@@ -14,7 +14,7 @@ main > .container {
   font-family:'맑은 고딕', 'Malgun Gothic' !important;
   font-size:11pt;
 }
-.tab-content>.Cell_Div {
+.tab-pane>.Cell_Div {
   border-top-width: 0px !important;
 }
 .btn.invalid {
