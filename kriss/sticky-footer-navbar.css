@@ -7,13 +7,15 @@ main > .container {
 }
 .Cell_Div {
   border:1px solid #DDDDDD;
-  border-top-width: 0px !important;
   background-color:#FFFFFF;
   color:#000000;
   max-height:600px;
   overflow:auto;
   font-family:'맑은 고딕', 'Malgun Gothic' !important;
   font-size:11pt;
+}
+.tab-content>.Cell_Div {
+  border-top-width: 0px !important;
 }
 .btn.invalid {
   margin-top:3px;
