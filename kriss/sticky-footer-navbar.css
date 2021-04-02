@@ -50,6 +50,7 @@ main > .container {
 }
 .input-group-text {
   border-radius: 0rem;
+  border-top-width: 0px;
 }
 tr:first-child {
   border-top-width: 0px !important;
