@@ -41,11 +41,9 @@
         const options = { bottom: '64px', right: '32px', left: 'unset', time: '0.5s', mixColor: '#fff', backgroundColor: '#fff', buttonColorDark: '#212529', buttonColorLight: '#fff', saveInCookies: true, label: '🌓', autoMatchOsTheme: true }
         const darkmode = new Darkmode(options);
         darkmode.showWidget();
-
         document.getElementsByClassName("darkmode-toggle")[0].addEventListener('click', inputColor);
       }
       window.addEventListener('load', addDarkmodeWidget);
-      window.addEventListener('load', inputColor);
     </script>
   </head>
   <body class="d-flex flex-column h-100">
