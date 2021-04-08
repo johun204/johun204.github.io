@@ -17,13 +17,29 @@
     <script src="./js/text.js" type="text/javascript"></script>
     <script src="./js/darkmode-js.min.js"></script>
     <script>
+      function inputColor(){
+        if(localStorage.getItem("darkmode") == "true"){
+          for(var i=0;i<document.getElementsByClassName("form-control").length;i++){
+            document.getElementsByClassName("form-control")[i].style.backgroundColor = "#212529";
+            document.getElementsByClassName("form-control")[i].style.color = "#FFFFFF";
+          }
+        }else{
+          for(var i=0;i<document.getElementsByClassName("form-control").length;i++){
+            document.getElementsByClassName("form-control")[i].style.backgroundColor = "#FFFFFF";
+            document.getElementsByClassName("form-control")[i].style.color = "#212529";
+          }
+        }
+      }
       function addDarkmodeWidget() {
         if(localStorage.getItem("darkmode") == undefined) localStorage.setItem("darkmode", "false");
         const options = { bottom: '64px', right: '32px', left: 'unset', time: '0.5s', mixColor: '#fff', backgroundColor: '#fff', buttonColorDark: '#212529', buttonColorLight: '#fff', saveInCookies: true, label: '🌓', autoMatchOsTheme: true }
         const darkmode = new Darkmode(options);
         darkmode.showWidget();
+
+        document.getElementsByClassName("darkmode-toggle")[0].addEventListener('click', inputColor);
       }
       window.addEventListener('load', addDarkmodeWidget);
+      window.addEventListener('load', inputColor);
     </script>
   </head>
   <body class="d-flex flex-column h-100">
