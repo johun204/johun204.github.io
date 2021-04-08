@@ -14,14 +14,23 @@
     <link href="sticky-footer-navbar.css" rel="stylesheet">
     <script src="./js/darkmode-js.min.js"></script>
     <script>
+      function counterColor(){
+        if(localStorage.getItem("darkmode") == "true"){
+          document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%23F29102&amp;title_bg=%23F29102&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자">';
+        }else{
+          document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%230D6EFD&amp;title_bg=%230D6EFD&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자">';
+        }
+      }
       function addDarkmodeWidget() {
         if(localStorage.getItem("darkmode") == undefined) localStorage.setItem("darkmode", "false");
         const options = { bottom: '64px', right: '32px', left: 'unset', time: '0.5s', mixColor: '#fff', backgroundColor: '#fff', buttonColorDark: '#212529', buttonColorLight: '#fff', saveInCookies: true, label: '🌓', autoMatchOsTheme: true }
         const darkmode = new Darkmode(options);
         darkmode.showWidget();
-        document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%230D6EFD&amp;title_bg=%230D6EFD&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자">';
+
+        document.getElementsByClassName("darkmode-toggle")[0].addEventListener('click', counterColor);
       }
       window.addEventListener('load', addDarkmodeWidget);
+      window.addEventListener('load', counterColor);
     </script>
   </head>
   <body class="d-flex flex-column h-100">
