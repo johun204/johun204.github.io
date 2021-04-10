@@ -13,7 +13,6 @@
     <!-- Custom styles for this template -->
     <link href="sticky-footer-navbar.css" rel="stylesheet">
     <script src="./js/jquery-3.6.0.min.js"></script>
-    <script src="./js/bootstrap.min.js"></script>
     <script src="./js/darkmode-js.min.js"></script>
     <script>
       function counterColor(){
@@ -35,7 +34,7 @@
         const notice_date = "20210411";
         if(localStorage.getItem("notice") != notice_date){
           localStorage.setItem("notice", notice_date);
-          $('#myModal').modal('show');
+          $('#noticeModal').modal('show');
         }
       }
       window.addEventListener('load', addDarkmodeWidget);
@@ -88,17 +87,18 @@
     </header>
 
     <!-- Notice -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal fade" id="noticeModal" tabindex="-1" aria-labelledby="noticeModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title" id="myModalLabel">업데이트 내역</h4>
+            <h5 class="modal-title" id="noticeModalLabel">업데이트 내역</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-          <b>2021-04-11</b> 단어&문장 라벨링 시 일부 device 누락 오류 수정.
+            <b>2021-04-11</b> 단어&문장 라벨링 시 일부 device 누락 오류 수정.
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" onclick="$('#myModal').modal('hide')">닫기</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </div>
       </div>
