@@ -12,6 +12,8 @@
     
     <!-- Custom styles for this template -->
     <link href="sticky-footer-navbar.css" rel="stylesheet">
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
     <script src="./js/darkmode-js.min.js"></script>
     <script>
       function counterColor(){
@@ -29,8 +31,16 @@
 
         document.getElementsByClassName("darkmode-toggle")[0].addEventListener('click', counterColor);
       }
+      function openNotice(){
+        const notice_date = "20210411";
+        if(localStorage.getItem("notice") != notice_date){
+          localStorage.setItem("notice", notice_date);
+          $('#myModal').modal('show');
+        }
+      }
       window.addEventListener('load', addDarkmodeWidget);
       window.addEventListener('load', counterColor);
+      window.addEventListener('load', openNotice);
     </script>
   </head>
   <body class="d-flex flex-column h-100">
@@ -76,6 +86,23 @@
         </div>
       </nav>
     </header>
+
+    <!-- Notice -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">업데이트 내역</h4>
+          </div>
+          <div class="modal-body">
+          <b>2021-04-11</b> 단어&문장 라벨링 시 일부 device 누락 오류 수정.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="$('#myModal').modal('hide')">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Begin page content -->
     <main class="flex-shrink-0">
