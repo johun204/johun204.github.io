@@ -6,7 +6,7 @@ main > .container {
   padding: 40px 15px 0;
 }
 .new-badge{
-  color:red;
+  color:#dc3545;
   font-weight: bold;
 }
 .Cell_Div {
