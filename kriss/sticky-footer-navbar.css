@@ -5,6 +5,10 @@
 main > .container {
   padding: 40px 15px 0;
 }
+.new-badge{
+  color:red;
+  font-weight: bold;
+}
 .Cell_Div {
   border:1px solid #DDDDDD;
   background-color:#FFFFFF;
