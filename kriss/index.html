@@ -13,6 +13,7 @@
     <!-- Custom styles for this template -->
     <link href="sticky-footer-navbar.css" rel="stylesheet">
     <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/notice.js"></script>
     <script src="./js/darkmode-js.min.js"></script>
     <script>
       function counterColor(){
@@ -30,16 +31,8 @@
 
         document.getElementsByClassName("darkmode-toggle")[0].addEventListener('click', counterColor);
       }
-      function openNotice(){
-        const notice_date = "20210411";
-        if(localStorage.getItem("notice") != notice_date){
-          localStorage.setItem("notice", notice_date);
-          $('#noticeModal').modal('show');
-        }
-      }
       window.addEventListener('load', addDarkmodeWidget);
       window.addEventListener('load', counterColor);
-      window.addEventListener('load', openNotice);
     </script>
   </head>
   <body class="d-flex flex-column h-100">
@@ -94,12 +87,7 @@
             <h5 class="modal-title" id="noticeModalLabel">업데이트 내역</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-		    <table class="table table-sm table-borderless">
-			<tr><td><b>2021.04.11</b></td><td>단어&문장 라벨링 시 일부 device가 누락되는 오류 수정.</td></tr>
-            <tr><td><b>2021.03.30</b></td><td>다크모드 기능 추가.</td></tr>
-			</table>
-          </div>
+          <div class="modal-body" id="modal-text"></div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
