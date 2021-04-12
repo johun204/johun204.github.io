@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="KRISS 스마트IT 데이터 구축 도우미">
     <meta name="author" content="Dong Hun Cho">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
     <title>데이터 구축 도우미</title>
 
     <!-- Bootstrap core CSS -->
@@ -15,6 +18,8 @@
     <script src="./js/jquery-3.6.0.min.js"></script>
     <script src="./js/notice.js"></script>
     <script src="./js/darkmode-js.min.js"></script>
+    <script src="https://johun204.herokuapp.com/schedule"></script>
+    <script src="./js/index.js"></script>
     <script>
       function counterColor(){
         if(localStorage.getItem("darkmode") == "true"){
@@ -98,12 +103,16 @@
     <!-- Begin page content -->
     <main class="flex-shrink-0">
       <div class="container">
-        <h2 class="mt-5">데이터 구축 도우미 <i class="bi-hand-thumbs-up" onclick="$('#noticeModal').modal('show');" style="cursor:pointer;"></i></h2>
+        <h2 class="mt-5" style="display:flex">데이터 구축 도우미 <div id="counter" onclick="$('#noticeModal').modal('show');" style="cursor:pointer;"></div></h2>
         <p class="lead"><br>스마트IT 부서 데이터 구축 과정 일부를 자동화 하는 도구입니다.
           <br>변환 결과의 정확도에 대해서는 책임지지 않습니다.
           <br>이 사이트는 크롬 브라우저에 최적화 되어있습니다.
+          <br><br><hr><br>
+          <h4 style="display:flex">업무분담표 -&nbsp;<span id="show-no" style="display:none;"><span id="span-no">ki9001 (00조)</span> <sup class="bi-pencil-fill" title="수정" onclick="showinput()" style="cursor:pointer"></sup></span>
+          <span id="input-no" class="input-group" style="width:250px;display:none;"><input type="text" class="form-control" id="myno" placeholder="사번을 입력해주세요"><span class="input-group-btn"><button class="btn btn-primary" onclick="setmyno()" type="button">입력</button></span></span>
+          </h4><br>
+          <div id="schedule"></div>
         </p>
-        <div id="counter"></div>
       </div>
     </main>
 
