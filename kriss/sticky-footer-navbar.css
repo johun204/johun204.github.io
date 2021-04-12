@@ -54,6 +54,12 @@ main > .container {
 .list-group-item .form-control {
   border-radius: .25rem 0rem 0rem .25rem !important;
 }
+span .form-control {
+  border-radius: .25rem 0rem 0rem .25rem !important;
+}
+span .input-group-btn .btn {
+  border-radius: 0rem .25rem .25rem 0rem !important;
+} 
 .list-group-item .btn {
   border-radius: 0rem .25rem .25rem 0rem !important;
 }
