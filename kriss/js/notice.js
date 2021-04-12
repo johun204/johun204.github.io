@@ -1,5 +1,5 @@
 function openNotice(){
-  const notice_date = "20210411";
+  const notice_date = "20210412";
   const notice_text = [
       {"date":"2021.04.12", "text":"업무분담표 기능을 추가했습니다."},
       {"date":"2021.04.11", "text":"단어&문장 라벨링 시 일부 device 태그가 누락되던 오류를 수정했습니다."},
