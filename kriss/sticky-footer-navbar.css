@@ -76,3 +76,6 @@ tr:first-child {
 .tab-pane>textarea {
   border-top-width: 0px !important;
 }
+.black-text {
+  color: #212529 !important;
+}
