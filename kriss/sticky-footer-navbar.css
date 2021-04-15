@@ -79,3 +79,6 @@ tr:first-child {
 .black-text {
   color: #212529 !important;
 }
+.schedule-tr:last-child {
+  border-bottom-width: 0px !important;
+}
