@@ -6,13 +6,23 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+    <script src="/assets/darkmode-js.min.js"></script>
     <title>페이지를 찾을 수 없습니다.</title>
+    <script>
+      function addDarkmodeWidget() {
+        if(localStorage.getItem("darkmode") == undefined) localStorage.setItem("darkmode", "false");
+        const options = { bottom: '64px', right: '32px', left: 'unset', time: '0.5s', mixColor: '#fff', backgroundColor: '#fff', buttonColorDark: '#212529', buttonColorLight: '#fff', saveInCookies: true, label: '🌓', autoMatchOsTheme: true }
+        const darkmode = new Darkmode(options);
+        darkmode.showWidget();
+      }
+      window.addEventListener('load', addDarkmodeWidget);
+    </script>
   </head>
   <body>
     <main>
       <p style="text-align:center">
-	    <img src="/assets/404.png">
-	  </p>
+        <img src="/assets/404.png">
+      </p>
     </main>
   </body>
 </html>
