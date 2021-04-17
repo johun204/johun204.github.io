@@ -12,7 +12,6 @@ author: "Dong Hun Cho"
 ## 소개
 * 입력된 본문 내용을 통해 자동으로 문단, 단어 라벨링을 수행합니다.
 
-![동작 화면](https://raw.githubusercontent.com/johun204/kriss-study-help/main/example.gif)
 
 ## 링크
 * [https://johun204.github.io/kriss](https://johun204.github.io/kriss)
