@@ -1,0 +1,84 @@
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css");
+main > .container {
+  padding: 40px 15px 0;
+}
+.new-badge{
+  color:#dc3545;
+  font-weight: bold;
+}
+.Cell_Div {
+  border:1px solid #DDDDDD;
+  background-color:#FFFFFF;
+  color:#000000;
+  max-height:600px;
+  overflow:auto;
+  font-family:'맑은 고딕', 'Malgun Gothic' !important;
+  font-size:11pt;
+}
+.tab-pane>.Cell_Div {
+  border-top-width: 0px !important;
+}
+.btn.invalid {
+  margin-top:3px;
+  border-color:#aeb2b6 #aeb2b6 #fff;
+}
+.table-bordered>:not(caption)>*>*{
+  border-width: 0px !important;
+}
+.noborder {
+  border: 0px !important;
+}
+.list-group-item {
+  border-left-width: 0px !important;
+  border-right-width: 0px !important;
+}
+.list-group-item:not(.list-group-item-primary) {
+  background-color: transparent;
+}
+.list-group-item:first-child {
+  border-top-left-radius: 0rem !important;
+  border-top-right-radius: 0rem !important;
+  border-top-width: 0px;
+}
+.list-group-item:last-child {
+  border-bottom-right-radius: 0rem !important;
+  border-bottom-left-radius: 0rem !important;
+  border-bottom-width: 0px;
+}
+.form-control {
+  border-radius: 0rem;
+}
+.list-group-item .form-control {
+  border-radius: .25rem 0rem 0rem .25rem !important;
+}
+span .form-control {
+  border-radius: .25rem 0rem 0rem .25rem !important;
+}
+span .input-group-btn .btn {
+  border-radius: 0rem .25rem .25rem 0rem !important;
+} 
+.list-group-item .btn {
+  border-radius: 0rem .25rem .25rem 0rem !important;
+}
+.input-group-text {
+  border-radius: 0rem;
+  border-top-width: 0px;
+}
+tr:first-child {
+  border-top-width: 0px !important;
+}
+#FirstLabelingRule {
+  border-top-width: 0px;
+}
+.tab-pane>textarea {
+  border-top-width: 0px !important;
+}
+.black-text {
+  color: #212529 !important;
+}
+.schedule-tr:last-child {
+  border-bottom-width: 0px !important;
+}
