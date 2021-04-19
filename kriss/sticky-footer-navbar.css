@@ -28,6 +28,9 @@ main > .container {
 .table-bordered>:not(caption)>*>*{
   border-width: 0px !important;
 }
+.labeling-cell {
+  background-color: #E7E6E6 !important;
+}
 .noborder {
   border: 0px !important;
 }
@@ -84,7 +87,4 @@ tr:first-child {
 }
 .Cell_Div > table {
   color: #000000;
-}
-.labeling-cell {
-  background-color: #E7E6E6 !important;
 }
