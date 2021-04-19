@@ -82,3 +82,6 @@ tr:first-child {
 .schedule-tr:last-child {
   border-bottom-width: 0px !important;
 }
+.Cell_Div > table {
+  color: #000000;
+}
