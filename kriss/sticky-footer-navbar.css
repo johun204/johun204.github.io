@@ -85,3 +85,6 @@ tr:first-child {
 .Cell_Div > table {
   color: #000000;
 }
+.labeling-cell {
+  background-color: #E7E6E6 !important;
+}
