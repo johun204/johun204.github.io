@@ -88,3 +88,9 @@ tr:first-child {
 .Cell_Div > table {
   color: #000000;
 }
+#doi_table {
+  border-width: 0px !important;
+}
+#Table_Image {
+  border-width: 0px !important;
+}
