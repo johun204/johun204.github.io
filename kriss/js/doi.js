@@ -1,1 +1,22 @@
-var _0xf34f=["\x74\x65\x78\x74\x61\x72\x65\x61","\x63\x72\x65\x61\x74\x65\x45\x6C\x65\x6D\x65\x6E\x74","\x61\x70\x70\x65\x6E\x64\x43\x68\x69\x6C\x64","\x62\x6F\x64\x79","\x76\x61\x6C\x75\x65","\x73\x65\x6C\x65\x63\x74","\x63\x6F\x70\x79","\x65\x78\x65\x63\x43\x6F\x6D\x6D\x61\x6E\x64","\x72\x65\x6D\x6F\x76\x65\x43\x68\x69\x6C\x64","\x44\x4F\x49\uAC00\x20\uBCF5\uC0AC\uB418\uC5C8\uC2B5\uB2C8\uB2E4\x2E\x0A\uC6D0\uD558\uB294\x20\uACF3\uC5D0\x20\uBD99\uC5EC\x20\uB123\uC73C\uC138\uC694\x2E","\x68\x6F\x73\x74\x6E\x61\x6D\x65","\x6A\x6F\x68\x75\x6E\x32\x30\x34\x2E\x67\x69\x74\x68\x75\x62\x2E\x69\x6F","\x6C\x6F\x63\x61\x6C\x68\x6F\x73\x74","\uD638\uC2A4\uD2B8\x20\uB124\uC784\x20\uC624\uB958\x21","\x74\x72\x69\x6D","\x6B\x65\x79\x77\x6F\x72\x64","\x67\x65\x74\x45\x6C\x65\x6D\x65\x6E\x74\x42\x79\x49\x64","","\uAC80\uC0C9\uC5B4\uB97C\x20\uC785\uB825\uD574\x20\uC8FC\uC138\uC694\x21\x21","\x73\x68\x6F\x77","\x6D\x6F\x64\x61\x6C","\x23\x6E\x6F\x74\x69\x63\x65\x4D\x6F\x64\x61\x6C","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x6A\x6F\x68\x75\x6E\x32\x30\x33\x2E\x68\x65\x72\x6F\x6B\x75\x61\x70\x70\x2E\x63\x6F\x6D\x2F\x61\x72\x74\x69\x63\x6C\x65\x5F\x73\x65\x61\x72\x63\x68\x3F\x71\x3D","\x73\x63\x72\x69\x70\x74","\x73\x72\x63","\x73\x65\x74\x41\x74\x74\x72\x69\x62\x75\x74\x65","\x68\x65\x61\x64","\x66\x69\x72\x73\x74\x45\x6C\x65\x6D\x65\x6E\x74\x43\x68\x69\x6C\x64","\x69\x6E\x73\x65\x72\x74\x42\x65\x66\x6F\x72\x65"];function copyToClipboard(_0x5e74x2){var _0x5e74x3=document[_0xf34f[1]](_0xf34f[0]);document[_0xf34f[3]][_0xf34f[2]](_0x5e74x3);_0x5e74x3[_0xf34f[4]]= _0x5e74x2;_0x5e74x3[_0xf34f[5]]();document[_0xf34f[7]](_0xf34f[6]);document[_0xf34f[3]][_0xf34f[8]](_0x5e74x3);alert(_0xf34f[9])}function article_search(){if(location[_0xf34f[10]]!= _0xf34f[11]&& location[_0xf34f[10]]!= _0xf34f[12]){alert(_0xf34f[13]);return};if(document[_0xf34f[16]](_0xf34f[15])[_0xf34f[4]][_0xf34f[14]]()== _0xf34f[17]){alert(_0xf34f[18])}else {$(_0xf34f[21])[_0xf34f[20]](_0xf34f[19]);let _0x5e74x5=_0xf34f[22]+ document[_0xf34f[16]](_0xf34f[15])[_0xf34f[4]];let _0x5e74x6=document[_0xf34f[1]](_0xf34f[23]);_0x5e74x6[_0xf34f[25]](_0xf34f[24],_0x5e74x5);let _0x5e74x7=document[_0xf34f[26]];_0x5e74x7[_0xf34f[28]](_0x5e74x6,_0x5e74x7[_0xf34f[27]])}}
+function copyToClipboard(val) {
+  var t = document.createElement("textarea");
+  document.body.appendChild(t);
+  t.value = val;
+  t.select();
+  document.execCommand('copy');
+  document.body.removeChild(t);
+  alert('텍스트가 복사되었습니다.\n원하는 곳에 붙여 넣으세요.');
+}
+function article_search(){
+  if(location.hostname != "johun204.github.io" && location.hostname != "localhost"){alert("호스트 네임 오류!");return;}
+  if(document.getElementById("keyword").value.trim() == ""){
+    alert("검색어를 입력해 주세요!!");
+  }else{
+    $('#noticeModal').modal('show');
+    let url = "https://johun203.herokuapp.com/article_search?q=" + document.getElementById("keyword").value;
+    let myScript = document.createElement("script");
+    myScript.setAttribute("src", url);
+    let head = document.head;
+    head.insertBefore(myScript, head.firstElementChild);
+  }
+}
