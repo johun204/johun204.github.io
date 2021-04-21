@@ -1,6 +1,7 @@
 function openNotice(){
-  const notice_date = "20210421";
+  const notice_date = "20210422";
   const notice_text = [
+      {"date":"2021.04.22", "text":"DOI 검색 시 한 번 이상 검색된 내용을 DB에 추가하여 응답속도를 개선했습니다."},
       {"date":"2021.04.21", "text":"DOI 검색기 기능을 추가했습니다."},
       {"date":"2021.04.20", "text":"단어&문장 라벨링 속도를 개선했습니다."},
       {"date":"2021.04.19", "text":"단어&문장 라벨링 시 단어 개수에 맞춰 필드(열)를 생성하도록 변경했습니다."},
