@@ -94,3 +94,6 @@ tr:first-child {
 #Table_Image {
   border-width: 0px !important;
 }
+.btn-clipboard {
+  padding: 0px 3px 2px 2px;
+}
