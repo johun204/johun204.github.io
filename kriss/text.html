@@ -49,6 +49,18 @@
         darkmode.showWidget();
         document.getElementsByClassName("darkmode-toggle")[0].addEventListener('click', inputColor);
       }
+      !function(){
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('worker.js').then(function(reg) {
+            console.log('ServiceWorker registration successful');
+            reg.update();
+          }).catch(function(err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+          });
+        }
+      }();
       window.addEventListener('load', addDarkmodeWidget);
       window.addEventListener('load', inputColor);
     </script>
