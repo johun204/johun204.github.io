@@ -23,7 +23,9 @@ const expectedCaches = ['static-v1'],
   'css/bootstrap.min.css',
   'css/bootstrap.min.css.map',
   'css/bootstrap.rtl.min.css',
-  'css/bootstrap.rtl.min.css.map'
+  'css/bootstrap.rtl.min.css.map',
+  '/kriss',
+  '/kriss/'
  ];
 self.addEventListener('install', event => {
  console.log('installing..');
