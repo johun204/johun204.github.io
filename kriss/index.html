@@ -60,8 +60,7 @@
       }
       function counterColor(){
         if(typeof(getData) != "function"){location.href='offline.html';return;}
-        if(location.protocol != "https:"){location.href='https://'+location.hostname+'/kriss/index.html';return;}
-        if(location.pathname.indexOf("index.html") == -1){location.href='index.html';return;}
+        if(location.protocol != "https:"){location.href='https://'+location.hostname+'/kriss/';return;}
         if(localStorage.getItem("darkmode") == "true"){
           document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%23F29102&amp;title_bg=%23F29102&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자">';
         }else{
@@ -99,7 +98,7 @@
       <!-- Fixed navbar -->
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/kriss/index.html">KRISS 스마트IT</a>
+          <a class="navbar-brand" href="/kriss/">KRISS 스마트IT</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
