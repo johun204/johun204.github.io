@@ -28,6 +28,18 @@
         const darkmode = new Darkmode(options);
         darkmode.showWidget();
       }
+      !function(){
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('worker.js').then(function(reg) {
+            console.log('ServiceWorker registration successful');
+            reg.update();
+          }).catch(function(err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+          });
+        }
+      }();
       window.addEventListener('load', addDarkmodeWidget);
     </script>
   </head>
