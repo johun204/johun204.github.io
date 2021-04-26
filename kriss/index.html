@@ -17,20 +17,57 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
     <link href="sticky-footer-navbar.css" rel="stylesheet">
     <script src="./js/jquery-3.6.0.min.js"></script>
-    <script src="./js/notice.js?v=210426"></script>
+    <!-- <script src="./js/notice.js"></script> -->
     <script src="./js/darkmode-js.min.js"></script>
     <script src="https://johun204.herokuapp.com/spreadsheets?k=1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU&gid=772327835"></script>
     <script src="./js/index.js?v=210419"></script>
     <script>
+      function openNotice(){
+        const notice_date = "20210426";
+        const notice_text = [
+            {"date":"2021.04.26", "text":"사이트를 브라우저 캐시에 저장하여 오프라인 환경에서도 이용  할 수 있도록 적용했습니다."},
+            {"date":"2021.04.22", "text":"DOI 검색 시 한 번 이상 검색된 내용을 DB에 저장하여 응답속도  를 개선했습니다."},
+            {"date":"2021.04.21", "text":"DOI 검색기 기능을 추가했습니다."},
+            {"date":"2021.04.20", "text":"단어&문장 라벨링 속도를 개선했습니다."},
+            {"date":"2021.04.19", "text":"단어&문장 라벨링 시 단어 개수에 맞춰 필드(열)를 생성하도록   변경했습니다."},
+            {"date":"2021.04.18", "text":"업무 분담표를 두 번째 시트의 내용으로 적용했습니다."},
+            {"date":"2021.04.17", "text":"논문 다운로드 시 간헐적으로 로그인 오류가 발생하던 현상을   수정했습니다."},
+            {"date":"2021.04.14", "text":"업무 분담표의 논문 다운로드 기능을 추가했습니다."},
+            {"date":"2021.04.12", "text":"업무 분담표 기능을 추가했습니다."},
+            {"date":"2021.04.11", "text":"단어&문장 라벨링 시 일부 device 태그가 누락되던 오류를 수정  했습니다."},
+            {"date":"2021.04.02", "text":"단어&문장 라벨링 시 문장의 마지막에 '.)'와 같이 마침표 다음   괄호가 존재하는 경우 괄호를 이전 문장에 포함하도록 적용했습니다."},
+            {"date":"2021.03.30", "text":"다크 모드 기능을 추가했습니다."},
+            {"date":"2021.03.22", "text":"단어&문장 라벨링 시 'et al.' 다음 문장을 줄 바꿈 하지 않도  록 적용했습니다."},
+            {"date":"2021.03.20", "text":"메인 페이지에 방문자 수 카운터를 추가했습니다."},
+            {"date":"2021.03.09", "text":"줄 번호 제거 기능을 추가했습니다."},
+            {"date":"2021.02.18", "text":"단어&문장 라벨링 메뉴의 라벨링 시 각주 무시 기능을 추가했습  니다."},
+            {"date":"2021.02.17", "text":"단어&문장 라벨링 메뉴의 최우선 라벨링 규칙 기능을 추가했습  니다."},
+        ];
+      
+        try{
+          var tmp = "<table class='table table-sm table-borderless'>";
+          for(var i=0;i<notice_text.length;i++){
+            tmp += "<tr><td><b>" + notice_text[i]["date"] + "</b></td><td>" + notice_text[i]["text"];
+            if(i == 0) tmp += " <sup class='new-badge'>NEW</sup>";
+            tmp += "</td></tr>";
+          }tmp += "</table>";
+          document.getElementById("modal-text").innerHTML = tmp;
+          if(localStorage.getItem("notice") != notice_date){
+            localStorage.setItem("notice", notice_date);
+            $('#noticeModal').modal('show');
+          }
+        }catch(err){}
+      }
       function counterColor(){
-        if(typeof(getData) != "function")location.href='offline.html';
-		if(location.pathname.indexOf("index.html") == -1)location.href='index.html';
-		if(location.protocol != "https:")location.href='https://'+location.hostname+'/kriss/index.html';
+        if(typeof(getData) != "function"){location.href='offline.html';return;}
+        if(location.pathname.indexOf("index.html") == -1){location.href='index.html';return;}
+        if(location.protocol != "https:"){location.href='https://'+location.hostname+'/kriss/index.html';return;}
         if(localStorage.getItem("darkmode") == "true"){
           document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%23F29102&amp;title_bg=%23F29102&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자">';
         }else{
           document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%230D6EFD&amp;title_bg=%230D6EFD&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자">';
         }
+		openNotice();
       }
       function addDarkmodeWidget() {
         if(localStorage.getItem("darkmode") == undefined) localStorage.setItem("darkmode", "false");
