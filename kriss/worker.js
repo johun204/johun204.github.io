@@ -1,12 +1,12 @@
 const expectedCaches = ['static-v1'],
    resources = [
+  '/kriss/',
   'sticky-footer-navbar.css',
   'js/bootstrap.bundle.min.js',
   'js/bootstrap.bundle.min.js.map',
   'js/darkmode-js.min.js',
   'js/jquery-3.6.0.min.js',
   'js/restore.js',
-  'offline.html',
   'index.html',
   'js/index.js',
   'input.html',
@@ -23,8 +23,7 @@ const expectedCaches = ['static-v1'],
   'css/bootstrap.min.css',
   'css/bootstrap.min.css.map',
   'css/bootstrap.rtl.min.css',
-  'css/bootstrap.rtl.min.css.map',
-  '/kriss/'
+  'css/bootstrap.rtl.min.css.map'
  ];
 self.addEventListener('install', event => {
  console.log('installing..');
