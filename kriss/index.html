@@ -20,8 +20,8 @@
     <script src="./js/jquery-3.6.0.min.js"></script>
     <!-- <script src="./js/notice.js"></script> -->
     <script src="./js/darkmode-js.min.js"></script>
-    <script src="https://johun204.herokuapp.com/spreadsheets?k=1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU&gid=772327835"></script>
-    <script src="./js/index.js?v=210419"></script>
+    <!-- <script src="https://johun204.herokuapp.com/spreadsheets?k=1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU&gid=772327835"></script> -->
+    <script src="./js/index.js?v=210427"></script>
     <script>
       function openNotice(){
         const notice_date = "20210426";
@@ -60,8 +60,8 @@
         }catch(err){}
       }
       function counterColor(){
-        if(typeof(getData) != "function"){location.href='offline.html';return;}
-        if(location.protocol != "https:"){location.href='https://'+location.hostname+'/kriss/';return;}
+        //if(typeof(getData) != "function"){location.href='offline.html';return;}
+        //if(location.protocol != "https:"){location.href='https://'+location.hostname+'/kriss/';return;}
         if(localStorage.getItem("darkmode") == "true"){
           document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%23F29102&amp;title_bg=%23F29102&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자">';
         }else{
@@ -88,6 +88,12 @@
             });
           });
         }
+
+		let url = "https://johun204.herokuapp.com/spreadsheets2?k=1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU&gid=772327835&time=" + (new Date().getTime());
+		let myScript = document.createElement("script");
+		myScript.setAttribute("src", url);
+		let head = document.head;
+		head.insertBefore(myScript, head.firstElementChild);
       }();
       window.addEventListener('load', addDarkmodeWidget);
       window.addEventListener('load', counterColor);
@@ -162,10 +168,10 @@
           <br>변환 결과는 반드시 직접 확인하셔야 합니다.
           <br>이 사이트는 크롬 브라우저에 최적화 되어있습니다.
           <br><br><hr><br>
-          <h4 style="display:flex">업무 분담표 -&nbsp;<span id="show-no" style="display:none;"><span id="span-no" style="cursor:pointer" onclick="showinput();"></span> <button type="button" class="btn btn-sm btn-outline-primary" onclick="showinput();" title="사번 변경"><i class="bi-arrow-repeat"></i></button><br></span>
+          <h4 style="display:flex">업무 분담표&nbsp;<span id="show-no" style="display:none;"><span id="span-no" style="cursor:pointer" onclick="showinput();"></span> <button type="button" class="btn btn-sm btn-outline-primary" onclick="showinput();" title="사번 변경"><i class="bi-arrow-repeat"></i></button><br></span>
           <span id="input-no" class="input-group" style="width:250px;display:none;"><input type="text" class="form-control" id="myno" placeholder="사번을 입력해주세요" onKeypress="javascript:if(event.keyCode==13) {setmyno();}"><span class="input-group-btn"><button class="btn btn-primary" onclick="setmyno()" type="button">입력</button></span></span>
           </h4><br>
-          <div id="schedule"></div>
+          <div id="schedule">업무 분담표 기능을 로딩중입니다.<br><sub>*오프라인 모드에서는 '논문 본문입력', '문단 라벨링', '단어&문장 라벨링' 기능만 사용 가능합니다.</sub></div>
         </p>
       </div>
     </main>
