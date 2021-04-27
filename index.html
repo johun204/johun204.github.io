@@ -1,4 +1,185 @@
----
-layout: home
-title: Home
----
+<!doctype html>
+<html lang="ko" class="h-100">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="KRISS 스마트IT 데이터 구축 도우미">
+    <meta name="author" content="Dong Hun Cho">
+    <title>데이터 구축 도우미</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom styles for this template -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/android-chrome-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+    <link href="sticky-footer-navbar.css" rel="stylesheet">
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <!-- <script src="./js/notice.js"></script> -->
+    <script src="./js/darkmode-js.min.js"></script>
+    <!-- <script src="https://johun204.herokuapp.com/spreadsheets?k=1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU&gid=772327835"></script> -->
+    <script src="./js/index.js?v=210427"></script>
+    <script>
+      function openNotice(){
+        const notice_date = "20210426";
+        const notice_text = [
+            {"date":"2021.04.26", "text":"사이트를 브라우저 캐시에 저장하여 오프라인 환경에서도 이용  할 수 있도록 적용했습니다."},
+            {"date":"2021.04.22", "text":"DOI 검색 시 한 번 이상 검색된 내용을 DB에 저장하여 응답속도  를 개선했습니다."},
+            {"date":"2021.04.21", "text":"DOI 검색기 기능을 추가했습니다."},
+            {"date":"2021.04.20", "text":"단어&문장 라벨링 속도를 개선했습니다."},
+            {"date":"2021.04.19", "text":"단어&문장 라벨링 시 단어 개수에 맞춰 필드(열)를 생성하도록   변경했습니다."},
+            {"date":"2021.04.18", "text":"업무 분담표를 두 번째 시트의 내용으로 적용했습니다."},
+            {"date":"2021.04.17", "text":"논문 다운로드 시 간헐적으로 로그인 오류가 발생하던 현상을   수정했습니다."},
+            {"date":"2021.04.14", "text":"업무 분담표의 논문 다운로드 기능을 추가했습니다."},
+            {"date":"2021.04.12", "text":"업무 분담표 기능을 추가했습니다."},
+            {"date":"2021.04.11", "text":"단어&문장 라벨링 시 일부 device 태그가 누락되던 오류를 수정  했습니다."},
+            {"date":"2021.04.02", "text":"단어&문장 라벨링 시 문장의 마지막에 '.)'와 같이 마침표 다음   괄호가 존재하는 경우 괄호를 이전 문장에 포함하도록 적용했습니다."},
+            {"date":"2021.03.30", "text":"다크 모드 기능을 추가했습니다."},
+            {"date":"2021.03.22", "text":"단어&문장 라벨링 시 'et al.' 다음 문장을 줄 바꿈 하지 않도  록 적용했습니다."},
+            {"date":"2021.03.20", "text":"메인 페이지에 방문자 수 카운터를 추가했습니다."},
+            {"date":"2021.03.09", "text":"줄 번호 제거 기능을 추가했습니다."},
+            {"date":"2021.02.18", "text":"단어&문장 라벨링 메뉴의 라벨링 시 각주 무시 기능을 추가했습  니다."},
+            {"date":"2021.02.17", "text":"단어&문장 라벨링 메뉴의 최우선 라벨링 규칙 기능을 추가했습  니다."},
+        ];
+      
+        try{
+          var tmp = "<table class='table table-sm table-borderless'>";
+          for(var i=0;i<notice_text.length;i++){
+            tmp += "<tr><td><b>" + notice_text[i]["date"] + "</b></td><td>" + notice_text[i]["text"];
+            if(i == 0) tmp += " <sup class='new-badge'>NEW</sup>";
+            tmp += "</td></tr>";
+          }tmp += "</table>";
+          document.getElementById("modal-text").innerHTML = tmp;
+          if(localStorage.getItem("notice") != notice_date){
+            localStorage.setItem("notice", notice_date);
+            $('#noticeModal').modal('show');
+          }
+        }catch(err){}
+      }
+      function counterColor(){
+        if(location.protocol != "https:"){location.href='https://'+location.hostname+'/kriss/';return;}
+        if(localStorage.getItem("darkmode") == "true"){
+          document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%23F29102&amp;title_bg=%23F29102&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자" onerror="this.style.display=\'none\';">';
+        }else{
+          document.getElementById("counter").innerHTML='<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkrisssmartit&amp;count_bg=%230D6EFD&amp;title_bg=%230D6EFD&amp;icon=&amp;icon_color=%23E7E7E7&amp;title=%E2%99%A5&amp;edge_flat=false" title="방문자" alt="방문자" onerror="this.style.display=\'none\';">';
+        }
+        openNotice();
+      }
+      function addDarkmodeWidget() {
+        if(localStorage.getItem("darkmode") == undefined) localStorage.setItem("darkmode", "false");
+        const options = { bottom: '64px', right: '32px', left: 'unset', time: '0.5s', mixColor: '#fff', backgroundColor: '#fff', buttonColorDark: '#212529', buttonColorLight: '#fff', saveInCookies: true, label: '🌓', autoMatchOsTheme: true }
+        const darkmode = new Darkmode(options);
+        darkmode.showWidget();
+
+        document.getElementsByClassName("darkmode-toggle")[0].addEventListener('click', counterColor);
+      }
+      !function(){
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('worker.js').then(function(reg) {
+            console.log('ServiceWorker registration successful');
+            reg.update();
+          }).catch(function(err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+          });
+        }
+
+        let url = "https://johun204.herokuapp.com/spreadsheets2?k=1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU&gid=772327835&time=" + (new Date().getTime());
+        let myScript = document.createElement("script");
+        myScript.setAttribute("src", url);
+        let head = document.head;
+        head.insertBefore(myScript, head.firstElementChild);
+      }();
+      window.addEventListener('load', addDarkmodeWidget);
+      window.addEventListener('load', counterColor);
+    </script>
+  </head>
+  <body class="d-flex flex-column h-100">
+    
+    <header>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/kriss/">KRISS 스마트IT</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+             <li class="nav-item">
+               <a class="nav-link" href="./input.html"><i class="bi-file-text"></i> 논문 본문입력</a>
+             </li>
+             <li class="nav-item">
+               <a class="nav-link" href="./paragraph.html"><i class="bi-tag"></i> 문단 라벨링</a>
+             </li>
+             <li class="nav-item">
+               <a class="nav-link" href="./text.html"><i class="bi-tags"></i> 단어&문장 라벨링</a>
+             </li>
+             <li class="nav-item dropdown">
+               <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-wrench"></i> 도구</a>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                 <li><a class="dropdown-item" href="./qna.html">Q&A 도구</a></li>
+                 <li><a class="dropdown-item" href="./doi.html">DOI 검색기</a></li>
+                 <li><a class="dropdown-item" href="./num-remove.html">줄 번호 제거</a></li>
+
+
+                 <li><a class="dropdown-item" target="_blank" href="https://www.station.re.kr/group/kriss-materials-data-center/data-management">Station-X</a></li>
+
+               </ul>
+             </li>
+             <li class="nav-item dropdown">
+               <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi-question-circle"></i> 도움말</a>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                 <li><a class="dropdown-item" href="mailto:johun204@gmail.com">E-mail</a></li>
+               </ul>
+             </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Notice -->
+    <div class="modal fade" id="noticeModal" tabindex="-1" aria-labelledby="noticeModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="noticeModalLabel">업데이트 내역</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="modal-text"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+      <div class="container">
+        <h2 class="mt-5" style="display:flex">데이터 구축 도우미&nbsp;<div id="counter" onclick="$('#noticeModal').modal('show');" style="cursor:pointer;"></div></h2>
+        <p class="lead"><br>스마트IT 부서 데이터 구축 과정 일부를 자동화 하는 도구입니다.
+          <br>변환 결과는 반드시 직접 확인하셔야 합니다.
+          <br>이 사이트는 크롬 브라우저에 최적화 되어있습니다.
+          <br><br><hr><br>
+          <h4 style="display:flex">업무 분담표&nbsp;<span id="show-no" style="display:none;"><span id="span-no" style="cursor:pointer" onclick="showinput();"></span> <button type="button" class="btn btn-sm btn-outline-primary" onclick="showinput();" title="사번 변경"><i class="bi-arrow-repeat"></i></button><br></span>
+          <span id="input-no" class="input-group" style="width:250px;display:none;"><input type="text" class="form-control" id="myno" placeholder="사번을 입력해주세요" onKeypress="javascript:if(event.keyCode==13) {setmyno();}"><span class="input-group-btn"><button class="btn btn-primary" onclick="setmyno()" type="button">입력</button></span></span>
+          </h4><br>
+          <div id="schedule">업무 분담표를 불러오는 중입니다.<br><sub>*오프라인 모드에서는 '논문 본문입력', '문단 라벨링', '단어&문장 라벨링' 기능만 사용 가능합니다.</sub></div>
+        </p>
+      </div>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-light">
+      <div class="container">
+        <span class="text-muted">Copyright (c) 2020 <a class="text-primary" href="https://github.com/johun204" target="_blank">Dong Hun Cho</a>.</span>
+      </div>
+    </footer>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
