@@ -87,8 +87,9 @@
             });
           });
         }
-
-        let url = "https://johun204.herokuapp.com/spreadsheets2?k=1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU&gid=772327835&time=" + (new Date().getTime());
+        let sid = "1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU";
+        let gid = "762089271";
+        let url = "https://johun204.herokuapp.com/spreadsheets2?k=" + sid + "&gid=" + gid + "&time=" + (new Date().getTime());
         let myScript = document.createElement("script");
         myScript.setAttribute("src", url);
         let head = document.head;
