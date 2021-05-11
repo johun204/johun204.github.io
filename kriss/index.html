@@ -24,8 +24,9 @@
     <script src="./js/index.js?v=210427"></script>
     <script>
       function openNotice(){
-        const notice_date = "20210502";
+        const notice_date = "20210511";
         const notice_text = [
+            {"date":"2021.05.11", "text":"업무 분담표를  번째 시트의 내용으로 적용했습니다."},
             {"date":"2021.05.02", "text":"업무 분담표를 세 번째 시트의 내용으로 적용했습니다."},
             {"date":"2021.04.26", "text":"사이트를 브라우저 캐시에 저장하여 오프라인 환경에서도 이용  할 수 있도록 적용했습니다."},
             {"date":"2021.04.22", "text":"DOI 검색 시 한 번 이상 검색된 내용을 DB에 저장하여 응답속도  를 개선했습니다."},
@@ -89,7 +90,7 @@
           });
         }
         let sid = "1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU";
-        let gid = "762089271";
+        let gid = "585511027";
         let url = "https://johun204.herokuapp.com/spreadsheets2?k=" + sid + "&gid=" + gid + "&time=" + (new Date().getTime());
         let myScript = document.createElement("script");
         myScript.setAttribute("src", url);
