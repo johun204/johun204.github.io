@@ -18,9 +18,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
     <link href="sticky-footer-navbar.css" rel="stylesheet">
     <script src="./js/jquery-3.6.0.min.js"></script>
-    <!-- <script src="./js/notice.js"></script> -->
     <script src="./js/darkmode-js.min.js"></script>
-    <!-- <script src="https://johun204.herokuapp.com/spreadsheets?k=1cQPkxwvjIvgrPKitP8tLhRkWkLEv_D3iwOrpX4L3dWU&gid=772327835"></script> -->
     <script src="./js/index.js?v=210427"></script>
     <script>
       function openNotice(){
@@ -58,7 +56,7 @@
           document.getElementById("modal-text").innerHTML = tmp;
           if(localStorage.getItem("notice") != notice_date){
             localStorage.setItem("notice", notice_date);
-            $('#noticeModal').modal('show');
+            //$('#noticeModal').modal('show'); //notice 제거 210624
           }
         }catch(err){}
       }
@@ -96,7 +94,7 @@
         let myScript = document.createElement("script");
         myScript.setAttribute("src", url);
         let head = document.head;
-        //head.insertBefore(myScript, head.firstElementChild);
+        //head.insertBefore(myScript, head.firstElementChild); // 업무분담표 제거 210624
       }();
       window.addEventListener('load', addDarkmodeWidget);
       window.addEventListener('load', counterColor);
