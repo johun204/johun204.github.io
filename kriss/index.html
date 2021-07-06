@@ -22,8 +22,9 @@
     <script src="./js/index.js?v=210427"></script>
     <script>
       function openNotice(){
-        const notice_date = "20210523";
+        const notice_date = "20210706";
         const notice_text = [
+            {"date":"2021.07.06", "text":"문단 라벨링 양식을 변경했습니다."},
             {"date":"2021.05.23", "text":"업무 분담표를 다섯 번째 시트의 내용으로 적용했습니다."},
             {"date":"2021.05.11", "text":"업무 분담표를 네 번째 시트의 내용으로 적용했습니다."},
             {"date":"2021.05.02", "text":"업무 분담표를 세 번째 시트의 내용으로 적용했습니다."},
@@ -56,7 +57,7 @@
           document.getElementById("modal-text").innerHTML = tmp;
           if(localStorage.getItem("notice") != notice_date){
             localStorage.setItem("notice", notice_date);
-            //$('#noticeModal').modal('show'); //notice 제거 210624
+            $('#noticeModal').modal('show');
           }
         }catch(err){}
       }
