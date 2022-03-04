@@ -4,35 +4,42 @@
 
 <div id="chart"></div>
 <script>
-
-
+!function(){
 var chart = bb.generate({
   data: {
     x: "x",
 	xFormat: "%Y-%m-%d %H:%M:%S",
     columns: [
 	["x", "2021-02-20 12:00:01", "2021-02-21 12:00:02", "2021-02-22 12:00:03", "2021-02-23 12:00:04"],
-	["data1", {open:1300, high:1369, low:1200, close:1339},
+	["Candle", {open:1300, high:1369, low:1200, close:1339},
 	          [1348, 1371, 1271, 1320]],
-	["data2", 1000, 1100, 850, 870],
+	["BB_Upper", 1000, 1100, 850, 870],
+	["BB_Middle", 900, 1000, 750, 770],
+	["BB_Lower", 800, 900, 650, 670],
 	["data3", 1234, 1111]
     ],
     types: {
-      data1: "candlestick",
-      data2: "line",
+      Candle: "candlestick",
+      BB_Upper: "line",
+	  BB_Middle: "line",
+	  BB_Lower: "line",
       data3: "bar",
+    },
+	colors: {
+      Candle: "red",
+	  BB_Upper: "cyan",
+	  BB_Middle: "cyan",
+	  BB_Lower: "cyan",
     },
     labels: true
   },
   candlestick: {
     width: {
-      data1: 30,
-      data2: 30
+      Candle: 30
     },
     color: {
       down: {
-        data1: "red",
-        data2: "cyan"
+        Candle: "blue"
       }
     }
   },
@@ -56,4 +63,5 @@ var chart = bb.generate({
   },
   bindto: "#chart"
 });
+}();
 </script>
