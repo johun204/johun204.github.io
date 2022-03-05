@@ -31,6 +31,7 @@ function init(){
 	document.getElementById('volume').innerHTML = '';
 }
 function getJSON(){
+	init();
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value;
 	let myScript = document.createElement('script');
 	myScript.setAttribute('src', url);
