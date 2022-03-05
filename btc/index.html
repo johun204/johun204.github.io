@@ -7,6 +7,13 @@
 <div id='rsi'></div>
 <div id='volume'></div>
 <script>
+!function(){
+	var chart = bb.generate({
+		title: {text: "Loading data.."},
+		data: {columns: []},
+		bindto: "#chart"
+	});
+}();
 function getJSON(){
 	let url = 'https://johun204.herokuapp.com/getJSON';
 	let myScript = document.createElement('script');
