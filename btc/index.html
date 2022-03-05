@@ -13,6 +13,7 @@
 		<option value=60 selected>60분 캔들</option>
 		<option value=240>240분 캔들</option>
 	</select>
+	<button id='btn' onclick='getJSON()'>새로고침</button>
 </div>
 <div id='chart'></div>
 <div id='rsi'></div>
@@ -32,6 +33,7 @@ function init(){
 	document.getElementById('volume').innerHTML = '';
 }
 function getJSON(withinit=false){
+	if(document.getElementById('minute').disabled)return false;
 	if(withinit)init();
 	document.getElementById('minute').disabled=true;
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value;
