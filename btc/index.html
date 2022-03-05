@@ -18,6 +18,7 @@
 <div id='rsi'></div>
 <div id='volume'></div>
 <script>
+var timer;
 !function(){
 	init();
 }();
@@ -38,7 +39,8 @@ function getJSON(withinit=false){
 	myScript.setAttribute('src', url);
 	let head = document.head;
 	head.insertBefore(myScript, head.firstElementChild);
-	setTimeout(getJSON, 60000);
+	clearTimeout(timer);
+	timer = setTimeout(getJSON, 60000);
 	return true;
 }
 window.addEventListener('load', getJSON);
