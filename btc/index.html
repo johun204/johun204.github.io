@@ -2,7 +2,7 @@
 <script src='//d3js.org/d3.v4.min.js'></script>
 <link rel='stylesheet' href='billboard.min.css'>
 <script src='billboard.pkgd.min.js'></script>
-<div id='candle_select' style="text-align:center">
+<div id='candle_select' style='text-align:center'>
 	<select id='minute' onchange='getJSON()'>
 		<option value=1>1분</option>
 		<option value=3>3분</option>
@@ -19,12 +19,17 @@
 <div id='volume'></div>
 <script>
 !function(){
-	var chart = bb.generate({
-		title: {text: "Loading data.."},
-		data: {columns: []},
-		bindto: "#chart"
-	});
+	init();
 }();
+function init(){
+	var chart = bb.generate({
+		title: {text: 'Loading data..'},
+		data: {columns: []},
+		bindto: '#chart'
+	});
+	document.getElementById('rsi').innerHTML = '';
+	document.getElementById('volume').innerHTML = '';
+}
 function getJSON(){
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value;
 	let myScript = document.createElement('script');
