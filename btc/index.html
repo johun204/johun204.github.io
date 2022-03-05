@@ -13,6 +13,7 @@ function getJSON(){
 	myScript.setAttribute('src', url);
 	let head = document.head;
 	head.insertBefore(myScript, head.firstElementChild);
+	setTimeout(getJSON, 60000);
 }
 window.addEventListener('load', getJSON);
 </script>
