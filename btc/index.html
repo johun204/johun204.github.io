@@ -38,6 +38,7 @@ function getJSON(withinit=false){
 	let head = document.head;
 	head.insertBefore(myScript, head.firstElementChild);
 	setTimeout(getJSON, 60000);
+	return true;
 }
 window.addEventListener('load', getJSON);
 </script>
