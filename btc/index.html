@@ -1,16 +1,16 @@
 <title>BTC</title>
-<script src="//d3js.org/d3.v4.min.js"></script>
-<link rel="stylesheet" href="billboard.min.css">
-<script src = "billboard.pkgd.min.js"></script>
+<script src='//d3js.org/d3.v4.min.js'></script>
+<link rel='stylesheet' href='billboard.min.css'>
+<script src='billboard.pkgd.min.js'></script>
 
-<div id="chart"></div>
-<div id="rsi"></div>
-<div id="volume"></div>
+<div id='chart'></div>
+<div id='rsi'></div>
+<div id='volume'></div>
 <script>
 function loadData(){
-	let url = "https://johun204.herokuapp.com/getJSON";
-	let myScript = document.createElement("script");
-	myScript.setAttribute("src", url);
+	let url = 'https://johun204.herokuapp.com/getJSON';
+	let myScript = document.createElement('script');
+	myScript.setAttribute('src', url);
 	let head = document.head;
 	head.insertBefore(myScript, head.firstElementChild);
 }
