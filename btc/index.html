@@ -37,7 +37,7 @@ function getJSON(withinit=false){
 	document.getElementById('minute').disabled=true;
 	clearTimeout(timer);
 	if(withinit)init();
-	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value;
+	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value + '&' + (new Date().getTime()).toString();
 	let myScript = document.createElement('script');
 	myScript.setAttribute('src', url);
 	let head = document.head;
