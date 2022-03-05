@@ -143,6 +143,11 @@ var chart = bb.generate({
       tick: {
         format: "%Y-%m-%d %H:%M:%S"
       }
+    },
+    y: {
+      tick: {
+        format: function(x) { return d3.format(".3s")(x); }
+      }
     }
   },
   bindto: "#volume"
