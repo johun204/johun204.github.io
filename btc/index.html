@@ -7,6 +7,13 @@
 <div id="rsi"></div>
 <div id="volume"></div>
 <script>
+function loadData(){
+	let url = "https://johun204.herokuapp.com/getJSON";
+	let myScript = document.createElement("script");
+	myScript.setAttribute("src", url);
+	let head = document.head;
+	head.insertBefore(myScript, head.firstElementChild);
+}
 !function(){
 var chart = bb.generate({
   data: {
