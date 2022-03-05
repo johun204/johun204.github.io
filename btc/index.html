@@ -34,14 +34,14 @@ function init(){
 }
 function getJSON(withinit=false){
 	if(document.getElementById('minute').disabled)return false;
-	if(withinit)init();
 	document.getElementById('minute').disabled=true;
+	clearTimeout(timer);
+	if(withinit)init();
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value;
 	let myScript = document.createElement('script');
 	myScript.setAttribute('src', url);
 	let head = document.head;
 	head.insertBefore(myScript, head.firstElementChild);
-	clearTimeout(timer);
 	timer = setTimeout(getJSON, 30000);
 	return true;
 }
