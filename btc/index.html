@@ -19,10 +19,10 @@
 <div id='rsi'></div>
 <div id='volume'></div>
 <script>
-var timer;
+var timer, timestamp = 0;
 !function(){
 	init();
-	timer = setTimeout(reload, 10000);
+	timer = setTimeout(reload, 1000);
 }();
 function init(){
 	var chart = bb.generate({
@@ -35,12 +35,13 @@ function init(){
 }
 function reload(){
 	clearTimeout(timer);
-	if(document.getElementById('refresh').checked){
+	if(document.getElementById('refresh').checked && timestamp > 0 && (new Date()).getTime() > timestamp + 10000){
 		console.log(getJSON());
 	}
-	timer = setTimeout(reload, 10000);
+	timer = setTimeout(reload, 1000);
 }
 function getJSON(withinit=false){
+	timestamp = (new Date()).getTime();
 	document.getElementById('minute').disabled=true;
 	if(withinit)init();
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value + '&' + (new Date().getTime()).toString();
