@@ -41,7 +41,6 @@ function reload(){
 	timer = setTimeout(reload, 10000);
 }
 function getJSON(withinit=false){
-	if(document.getElementById('minute').disabled)return false;
 	document.getElementById('minute').disabled=true;
 	if(withinit)init();
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value + '&' + (new Date().getTime()).toString();
