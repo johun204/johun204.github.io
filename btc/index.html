@@ -3,6 +3,7 @@
 <link rel='stylesheet' href='billboard.min.css'>
 <script src='billboard.pkgd.min.js'></script>
 <div id='candle_select' style='text-align:center'>
+	<select id='market'></select>
 	<select id='minute' onchange='getJSON(withinit=true)'>
 		<option value=1>1분 캔들</option>
 		<option value=3>3분 캔들</option>
@@ -22,6 +23,15 @@
 var timer, timestamp = 0;
 !function(){
 	init();
+	var market = document.getElementById('market');
+	fetch("./market.json").then(response => {return response.json();}).then(jsondata => {
+		for(var i=0;i<jsondata.length;i++){
+			var opt = document.createElement('option');
+			opt.value = jsondata[i]['market'];
+			opt.innerHTML = jsondata[i]['korean_name'];
+			market.appendChild(opt);
+		}
+	});
 	timer = setTimeout(reload, 100);
 }();
 function init(){
