@@ -13,7 +13,7 @@
 		<option value=60 selected>60분 캔들</option>
 		<option value=240>240분 캔들</option>
 	</select>
-	<button id='btn' onclick='getJSON()'>새로고침</button>
+	<input type='checkbox' id='refresh' checked><label for='refresh'>자동새로고침</label>
 </div>
 <div id='chart'></div>
 <div id='rsi'></div>
@@ -22,6 +22,7 @@
 var timer;
 !function(){
 	init();
+	timer = setTimeout(reload, 10000);
 }();
 function init(){
 	var chart = bb.generate({
@@ -32,10 +33,14 @@ function init(){
 	document.getElementById('rsi').innerHTML = '';
 	document.getElementById('volume').innerHTML = '';
 }
+function reload(){
+	clearTimeout(timer);
+	getJSON();
+	timer = setTimeout(reload, 10000);
+}
 function getJSON(withinit=false){
 	if(document.getElementById('minute').disabled)return false;
 	document.getElementById('minute').disabled=true;
-	clearTimeout(timer);
 	if(withinit)init();
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value + '&' + (new Date().getTime()).toString();
 	if(document.getElementById('chart_script') != null){
@@ -46,7 +51,6 @@ function getJSON(withinit=false){
 	chart_script.setAttribute('id', 'chart_script');
 	let head = document.head;
 	head.insertBefore(chart_script, head.firstElementChild);
-	timer = setTimeout(getJSON, 30000);
 	return true;
 }
 window.addEventListener('load', getJSON);
