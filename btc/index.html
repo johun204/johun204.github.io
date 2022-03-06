@@ -26,9 +26,10 @@ var timer, timestamp = 0;
 	var market = document.getElementById('market');
 	fetch("./market.json").then(response => {return response.json();}).then(jsondata => {
 		for(var i=0;i<jsondata.length;i++){
+			if(jsondata[i]['market'].length < 4 || jsondata[i]['market'].substr(0,4) != 'KRW-')continue;
 			var opt = document.createElement('option');
 			opt.value = jsondata[i]['market'];
-			opt.innerHTML = jsondata[i]['korean_name'];
+			opt.innerHTML = jsondata[i]['korean_name'] + '(' + jsondata[i]['market'].substr(4) + ')';
 			market.appendChild(opt);
 		}
 	});
