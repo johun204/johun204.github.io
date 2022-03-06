@@ -32,6 +32,8 @@ function initScreen(){
 			market.appendChild(opt);
 		}
 	});
+	if(localStorage.getItem('minute') != null)document.getElementById('minute').value = localStorage.getItem('minute');
+	if(localStorage.getItem('market') != null)document.getElementById('market').value = localStorage.getItem('market');
 	getJSON(withinit=true);
 	timer = setTimeout(reload, 500);
 }
@@ -61,6 +63,8 @@ function getJSON(withinit=false){
 	document.getElementById('minute').disabled=true;
 	document.getElementById('market').disabled=true;
 	if(withinit)initChart();
+	localStorage.setItem("minute", document.getElementById('minute').value);
+	localStorage.setItem("market", document.getElementById('market').value);
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?market=' + 'KRW-BTC' + '&minute=' + document.getElementById('minute').value + '&' + (new Date().getTime()).toString();
 	if(document.getElementById('chart_script') != null){
 		document.getElementById('chart_script').remove();
