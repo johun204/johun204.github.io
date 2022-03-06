@@ -35,9 +35,11 @@ function init(){
 }
 function reload(){
 	clearTimeout(timer);
-	if(document.getElementById('refresh').checked && timestamp > 0 && (new Date()).getTime() > timestamp + 10000){
+	if(document.getElementById('refresh').checked && timestamp > 0){
 		document.getElementById('refresh_label').innerText = '자동새로고침 (' + Math.ceil((10000 - (new Date()).getTime() + timestamp)/1000) + ')';
-		console.log(getJSON());
+		if((new Date()).getTime() > timestamp + 10000){
+			console.log(getJSON());
+		}
 	}else{
 		document.getElementById('refresh_label').innerText = '자동새로고침';
 	}
