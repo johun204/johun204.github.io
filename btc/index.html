@@ -35,7 +35,9 @@ function init(){
 }
 function reload(){
 	clearTimeout(timer);
-	console.log(getJSON());
+	if(document.getElementById('refresh').checked){
+		console.log(getJSON());
+	}
 	timer = setTimeout(reload, 10000);
 }
 function getJSON(withinit=false){
