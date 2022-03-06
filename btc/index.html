@@ -21,10 +21,9 @@
 <div id='volume'></div>
 <script>
 var timer, timestamp = 0;
-!function(){
-	init();
-	var market = document.getElementById('market');
+function initScreen(){
 	fetch("./market.json").then(response => {return response.json();}).then(jsondata => {
+		var market = document.getElementById('market');
 		for(var i=0;i<jsondata.length;i++){
 			if(jsondata[i]['market'].length < 4 || jsondata[i]['market'].substr(0,4) != 'KRW-')continue;
 			var opt = document.createElement('option');
@@ -33,9 +32,10 @@ var timer, timestamp = 0;
 			market.appendChild(opt);
 		}
 	});
-	timer = setTimeout(reload, 100);
-}();
-function init(){
+	getJSON(withinit=true);
+	timer = setTimeout(reload, 500);
+}
+function initChart(){
 	var chart = bb.generate({
 		title: {text: 'Loading data..'},
 		data: {columns: []},
@@ -54,12 +54,12 @@ function reload(){
 	}else{
 		document.getElementById('refresh_label').innerText = '자동새로고침';
 	}
-	timer = setTimeout(reload, 100);
+	timer = setTimeout(reload, 500);
 }
 function getJSON(withinit=false){
 	timestamp = (new Date()).getTime();
 	document.getElementById('minute').disabled=true;
-	if(withinit)init();
+	if(withinit)initChart();
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value + '&' + (new Date().getTime()).toString();
 	if(document.getElementById('chart_script') != null){
 		document.getElementById('chart_script').remove();
@@ -71,5 +71,5 @@ function getJSON(withinit=false){
 	head.insertBefore(chart_script, head.firstElementChild);
 	return true;
 }
-window.addEventListener('load', getJSON);
+window.addEventListener('load', initScreen);
 </script>
