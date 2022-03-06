@@ -35,7 +35,7 @@ function init(){
 }
 function reload(){
 	clearTimeout(timer);
-	getJSON();
+	console.log(getJSON());
 	timer = setTimeout(reload, 10000);
 }
 function getJSON(withinit=false){
