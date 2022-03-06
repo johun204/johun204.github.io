@@ -59,6 +59,7 @@ function reload(){
 function getJSON(withinit=false){
 	timestamp = (new Date()).getTime();
 	document.getElementById('minute').disabled=true;
+	document.getElementById('market').disabled=true;
 	if(withinit)initChart();
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?minute=' + document.getElementById('minute').value + '&' + (new Date().getTime()).toString();
 	if(document.getElementById('chart_script') != null){
