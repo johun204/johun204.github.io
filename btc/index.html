@@ -22,7 +22,7 @@
 var timer, timestamp = 0;
 !function(){
 	init();
-	timer = setTimeout(reload, 1000);
+	timer = setTimeout(reload, 100);
 }();
 function init(){
 	var chart = bb.generate({
@@ -43,7 +43,7 @@ function reload(){
 	}else{
 		document.getElementById('refresh_label').innerText = '자동새로고침';
 	}
-	timer = setTimeout(reload, 1000);
+	timer = setTimeout(reload, 100);
 }
 function getJSON(withinit=false){
 	timestamp = (new Date()).getTime();
