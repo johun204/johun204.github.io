@@ -77,8 +77,8 @@ function initChart(){
 function reload(){
 	clearTimeout(timer);
 	if(document.getElementById('refresh').checked && timestamp > 0){
-		document.getElementById('refresh_label').innerText = '자동새로고침 (' + Math.ceil((30000 - (new Date()).getTime() + timestamp)/1000) + ')';
-		if((new Date()).getTime() > timestamp + 30000){
+		document.getElementById('refresh_label').innerText = '자동새로고침 (' + Math.ceil((60000 - (new Date()).getTime() + timestamp)/1000) + ')';
+		if((new Date()).getTime() > timestamp + 60000){
 			console.log(getJSON());
 		}
 	}else{
