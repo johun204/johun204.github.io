@@ -66,7 +66,7 @@ function getJSON(withinit=false){
 	if(withinit)initChart();
 	localStorage.setItem("market", document.getElementById('market').value);
 	localStorage.setItem("minute", document.getElementById('minute').value);
-	let url = 'https://johun204.herokuapp.com/getJSON' + '?market=' + 'KRW-BTC' + '&minute=' + document.getElementById('minute').value + '&' + (new Date().getTime()).toString();
+	let url = 'https://johun204.herokuapp.com/getJSON' + '?market=' + document.getElementById('market').value + '&minute=' + document.getElementById('minute').value + '&to=' + document.getElementById('to').value + '&' + (new Date().getTime()).toString();
 	if(document.getElementById('chart_script') != null){
 		document.getElementById('chart_script').remove();
 	}
