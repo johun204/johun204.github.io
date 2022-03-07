@@ -1,3 +1,4 @@
+<meta charset=utf-8>
 <title>BTC</title>
 <script src='//d3js.org/d3.v4.min.js'></script>
 <link rel='stylesheet' href='billboard.min.css'>
@@ -15,7 +16,7 @@
 		<option value=240>240분 캔들</option>
 	</select>
 
-	<input type='datetime-local' id='to'>
+	<input type='hidden' id='to'>
 	<button onclick='getJSON(withinit=true)'>조회</button>
 	<input type='checkbox' id='refresh' checked><label for='refresh' id='refresh_label'>자동새로고침</label>
 </div>
@@ -24,8 +25,14 @@
 <div id='volume'></div>
 <script>
 var timer, timestamp = 0;
-function initScreen(){
-	fetch("./market.json").then(response => {return response.json();}).then(jsondata => {
+function getMarket(){
+	const response = fetch("market.json");
+	return response.then(res => res.json());
+}
+async function initScreen(){
+	var jsondata;
+	try {
+		jsondata = await getMarket();
 		var market = document.getElementById('market');
 		for(var i=0;i<jsondata.length;i++){
 			if(jsondata[i]['market'].length < 4 || jsondata[i]['market'].substr(0,4) != 'KRW-')continue;
@@ -34,10 +41,13 @@ function initScreen(){
 			opt.innerHTML = jsondata[i]['korean_name'] + '(' + jsondata[i]['market'].substr(4) + ')';
 			market.appendChild(opt);
 		}
-	});
-	if(localStorage.getItem('market') != null)document.getElementById('market').value = localStorage.getItem('market');
-	if(localStorage.getItem('minute') != null)document.getElementById('minute').value = localStorage.getItem('minute');
-	getJSON(withinit=true);
+		if(localStorage.getItem('market') != null)document.getElementById('market').value = localStorage.getItem('market');
+		if(localStorage.getItem('minute') != null)document.getElementById('minute').value = localStorage.getItem('minute');
+		getJSON(withinit=true);
+	}
+	catch(error){
+		console.log(error);
+	}
 	timer = setTimeout(reload, 500);
 }
 function initChart(){
@@ -67,6 +77,7 @@ function getJSON(withinit=false){
 	localStorage.setItem("market", document.getElementById('market').value);
 	localStorage.setItem("minute", document.getElementById('minute').value);
 	let url = 'https://johun204.herokuapp.com/getJSON' + '?market=' + document.getElementById('market').value + '&minute=' + document.getElementById('minute').value + '&to=' + document.getElementById('to').value + '&' + (new Date().getTime()).toString();
+	console.log(url);
 	if(document.getElementById('chart_script') != null){
 		document.getElementById('chart_script').remove();
 	}
