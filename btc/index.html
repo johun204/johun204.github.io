@@ -4,41 +4,6 @@
 <script src='billboard.pkgd.min.js'></script>
 <link href='./bootstrap/bootstrap.min.css' rel='stylesheet'>
 <link href='billboard.min.css' rel='stylesheet'>
-<div class='container'>
-	<br>
-	<div id='chart_option' class='row'>
-		<div class='col-auto'>
-			<select id='market' class='form-select'></select>
-		</div>
-		<div class='col-auto'>
-			<select id='minute' class='form-select'>
-				<option value=1>1분 캔들</option>
-				<option value=3>3분 캔들</option>
-				<option value=5>5분 캔들</option>
-				<option value=10>10분 캔들</option>
-				<option value=15>15분 캔들</option>
-				<option value=30>30분 캔들</option>
-				<option value=60 selected>60분 캔들</option>
-				<option value=240>240분 캔들</option>
-			</select>
-		</div>
-		<div class='col-auto'>
-			<input type='hidden' id='to'>
-			<button class='btn btn-outline-primary' onclick='getJSON(withinit=true)'>조회</button>
-		</div>
-		<div class='col-auto'>
-			<input class='btn-check' type='checkbox' id='refresh' onclick='reload()' autocomplete=false checked>
-			<label class='btn btn-outline-primary' for='refresh' id='refresh_label'>자동새로고침</label>
-		</div>
-	</div>
-</div>
-<br>
-<div id='chart'></div>
-<div id='rsi'></div>
-<div id='volume'></div>
-<div id='binance'></div>
-<div id='bithumb'></div>
-
 <script>
 var timer, timestamp = 0;
 function getMarket(){
@@ -116,3 +81,37 @@ function getJSON(withinit=false){
 }
 window.addEventListener('load', initScreen);
 </script>
+<div class='container'>
+	<br>
+	<div id='chart_option' class='row'>
+		<div class='col-auto'>
+			<select id='market' class='form-select'></select>
+		</div>
+		<div class='col-auto'>
+			<select id='minute' class='form-select'>
+				<option value=1>1분 캔들</option>
+				<option value=3>3분 캔들</option>
+				<option value=5>5분 캔들</option>
+				<option value=10>10분 캔들</option>
+				<option value=15>15분 캔들</option>
+				<option value=30>30분 캔들</option>
+				<option value=60 selected>60분 캔들</option>
+				<option value=240>240분 캔들</option>
+			</select>
+		</div>
+		<div class='col-auto'>
+			<input type='hidden' id='to'>
+			<button class='btn btn-outline-primary' onclick='getJSON(withinit=true)'>조회</button>
+		</div>
+		<div class='col-auto'>
+			<input class='btn-check' type='checkbox' id='refresh' onclick='reload()' autocomplete=false checked>
+			<label class='btn btn-outline-primary' for='refresh' id='refresh_label'>자동새로고침</label>
+		</div>
+	</div>
+</div>
+<br>
+<div id='chart'></div>
+<div id='rsi'></div>
+<div id='volume'></div>
+<div id='binance'></div>
+<div id='bithumb'></div>
