@@ -94,7 +94,15 @@ function getJSON(withinit=false){
 	if(withinit)initChart();
 	localStorage.setItem('market', document.getElementById('market').value);
 	localStorage.setItem('minute', document.getElementById('minute').value);
-	let url = 'https://johun204.herokuapp.com/getJSON' + '?market=' + document.getElementById('market').value + '&minute=' + document.getElementById('minute').value + '&to=' + document.getElementById('to').value + '&' + (new Date().getTime()).toString();
+	
+	var period = 100;
+	if(window.innerWidth > 1500){
+		period = 200;
+	}else if(window.innerWidth > 1000){
+		period = 150;
+	}
+	
+	let url = 'https://johun204.herokuapp.com/getJSON' + '?market=' + document.getElementById('market').value + '&minute=' + document.getElementById('minute').value + '&period=' + period + '&to=' + document.getElementById('to').value + '&' + (new Date().getTime()).toString();
 	console.log(url);
 	if(document.getElementById('chart_script') != null){
 		document.getElementById('chart_script').remove();
