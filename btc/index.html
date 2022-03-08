@@ -37,6 +37,7 @@
 <div id='rsi'></div>
 <div id='volume'></div>
 <div id='binance'></div>
+<div id='bithumb'></div>
 
 <script>
 var timer, timestamp = 0;
@@ -71,9 +72,10 @@ function initChart(){
 		data: {columns: []},
 		bindto: '#chart'
 	});
-	document.getElementById('binance').innerHTML = '';
 	document.getElementById('rsi').innerHTML = '';
 	document.getElementById('volume').innerHTML = '';
+	document.getElementById('binance').innerHTML = '';
+	document.getElementById('bithumb').innerHTML = '';
 }
 function reload(){
 	clearTimeout(timer);
