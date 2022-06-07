@@ -29,6 +29,7 @@ function f(n){
 function init(){
 	for(var i=0;i<document.getElementsByTagName("textarea").length;i++){
 		document.getElementsByTagName("textarea")[i].value = "";
+		document.getElementsByTagName("textarea")[i].removeAttribute("readonly");
 	}
 	for(var i=0;i<document.getElementsByTagName("table").length;i++){
 		document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].style.display="none";
