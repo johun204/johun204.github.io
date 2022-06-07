@@ -10,6 +10,7 @@ tbody>tr>td.last{text-align:center}
 thead>tr>th.last {display:none;}
 textarea{display:none}
 h2:nth-child(n+2) {margin-top:150px}
+thead>tr>th{text-align:left;}
 </style>
 <script>
 function f(n){
@@ -21,7 +22,10 @@ function init(){
 	}
 	for(var i=0;i<document.getElementsByTagName("table").length;i++){
 		document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].style.display="none";
-		document.getElementsByTagName("table")[i].getElementsByTagName("tbody")[0].getElementsByClassName("last")[0].innerHTML = "<button onclick='f(" + i + ")'>정답보기</button>"
+		document.getElementsByTagName("table")[i].getElementsByTagName("tbody")[0].getElementsByClassName("last")[0].innerHTML = "<button onclick='f(" + i + ")'>정답보기</button>";
+		
+		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[1].remove();
+		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[0].setAttribute("colspan",2);
 	}
 	for(var i=0;i<document.getElementsByTagName("input").length;i++){
 		document.getElementsByTagName("input")[i].removeAttribute("checked");
