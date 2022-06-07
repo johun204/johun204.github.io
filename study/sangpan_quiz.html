@@ -1,6 +1,6 @@
 <meta charset=utf-8>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>상품판매 진행평가(1~12주차)</title>
+<title>상품판매 진행평가</title>
 <style>
 table { border-bottom: 1px solid black; padding-bottom:10px; margin-bottom:10px;}
 tfoot{display:none}
@@ -28,7 +28,7 @@ function init(){
 		document.getElementsByTagName("input")[i].removeAttribute("disabled");
 	}
 	for(var i=0;i<document.getElementsByTagName("h2").length;i++){
-		document.getElementsByTagName("h2")[i].innerText = "[" + (i+1) + "주차]";
+		document.getElementsByTagName("h2")[i].innerText = document.title + "(" + (i+1) + "주차)";
 	}
 }
 window.addEventListener('load', init);

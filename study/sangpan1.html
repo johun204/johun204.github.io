@@ -27,6 +27,9 @@ function init(){
 		document.getElementsByTagName("input")[i].removeAttribute("checked");
 		document.getElementsByTagName("input")[i].removeAttribute("disabled");
 	}
+	for(var i=0;i<document.getElementsByTagName("h2").length;i++){
+		document.getElementsByTagName("h2")[i].innerText = document.title + "(" + document.getElementsByTagName("h2")[i].innerText + ")";
+	}
 }
 window.addEventListener('load', init);
 </script>
