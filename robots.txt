@@ -1,0 +1,4 @@
+# Example
+User-agent: * 
+Allow: /
+Disallow: /study/
