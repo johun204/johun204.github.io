@@ -16,7 +16,15 @@ button{height:60px}
 </style>
 <script>
 function f(n){
-	document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display = "block";
+	if(document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display == "block"){
+		document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display = "none";
+		document.getElementById("btn" + n).innerText = "정답 보이기";
+	}
+	else {
+		document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display = "block";
+		document.getElementById("btn" + n).innerText = "정답 숨기기";
+	}
+
 }
 function init(){
 	for(var i=0;i<document.getElementsByTagName("textarea").length;i++){
@@ -24,7 +32,7 @@ function init(){
 	}
 	for(var i=0;i<document.getElementsByTagName("table").length;i++){
 		document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].style.display="none";
-		document.getElementsByTagName("table")[i].getElementsByTagName("tbody")[0].getElementsByClassName("last")[0].innerHTML = "<button onclick='f(" + i + ")'>정답보기</button>";
+		document.getElementsByTagName("table")[i].getElementsByTagName("tbody")[0].getElementsByClassName("last")[0].innerHTML = "<button onclick='f(" + i + ")' id='btn" + i + "'>정답 보이기</button>";
 
 		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[1].remove();
 		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[0].setAttribute("colspan",2);
