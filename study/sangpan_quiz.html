@@ -13,6 +13,7 @@ thead>tr>th.last {display:none;}
 h2:nth-child(n+2) {margin-top:150px}
 thead>tr>th{text-align:left;}
 button{height:60px}
+a { text-decoration:none }
 </style>
 <script>
 function f(n){
@@ -45,10 +46,12 @@ function init(){
 	for(var i=0;i<document.getElementsByTagName("h2").length;i++){
 		document.getElementsByTagName("h2")[i].innerText = document.title + "(" + (i+1) + "주차)";
 	}
+	if(document.getElementsByTagName("h2").length > 0){
+		document.getElementsByTagName("h2")[0].innerHTML = "<a href='index.html'>&#128281;</a> " + document.getElementsByTagName("h2")[0].innerHTML;
+	}
 }
 window.addEventListener('load', init);
 </script>
-	
 				<h2></h2>
 			
 				<div class="eval_result02">
