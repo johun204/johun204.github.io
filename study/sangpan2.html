@@ -59,7 +59,7 @@ function hideDup(t){
 	if(t == true){
 		for(var i = 1; i < document.getElementsByClassName("eval_result02").length; i++){
 			for(var j=0; j<i; j++){
-				if(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("txt_blc")[0].innerText.substr(2) == document.getElementsByClassName("eval_result02")[j].getElementsByClassName("txt_blc")[0].innerText.substr(2)){
+				if(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("txt_blc")[0].innerText.substr(3).trim() == document.getElementsByClassName("eval_result02")[j].getElementsByClassName("txt_blc")[0].innerText.substr(3).trim()){
 					document.getElementsByClassName("eval_result02")[i].style.display = "none";
 					break;
 				}
