@@ -14,8 +14,12 @@ h2:nth-child(n+2) {margin-top:150px}
 thead>tr>th{text-align:left;}
 button{height:60px}
 a { text-decoration:none }
+label {font-size:12pt;}
 </style>
 <script>
+var all_idx = [];
+var all_txt = [];
+var all_answer = [];
 function f(n){
 	if(document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display == "block"){
 		document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display = "none";
@@ -53,6 +57,66 @@ function init(){
 	}
 	if(document.getElementsByTagName("h2").length > 0){
 		document.getElementsByTagName("h2")[0].innerHTML = "<a href='index.html'>&#128281;</a> " + document.getElementsByTagName("h2")[0].innerHTML;
+	}
+	if(document.getElementsByTagName("h2").length > 0){
+		document.getElementsByTagName("h2")[0].innerHTML = document.getElementsByTagName("h2")[0].innerHTML + "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type=checkbox onchange='shuffle(this.checked)' checked><span id='lb_chk2'>문제 보기 섞기</span></label>";
+	}
+
+	
+	for(var i = 0; i < document.getElementsByClassName("eval_result02").length; i++){
+		if(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form").length == 1){
+			var arr_idx = [];
+			var arr_txt = [];
+			var answer = 0;
+			for(var j=0;j<document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch").length;j++){
+				arr_idx.push(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value);
+				arr_txt.push(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByClassName("label_txt")[0].innerText);
+				if(document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].getElementsByClassName("txt_blu")[0].innerText == "정답 : " + document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value) {
+					answer = document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value;
+				}
+			}
+			if(answer != 0){
+				all_idx.push(arr_idx);
+				all_txt.push(arr_txt);
+				all_answer.push(answer);
+				document.getElementsByClassName("eval_result02")[i].setAttribute("choice", true);
+			}
+		}
+	}shuffle(true);
+}
+function shuffleArr(array) {
+  array.sort(() => Math.random() - 0.5);
+}
+function shuffle(t){
+	//문제 보기 섞기
+	var cnt=0;
+	if(t == true){
+		for(var i = 0; i < document.getElementsByClassName("eval_result02").length; i++){
+			if(document.getElementsByClassName("eval_result02")[i].getAttribute("choice") == "true"){
+				var arr_shuffle = [];
+				for(var j=0;j<all_txt[cnt].length;j++){arr_shuffle.push(j);shuffleArr(arr_shuffle);}
+				for(var j=0;j<document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch").length;j++){
+					document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByClassName("label_txt")[0].innerText = all_txt[cnt][arr_shuffle[j]];
+					if(all_idx[cnt][arr_shuffle[j]] == all_answer[cnt]){
+						document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].getElementsByClassName("txt_blu")[0].innerText = "정답 : " + document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value;
+					}
+				}cnt++;
+			}
+		}
+	}else{
+		for(var i = 0; i < document.getElementsByClassName("eval_result02").length; i++){
+			if(document.getElementsByClassName("eval_result02")[i].getAttribute("choice") == "true"){
+				var arr_shuffle = [];
+				for(var j=0;j<all_txt[cnt].length;j++){arr_shuffle.push(j);}
+				for(var j=0;j<document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch").length;j++){
+
+					document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByClassName("label_txt")[0].innerText = all_txt[cnt][arr_shuffle[j]];
+					if(all_idx[cnt][arr_shuffle[j]] == all_answer[cnt]){
+						document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].getElementsByClassName("txt_blu")[0].innerText = "정답 : " + document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value;
+					}
+				}cnt++;
+			}
+		}
 	}
 }
 window.addEventListener('load', init);
