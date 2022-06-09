@@ -39,6 +39,11 @@ function init(){
 		
 		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[1].remove();
 		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[0].setAttribute("colspan",2);
+
+		for(var j=0; j<document.getElementsByTagName("table")[i].getElementsByTagName("label").length;j++){
+			document.getElementsByTagName("table")[i].getElementsByTagName("label")[j].getElementsByTagName("input")[0].removeAttribute("name");
+			document.getElementsByTagName("table")[i].getElementsByTagName("label")[j].getElementsByTagName("input")[0].name = 'rr' + i;
+		}
 	}
 	for(var i=0;i<document.getElementsByTagName("input").length;i++){
 		document.getElementsByTagName("input")[i].removeAttribute("checked");
