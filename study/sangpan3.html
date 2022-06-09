@@ -56,17 +56,19 @@ function init(){
 		document.getElementsByTagName("h2")[0].innerHTML = "<a href='index.html'>&#128281;</a> " + document.getElementsByTagName("h2")[0].innerHTML;
 	}
 	if(document.getElementsByTagName("h2").length > 0){
-		document.getElementsByTagName("h2")[0].innerHTML = document.getElementsByTagName("h2")[0].innerHTML + "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type=checkbox onchange='hideDup(this.checked)' checked>중복 문제 가리기</label>";
+		document.getElementsByTagName("h2")[0].innerHTML = document.getElementsByTagName("h2")[0].innerHTML + "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type=checkbox onchange='hideDup(this.checked)' checked><span id='lb_chk'>중복 문제 가리기</span></label>";
+		hideDup(true);
 	}
-	hideDup(true);
 }
 function hideDup(t){
 	//중복문제 가리기
+	var cnt=0;
 	if(t == true){
 		for(var i = 1; i < document.getElementsByClassName("eval_result02").length; i++){
 			for(var j=0; j<i; j++){
 				if(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("txt_blc")[0].innerText.substr(3).trim() == document.getElementsByClassName("eval_result02")[j].getElementsByClassName("txt_blc")[0].innerText.substr(3).trim()){
 					document.getElementsByClassName("eval_result02")[i].style.display = "none";
+					cnt++;
 					break;
 				}
 			}
@@ -75,7 +77,7 @@ function hideDup(t){
 		for(var i = 1; i < document.getElementsByClassName("eval_result02").length; i++){
 			document.getElementsByClassName("eval_result02")[i].style.display = "block";
 		}
-	}
+	}document.getElementById('lb_chk').innerText = "중복 문제 가리기 (" + (document.getElementsByClassName("eval_result02").length - cnt) + "문제)";
 }
 window.addEventListener('load', init);
 </script>
