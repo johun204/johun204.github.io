@@ -1,0 +1,31 @@
+<meta charset=utf-8>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+<script>
+
+function getUpbit(){
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+			console.log(xhr.responseText);
+		}
+	}
+	xhr.open('GET', 'https://api.upbit.com/v1/orderbook?markets=KRW-BTC', true);
+	xhr.send(null);
+}
+function getBithumb(){
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+			console.log(xhr.responseText);
+		}
+	}
+	xhr.open('GET', 'https://api.bithumb.com/public/orderbook/BTC_KRW?count=15', true);
+	xhr.send(null);
+}
+function init(){
+	console.log('init()');
+	getUpbit();
+	getBithumb();
+}
+window.addEventListener('load', init);
+</script>
