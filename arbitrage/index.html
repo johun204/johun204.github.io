@@ -2,7 +2,7 @@
 <meta charset=utf-8>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 <script>
-const Ufee = 0.05 / 100, Bfee = 0.25 / 100;
+const Ufee = 0.05 / 100, Bfee = 0.12 / 100;
 //const Ufee = 0.0, Bfee = 0.0;
 var aFlag = false;
 var Uask = 0, Ubid = 0, Utimestamp = 0;
@@ -21,11 +21,11 @@ function getMarket(){
 				if(jsondata[i]['market'].length < 4 || jsondata[i]['market'].substr(0,4) != 'KRW-')continue;
 				var opt = document.createElement('option');
 				opt.value = jsondata[i]['market'].substr(4);
-				//opt.innerHTML = jsondata[i]['korean_name'] + '(' + jsondata[i]['market'].substr(4) + ')';
+				//opt.innerHTML = jsondata[i]['market'].substr(4) + '(' + jsondata[i]['korean_name'] + ')';
 				opt.innerHTML = jsondata[i]['market'].substr(4);
 				market.appendChild(opt);
 			}
-			if(localStorage.getItem('arbitrage_market') != null)document.getElementById('market').value = localStorage.getItem('market');
+			if(localStorage.getItem('arbitrage_market') != null)document.getElementById('market').value = localStorage.getItem('arbitrage_market');
 			initTimer();
 		}
 	}
@@ -38,7 +38,9 @@ function getUpbit(){
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
 			var json = JSON.parse(xhr.responseText);
-			setU_div(json[0]['timestamp'], json[0]['orderbook_units'][0]['ask_price'], json[0]['orderbook_units'][0]['bid_price']);
+			if(document.getElementById('market').value == market){
+				setU_div(json[0]['timestamp'], json[0]['orderbook_units'][0]['ask_price'], json[0]['orderbook_units'][0]['bid_price']);
+			}
 		}
 	}
 	xhr.open('GET', 'https://api.upbit.com/v1/orderbook?markets=KRW-' + market, true);
@@ -50,7 +52,9 @@ function getBithumb(){
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
 			var json = JSON.parse(xhr.responseText);
-			setB_div(Number(json['data']['timestamp']), json['data']['asks'][0]['price'], json['data']['bids'][0]['price']);
+			if(document.getElementById('market').value == market){
+				setB_div(Number(json['data']['timestamp']), json['data']['asks'][0]['price'], json['data']['bids'][0]['price']);
+			}
 		}
 	}
 	xhr.open('GET', 'https://api.bithumb.com/public/orderbook/' + market + '_KRW?count=15', true);
@@ -79,7 +83,7 @@ function setB_div(timestamp, asks, bids){
 	}
 }
 function arbitrage(){
-	if(aFlag){
+	if(aFlag && Utimestamp > 0 && Btimestamp > 0){
 		if(Bask * (1 + Bfee) < Ubid / (1 + Ufee)){
 			console.log("B ask < U bid (" + (Utimestamp - Btimestamp) + ")\n" + Bask + "," + Ubid + "\n" + Math.floor(Bask * (1 + Bfee)) + "," + Math.floor(Ubid / (1 + Ufee)));
 		}
@@ -88,6 +92,11 @@ function arbitrage(){
 		}
 		aFlag = false;
 	}
+}
+function chageMarket(){
+	Utimestamp = 0;
+	Btimestamp = 0;
+	localStorage.setItem('arbitrage_market', document.getElementById('market').value);
 }
 function initScreen(){
 	getMarket();
@@ -102,7 +111,7 @@ function initTimer(){
 window.addEventListener('load', initScreen);
 </script>
 <body>
-<select id='market' class='form-select'></select>
+<select id='market' onchange='chageMarket()'></select>
 <div id='U_div'></div>
 <hr>
 <div id='B_div'></div>
