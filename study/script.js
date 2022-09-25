@@ -25,6 +25,7 @@ function getData(filename){
 				document.body.append(newH2);
 			}
 			while(newHTML.getElementsByClassName("eval_result02").length > 0){
+				newHTML.getElementsByClassName("eval_result02")[0].style.display = "none";
 				document.body.append(newHTML.getElementsByClassName("eval_result02")[0]);
 				console.log(document.getElementsByClassName("eval_result02").length);
 			}
@@ -66,11 +67,6 @@ function init2(){
 	if(document.getElementsByTagName("h2").length > 0){
 		document.getElementsByTagName("h2")[0].innerHTML = "<a href='index.html'>&#128281;</a> " + document.getElementsByTagName("h2")[0].innerHTML;
 	}
-	if(document.getElementsByTagName("h2").length > 0){
-		document.getElementsByTagName("h2")[0].innerHTML = document.getElementsByTagName("h2")[0].innerHTML + "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type=checkbox onchange='hideDup(this.checked)' checked><span id='lb_chk'>중복 문제 가리기</span></label>" + "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type=checkbox onchange='shuffle(this.checked)' checked><span id='lb_chk2'>문제 보기 섞기</span></label>";
-		hideDup(true);
-	}
-
 	
 	for(var i = 0; i < document.getElementsByClassName("eval_result02").length; i++){
 		document.getElementsByClassName("eval_result02")[i].id = 'ev' + i;
@@ -91,8 +87,14 @@ function init2(){
 				all_answer.push(answer);
 				document.getElementsByClassName("eval_result02")[i].setAttribute("choice", true);
 			}
-		}
-	}shuffle(true);
+		}document.getElementsByClassName("eval_result02")[i].style.display = "block";
+	}
+	if(document.getElementsByTagName("h2").length > 0){
+		document.getElementsByTagName("h2")[0].innerHTML = document.getElementsByTagName("h2")[0].innerHTML + "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type=checkbox onchange='hideDup(this.checked)' checked><span id='lb_chk'>중복 문제 가리기</span></label>" + "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type=checkbox onchange='shuffle(this.checked)' checked><span id='lb_chk2'>문제 보기 섞기</span></label>";
+		hideDup(true);
+	}
+	
+	shuffle(true);
 }
 function f(n){
 	if(document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display == "block"){
