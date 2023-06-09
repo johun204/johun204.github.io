@@ -2,148 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 <title>기업여신/여신사후관리 진행평가</title>
 <link href="style.css" rel="stylesheet">
-<script>
-var all_idx = [];
-var all_txt = [];
-var all_answer = [];
-function f(n){
-	if(document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display == "block"){
-		document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display = "none";
-		document.getElementById("btn" + n).innerText = "정답 보이기";
-		boldAnswer(n, false);
-	}
-	else {
-		document.getElementsByTagName("table")[n].getElementsByTagName("tfoot")[0].style.display = "block";
-		document.getElementById("btn" + n).innerText = "정답 숨기기";
-		boldAnswer(n, true);
-	}
-
-}
-function init(){
-	for(var i=0;i<document.getElementsByTagName("textarea").length;i++){
-		document.getElementsByTagName("textarea")[i].value = "";
-		document.getElementsByTagName("textarea")[i].removeAttribute("readonly");
-	}
-	for(var i=0;i<document.getElementsByTagName("table").length;i++){
-		document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].style.display="none";
-		document.getElementsByTagName("table")[i].getElementsByTagName("tbody")[0].getElementsByClassName("last")[0].innerHTML = "<button onclick='f(" + i + ")' id='btn" + i + "'>정답 보이기</button>";
-		
-		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[1].remove();
-		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[0].setAttribute("colspan",2);
-
-		for(var j=0; j<document.getElementsByTagName("table")[i].getElementsByTagName("label").length;j++){
-			document.getElementsByTagName("table")[i].getElementsByTagName("label")[j].getElementsByTagName("input")[0].removeAttribute("name");
-			document.getElementsByTagName("table")[i].getElementsByTagName("label")[j].getElementsByTagName("input")[0].name = 'rr' + i;
-		}
-	}
-	for(var i=0;i<document.getElementsByTagName("input").length;i++){
-		document.getElementsByTagName("input")[i].removeAttribute("checked");
-		document.getElementsByTagName("input")[i].removeAttribute("disabled");
-	}
-	for(var i=0;i<document.getElementsByTagName("h2").length;i++){
-		document.getElementsByTagName("h2")[i].innerText = document.title + "(" + (i+1) + "주차)";
-	}
-	if(document.getElementsByTagName("h2").length > 0){
-		document.getElementsByTagName("h2")[0].innerHTML = "<a href='index.html'>&#128281;</a> " + document.getElementsByTagName("h2")[0].innerHTML;
-	}
-	if(document.getElementsByTagName("h2").length > 0){
-		document.getElementsByTagName("h2")[0].innerHTML = document.getElementsByTagName("h2")[0].innerHTML + "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><input type=checkbox onchange='shuffle(this.checked)' checked><span id='lb_chk2'>문제 보기 섞기</span></label>";
-	}
-
-	
-	for(var i = 0; i < document.getElementsByClassName("eval_result02").length; i++){
-		document.getElementsByClassName("eval_result02")[i].id = 'ev' + i;
-		if(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form").length == 1){
-			var arr_idx = [];
-			var arr_txt = [];
-			var answer = 0;
-			for(var j=0;j<document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch").length;j++){
-				arr_idx.push(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value);
-				arr_txt.push(document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByClassName("label_txt")[0].innerText);
-				if(document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].getElementsByClassName("txt_blu")[0].innerText == "정답 : " + document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value) {
-					answer = document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value;
-				}
-			}
-			if(answer != 0){
-				all_idx.push(arr_idx);
-				all_txt.push(arr_txt);
-				all_answer.push(answer);
-				document.getElementsByClassName("eval_result02")[i].setAttribute("choice", true);
-			}
-		}
-	}shuffle(true);
-}
-function shuffleArr(array) {
-  array.sort(() => Math.random() - 0.5);
-}
-function shuffle(t){
-	//문제 보기 섞기
-	var cnt=0;
-	if(t == true){
-		for(var i = 0; i < document.getElementsByClassName("eval_result02").length; i++){
-			if(document.getElementsByClassName("eval_result02")[i].getAttribute("choice") == "true"){
-				var arr_shuffle = [];
-				for(var j=0;j<all_txt[cnt].length;j++){arr_shuffle.push(j);shuffleArr(arr_shuffle);}
-				for(var j=0;j<document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch").length;j++){
-					document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByClassName("label_txt")[0].innerText = all_txt[cnt][arr_shuffle[j]];
-					if(all_idx[cnt][arr_shuffle[j]] == all_answer[cnt]){
-						document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].getElementsByClassName("txt_blu")[0].innerText = "정답 : " + document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value;
-					}
-				}cnt++;
-			}
-			if(document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].style.display == "none"){
-				boldAnswer(i, false);
-			}
-			else {
-				boldAnswer(i, true);
-			}
-		}
-	}else{
-		for(var i = 0; i < document.getElementsByClassName("eval_result02").length; i++){
-			if(document.getElementsByClassName("eval_result02")[i].getAttribute("choice") == "true"){
-				var arr_shuffle = [];
-				for(var j=0;j<all_txt[cnt].length;j++){arr_shuffle.push(j);}
-				for(var j=0;j<document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch").length;j++){
-
-					document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByClassName("label_txt")[0].innerText = all_txt[cnt][arr_shuffle[j]];
-					if(all_idx[cnt][arr_shuffle[j]] == all_answer[cnt]){
-						document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].getElementsByClassName("txt_blu")[0].innerText = "정답 : " + document.getElementsByClassName("eval_result02")[i].getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value;
-					}
-				}cnt++;
-			}
-			if(document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].style.display == "none"){
-				boldAnswer(i, false);
-			}
-			else {
-				boldAnswer(i, true);
-			}
-		}
-	}
-}
-function boldAnswer(n, t){
-	if(document.getElementById("ev"+n).getAttribute("choice") == "true"){
-		if(t == true){
-			for(var j=0;j<document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch").length;j++){
-				if("정답 : " + document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].getElementsByTagName("input")[0].value == document.getElementById("ev"+n).getElementsByTagName("tfoot")[0].getElementsByClassName("txt_blu")[0].innerText){
-					document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].style.fontWeight = 'bold';
-					document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].style.color = '#dc3545';
-				}else{
-					document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].style.fontWeight = 'normal';
-					document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].style.color = '#222222';
-				}
-			}
-		}
-		else{
-			for(var j=0;j<document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch").length;j++){
-				document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].style.fontWeight = 'normal';
-				document.getElementById("ev"+n).getElementsByClassName("exam_form")[0].getElementsByClassName("ex_ch")[j].style.color = '#222222';
-			}
-		}
-
-	}
-}
-window.addEventListener('load', init);
-</script>
+<script src="script2.js"></script>
 				<h2></h2>
 			
 			
@@ -1891,3 +1750,179 @@ window.addEventListener('load', init);
 					</table>
 				</div>
 			</div>
+			<h2></h2>
+
+				
+				<div class="eval_result02">
+			
+			
+				<div class="tbl tbl_type01 border">
+					
+						
+						
+						
+						
+					
+					 
+					<table class="border">
+						<colgroup>
+							<col width="515" />
+							<col width="125" />
+						</colgroup>
+							<thead>
+							<tr>
+								<th class="alg_left"><b class="txt_blc">1. [4지선다형] 재산명시에 관한 다음 설명 중 틀린 것은?</b></th>
+								<th class="last">채점/득점</th>
+							</tr>
+							</thead>
+						<tbody>
+							
+							
+							<tr>
+								<td class="alg_left">
+									<ul class="exam_form">
+										
+										<li class="ex_ch">
+											<label><input type="radio" name="r1" value="1"   disabled/><span class="label_txt">채무자의 보통재판적이 있는 곳의 법원에 채무자의 재산명시를 요구하는 신청을 할 수 있다.</span></label>
+										</li>
+										
+										
+										<li class="ex_ch">
+											<label><input type="radio" name="r1" value="2"  disabled/><span class="label_txt">재산명시신청에 대한 재판은 채무자를 심문하지 아니하고 한다.</span></label>
+										</li>
+										
+										
+										<li class="ex_ch">
+											<label><input type="radio" name="r1" value="3"  disabled/><span class="label_txt">집행력 있는 정본과 강제집행을 개시하는 데 필요한 문서를 붙여야 한다.</span></label>
+										</li>
+										
+										
+										<li class="ex_ch">
+											<label><input type="radio" name="r1" value="4" checked disabled/><span class="label_txt">정당한 사유 없이 명시기일에 출석하지 아니한 채무자는 3년 이하의 징역이나 500만원 이하의 벌금에 처한다.</span></label>
+										</li>
+										
+									</ul>
+								</td>
+								<td class="last">
+									
+									
+										
+										
+											<b class="txt_blu">O</b>
+										/0.5점
+									
+								</td>
+							</tr>
+							
+							
+							
+						</tbody>
+						<tfoot class="explan">
+							
+								<tr>
+									<th colspan="4" class="alg_left last"><b class="txt_blu">정답 : 4</b></th>
+								</tr>
+							
+							
+								
+								<tr>
+									<td colspan="4" class="alg_left last"><b>문제해설 : 정당한 사유 없이 명시기일에 출석하지 아니한 채무자는 20일 이내의 감치에 처한다.</b></td>
+								</tr>
+							
+							<tr>
+								<td colspan="4" class="alg_left last"><b>출제원 : 3권 200, 203p</b></td>
+							</tr>
+							
+						</tfoot>
+					</table>
+				</div>
+			</div>
+			
+			
+			
+				<div class="eval_result02">
+			
+			
+				<div class="tbl tbl_type01 border">
+					
+						
+						
+						
+						
+					
+					 
+					<table class="border">
+						<colgroup>
+							<col width="515" />
+							<col width="125" />
+						</colgroup>
+							<thead>
+							<tr>
+								<th class="alg_left"><b class="txt_blc">2. [4지선다형] 다음 중「채권의 공정한 추심에 관한 법률」상 불공정한 행위의 금지 위반에 해당하지 않는 것은?</b></th>
+								<th class="last">채점/득점</th>
+							</tr>
+							</thead>
+						<tbody>
+							
+							
+							<tr>
+								<td class="alg_left">
+									<ul class="exam_form">
+										
+										<li class="ex_ch">
+											<label><input type="radio" name="r2" value="1"   disabled/><span class="label_txt">혼인, 장례 등 채무자가 채권추심에 응하기 곤란한 사정을 이용하여 채무자 또는 관계인에게 채권추심의 의사를 공개적으로 표시하는 행위</span></label>
+										</li>
+										
+										
+										<li class="ex_ch">
+											<label><input type="radio" name="r2" value="2"  disabled/><span class="label_txt">채무자의 연락두절 등 소재파악이 곤란한 경우가 아님에도 채무자의 관계인에게 채무자의 소재, 연락처 또는 소재를 알 수 있는 방법 등을 문의하는 행위</span></label>
+										</li>
+										
+										
+										<li class="ex_ch">
+											<label><input type="radio" name="r2" value="3" checked disabled/><span class="label_txt">채무자 또는 관계인에게 지급할 의무가 없거나 실제로 사용된 금액을 초과한 채권추심비용을 청구하는 행위</span></label>
+										</li>
+										
+										
+										<li class="ex_ch">
+											<label><input type="radio" name="r2" value="4"  disabled/><span class="label_txt">「채무자 회생 및 파산에 관한 법률」에 따라 개인회생채권에 대한 변제를 받거나 변제를 요구하는 일체의 행위가 중지 또는 금지되었음을 알면서 법령으로 정한 절차 외에서 반복적으로 채무변제를 요구하는 행위</span></label>
+										</li>
+										
+									</ul>
+								</td>
+								<td class="last">
+									
+									
+										
+										
+											<b class="txt_blu">O</b>
+										/0.5점
+									
+								</td>
+							</tr>
+							
+							
+							
+						</tbody>
+						<tfoot class="explan">
+							
+								<tr>
+									<th colspan="4" class="alg_left last"><b class="txt_blu">정답 : 3</b></th>
+								</tr>
+							
+							
+								
+								<tr>
+									<td colspan="4" class="alg_left last"><b>문제해설 : 채무자 또는 관계인에게 지급할 의무가 없거나 실제로 사용된 금액을 초과한 채권추심비용을 청구하는 행위는 부당한 비용 청구 금지 위반행위이다.</b></td>
+								</tr>
+							
+							<tr>
+								<td colspan="4" class="alg_left last"><b>출제원 : 3권 188p</b></td>
+							</tr>
+							
+						</tfoot>
+					</table>
+				</div>
+			</div>
+			
+
