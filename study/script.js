@@ -50,7 +50,7 @@ function init2(){
 	}
 	for(var i=0;i<document.getElementsByTagName("table").length;i++){
 		document.getElementsByTagName("table")[i].getElementsByTagName("tfoot")[0].style.display="none";
-		document.getElementsByTagName("table")[i].getElementsByTagName("tbody")[0].getElementsByClassName("last")[0].innerHTML = "<button onclick='f(" + i + ")' id='btn" + i + "'>정답 보이기</button>";
+		document.getElementsByTagName("table")[i].getElementsByTagName("tbody")[0].getElementsByClassName("last")[0].innerHTML = "<button class='warning' onclick='f(" + i + ")' id='btn" + i + "'>정답 보이기</button>";
 		
 		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[1].remove();
 		document.getElementsByTagName("table")[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")[0].setAttribute("colspan",2);
