@@ -6,7 +6,7 @@ td.last.alg_left, th>.txt_blu {color:#dc3545;}
 tbody>tr>td.last{text-align:center}
 thead>tr>th.last {display:none;}
 .last>textarea{display:none}
-.h2title:nth-child(n+2) {margin-top:150px}
+.h2title {margin-top:150px}
 thead>tr>th{text-align:left;}
 a { text-decoration:none }
 label {font-size:12pt;}
