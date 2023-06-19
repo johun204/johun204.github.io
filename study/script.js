@@ -13,7 +13,7 @@ function getData(filename){
 			newHTML.innerHTML = xhr.responseText;
 			if(newHTML.getElementsByClassName("eval_result01").length > 0){
 				var newH2 = document.createElement("h2");
-				if(load_cnt > 0) newH2.classList.add('h2title');
+				if(load_cnt > 0)newH2.classList.add('h2title');
 				newH2.innerText = test_title;
 				for(var i=0; i<newHTML.getElementsByClassName("eval_result01")[0].getElementsByTagName("li").length;i++){
 					if(newHTML.getElementsByClassName("eval_result01")[0].getElementsByTagName("li")[i].getElementsByClassName("ev_span")[0].innerText == "평가명"){
