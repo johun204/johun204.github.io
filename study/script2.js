@@ -37,7 +37,7 @@ function init(){
 	}
 	for(var i=0;i<document.getElementsByTagName("h2").length;i++){
 		document.getElementsByTagName("h2")[i].innerText = document.title + "(" + (i+1) + "주차)";
-		document.getElementsByTagName("h2")[i].classList.add('h2title');
+		if(i > 0)document.getElementsByTagName("h2")[i].classList.add('h2title');
 	}
 	if(document.getElementsByTagName("h2").length > 0){
 		document.getElementsByTagName("h2")[0].innerHTML = "<a href='index.html'>&#128281;</a> " + document.getElementsByTagName("h2")[0].innerHTML;
