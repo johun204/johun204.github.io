@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>히라가나 퀴즈</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .question {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .options button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        #result {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>히라가나 퀴즈</h1>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div id="result"></div>
+    <button onclick="nextQuestion()">다음 문제</button>
+
+    <script>
+        // 히라가나와 영어 발음 데이터
+        const quizData = [
+            { hiragana: "あ", answer: "a" },
+            { hiragana: "い", answer: "i" },
+            { hiragana: "う", answer: "u" },
+            { hiragana: "え", answer: "e" },
+            { hiragana: "お", answer: "o" },
+            { hiragana: "か", answer: "ka" },
+            { hiragana: "き", answer: "ki" },
+            { hiragana: "く", answer: "ku" },
+            { hiragana: "け", answer: "ke" },
+            { hiragana: "こ", answer: "ko" },
+            { hiragana: "さ", answer: "sa" },
+            { hiragana: "し", answer: "shi" },
+            { hiragana: "す", answer: "su" },
+            { hiragana: "せ", answer: "se" },
+            { hiragana: "そ", answer: "so" },
+            { hiragana: "た", answer: "ta" },
+            { hiragana: "ち", answer: "chi" },
+            { hiragana: "つ", answer: "tsu" },
+            { hiragana: "て", answer: "te" },
+            { hiragana: "と", answer: "to" },
+            { hiragana: "な", answer: "na" },
+            { hiragana: "に", answer: "ni" },
+            { hiragana: "ぬ", answer: "nu" },
+            { hiragana: "ね", answer: "ne" },
+            { hiragana: "の", answer: "no" },
+            { hiragana: "は", answer: "ha" },
+            { hiragana: "ひ", answer: "hi" },
+            { hiragana: "ふ", answer: "fu" },
+            { hiragana: "へ", answer: "he" },
+            { hiragana: "ほ", answer: "ho" },
+            { hiragana: "ま", answer: "ma" },
+            { hiragana: "み", answer: "mi" },
+            { hiragana: "む", answer: "mu" },
+            { hiragana: "め", answer: "me" },
+            { hiragana: "も", answer: "mo" },
+            { hiragana: "や", answer: "ya" },
+            { hiragana: "ゆ", answer: "yu" },
+            { hiragana: "よ", answer: "yo" },
+            { hiragana: "ら", answer: "ra" },
+            { hiragana: "り", answer: "ri" },
+            { hiragana: "る", answer: "ru" },
+            { hiragana: "れ", answer: "re" },
+            { hiragana: "ろ", answer: "ro" },
+            { hiragana: "わ", answer: "wa" },
+            { hiragana: "を", answer: "wo" },
+            { hiragana: "ん", answer: "n" }
+        ];
+
+        let currentQuestion = {};
+
+        function generateQuestion() {
+            // 랜덤 히라가나 선택
+            const randomIndex = Math.floor(Math.random() * quizData.length);
+            currentQuestion = quizData[randomIndex];
+
+            // 정답 포함 5개의 랜덤 선택지 생성
+            const options = new Set();
+            options.add(currentQuestion.answer);
+            while (options.size < 5) {
+                const randomOption = quizData[Math.floor(Math.random() * quizData.length)].answer;
+                options.add(randomOption);
+            }
+
+            // 선택지를 랜덤으로 섞음
+            const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
+
+            // 화면 업데이트
+            document.getElementById("question").innerText = `이 히라가나의 발음은? ${currentQuestion.hiragana}`;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+            shuffledOptions.forEach(option => {
+                const button = document.createElement("button");
+                button.innerText = option;
+                button.onclick = () => checkAnswer(option);
+                optionsContainer.appendChild(button);
+            });
+            document.getElementById("result").innerText = "";
+        }
+
+        function checkAnswer(selected) {
+            if (selected === currentQuestion.answer) {
+                document.getElementById("result").innerText = "정답입니다!!!!!!";
+            } else {
+                document.getElementById("result").innerText = `틀렸습니다!!!!!! 정답은 "${currentQuestion.answer}" 입니다!!!!!`;
+            }
+        }
+
+        function nextQuestion() {
+            generateQuestion();
+        }
+
+        // 첫 문제 생성
+        generateQuestion();
+    </script>
+</body>
+</html>
