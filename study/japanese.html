@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>히라가나 퀴즈</title>
+    <title>히라가나 & 가타카나 퀴즈</title>
     <style>
-        /* 기본 스타일 */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -21,9 +20,29 @@
         }
 
         h1 {
-            margin-top: 20px;
             font-size: 2.5em;
             color: #333;
+        }
+
+        .selector {
+            margin: 20px;
+        }
+
+        .selector button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            margin: 10px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .selector button:hover {
+            transform: scale(1.1);
+            background-color: #ff6b6b;
         }
 
         .question {
@@ -107,75 +126,94 @@
     </style>
 </head>
 <body>
-    <h1>히라가나 퀴즈</h1>
-    <div class="question" id="question"></div>
-    <div class="options" id="options"></div>
-    <div id="result"></div>
-    <button class="next-btn" onclick="nextQuestion()">다음 문제</button>
+    <h1>히라가나 & 가타카나 퀴즈</h1>
+    <div class="selector">
+        <button onclick="selectQuiz('hiragana')">히라가나 퀴즈</button>
+        <button onclick="selectQuiz('katakana')">가타카나 퀴즈</button>
+    </div>
+    <div class="question" id="question" style="display: none;"></div>
+    <div class="options" id="options" style="display: none;"></div>
+    <div id="result" style="display: none;"></div>
+    <button class="next-btn" onclick="nextQuestion()" style="display: none;">다음 문제</button>
 
     <script>
-        const quizData = [
-            { hiragana: "あ", answer: "a" },
-            { hiragana: "い", answer: "i" },
-            { hiragana: "う", answer: "u" },
-            { hiragana: "え", answer: "e" },
-            { hiragana: "お", answer: "o" },
-            { hiragana: "か", answer: "ka" },
-            { hiragana: "き", answer: "ki" },
-            { hiragana: "く", answer: "ku" },
-            { hiragana: "け", answer: "ke" },
-            { hiragana: "こ", answer: "ko" },
-            { hiragana: "さ", answer: "sa" },
-            { hiragana: "し", answer: "shi" },
-            { hiragana: "す", answer: "su" },
-            { hiragana: "せ", answer: "se" },
-            { hiragana: "そ", answer: "so" },
-            { hiragana: "た", answer: "ta" },
-            { hiragana: "ち", answer: "chi" },
-            { hiragana: "つ", answer: "tsu" },
-            { hiragana: "て", answer: "te" },
-            { hiragana: "と", answer: "to" },
-            { hiragana: "な", answer: "na" },
-            { hiragana: "に", answer: "ni" },
-            { hiragana: "ぬ", answer: "nu" },
-            { hiragana: "ね", answer: "ne" },
-            { hiragana: "の", answer: "no" },
-            { hiragana: "は", answer: "ha" },
-            { hiragana: "ひ", answer: "hi" },
-            { hiragana: "ふ", answer: "fu" },
-            { hiragana: "へ", answer: "he" },
-            { hiragana: "ほ", answer: "ho" },
-            { hiragana: "ま", answer: "ma" },
-            { hiragana: "み", answer: "mi" },
-            { hiragana: "む", answer: "mu" },
-            { hiragana: "め", answer: "me" },
-            { hiragana: "も", answer: "mo" },
-            { hiragana: "や", answer: "ya" },
-            { hiragana: "ゆ", answer: "yu" },
-            { hiragana: "よ", answer: "yo" },
-            { hiragana: "ら", answer: "ra" },
-            { hiragana: "り", answer: "ri" },
-            { hiragana: "る", answer: "ru" },
-            { hiragana: "れ", answer: "re" },
-            { hiragana: "ろ", answer: "ro" },
-            { hiragana: "わ", answer: "wa" },
-            { hiragana: "を", answer: "wo" },
-            { hiragana: "ん", answer: "n" }
+        const hiraganaData = [
+            { char: "あ", answer: "a" },
+            { char: "い", answer: "i" },
+            { char: "う", answer: "u" },
+            { char: "え", answer: "e" },
+            { char: "お", answer: "o" },
+            { char: "か", answer: "ka" },
+            { char: "き", answer: "ki" },
+            { char: "く", answer: "ku" },
+            { char: "け", answer: "ke" },
+            { char: "こ", answer: "ko" },
+            { char: "さ", answer: "sa" },
+            { char: "し", answer: "shi" },
+            { char: "す", answer: "su" },
+            { char: "せ", answer: "se" },
+            { char: "そ", answer: "so" },
+            { char: "た", answer: "ta" },
+            { char: "ち", answer: "chi" },
+            { char: "つ", answer: "tsu" },
+            { char: "て", answer: "te" },
+            { char: "と", answer: "to" },
+            { char: "な", answer: "na" },
+            { char: "に", answer: "ni" },
+            { char: "ぬ", answer: "nu" },
+            { char: "ね", answer: "ne" },
+            { char: "の", answer: "no" },
+            { char: "は", answer: "ha" },
+            { char: "ひ", answer: "hi" },
+            { char: "ふ", answer: "fu" },
+            { char: "へ", answer: "he" },
+            { char: "ほ", answer: "ho" },
+            { char: "ま", answer: "ma" },
+            { char: "み", answer: "mi" },
+            { char: "む", answer: "mu" },
+            { char: "め", answer: "me" },
+            { char: "も", answer: "mo" },
+            { char: "や", answer: "ya" },
+            { char: "ゆ", answer: "yu" },
+            { char: "よ", answer: "yo" },
+            { char: "ら", answer: "ra" },
+            { char: "り", answer: "ri" },
+            { char: "る", answer: "ru" },
+            { char: "れ", answer: "re" },
+            { char: "ろ", answer: "ro" },
+            { char: "わ", answer: "wa" },
+            { char: "を", answer: "wo" },
+            { char: "ん", answer: "n" }
         ];
 
+        const katakanaData = hiraganaData.map(({ char, answer }) => ({
+            char: String.fromCharCode(char.charCodeAt(0) + 0x60),
+            answer
+        }));
+
+        let currentQuiz = [];
         let currentQuestion = {};
 
+        function selectQuiz(type) {
+            currentQuiz = type === "hiragana" ? hiraganaData : katakanaData;
+            document.querySelector('.selector').style.display = 'none';
+            document.getElementById('question').style.display = 'block';
+            document.getElementById('options').style.display = 'flex';
+            document.querySelector('.next-btn').style.display = 'block';
+            nextQuestion();
+        }
+
         function generateQuestion() {
-            const randomIndex = Math.floor(Math.random() * quizData.length);
-            currentQuestion = quizData[randomIndex];
+            const randomIndex = Math.floor(Math.random() * currentQuiz.length);
+            currentQuestion = currentQuiz[randomIndex];
             const options = new Set();
             options.add(currentQuestion.answer);
             while (options.size < 5) {
-                const randomOption = quizData[Math.floor(Math.random() * quizData.length)].answer;
+                const randomOption = currentQuiz[Math.floor(Math.random() * currentQuiz.length)].answer;
                 options.add(randomOption);
             }
             const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
-            document.getElementById("question").innerText = currentQuestion.hiragana;
+            document.getElementById("question").innerText = currentQuestion.char;
             const optionsContainer = document.getElementById("options");
             optionsContainer.innerHTML = "";
             shuffledOptions.forEach(option => {
@@ -184,11 +222,12 @@
                 button.onclick = () => checkAnswer(option);
                 optionsContainer.appendChild(button);
             });
-            document.getElementById("result").innerText = "";
+            document.getElementById("result").style.display = "none";
         }
 
         function checkAnswer(selected) {
             const resultElement = document.getElementById("result");
+            resultElement.style.display = "block";
             if (selected === currentQuestion.answer) {
                 resultElement.innerText = "정답입니다!!!!!!";
                 resultElement.style.color = "#28a745";
@@ -201,8 +240,6 @@
         function nextQuestion() {
             generateQuestion();
         }
-
-        generateQuestion();
     </script>
 </body>
 </html>
