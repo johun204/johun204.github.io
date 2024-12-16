@@ -5,25 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>히라가나 퀴즈</title>
     <style>
+        /* 기본 스타일 */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+            color: #fff;
             text-align: center;
-            margin: 20px;
         }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px #000;
+        }
+
         .question {
-            font-size: 2em;
-            margin-bottom: 20px;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
         }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            width: 90%;
+            max-width: 400px;
+            gap: 15px;
+        }
+
         .options button {
-            display: block;
-            margin: 10px auto;
-            padding: 10px 20px;
-            font-size: 1.2em;
+            font-size: 1.5em;
+            padding: 15px;
+            background: #fff;
+            color: #333;
+            border: none;
+            border-radius: 10px;
             cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
         }
+
+        .options button:hover {
+            transform: scale(1.05);
+            background-color: #ffddb3;
+        }
+
         #result {
             font-size: 1.5em;
+            font-weight: bold;
             margin-top: 20px;
+            text-shadow: 1px 1px #000;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            font-weight: bold;
+            background: #ff7f50;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.1);
+            background-color: #ff6f35;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .question {
+                font-size: 2em;
+            }
+
+            .options button {
+                font-size: 1.2em;
+                padding: 10px;
+            }
+
+            .next-btn {
+                font-size: 1.2em;
+                padding: 10px 20px;
+            }
         }
     </style>
 </head>
@@ -32,10 +110,9 @@
     <div class="question" id="question"></div>
     <div class="options" id="options"></div>
     <div id="result"></div>
-    <button onclick="nextQuestion()">다음 문제</button>
+    <button class="next-btn" onclick="nextQuestion()">다음 문제</button>
 
     <script>
-        // 히라가나와 영어 발음 데이터
         const quizData = [
             { hiragana: "あ", answer: "a" },
             { hiragana: "い", answer: "i" },
@@ -88,22 +165,15 @@
         let currentQuestion = {};
 
         function generateQuestion() {
-            // 랜덤 히라가나 선택
             const randomIndex = Math.floor(Math.random() * quizData.length);
             currentQuestion = quizData[randomIndex];
-
-            // 정답 포함 5개의 랜덤 선택지 생성
             const options = new Set();
             options.add(currentQuestion.answer);
             while (options.size < 5) {
                 const randomOption = quizData[Math.floor(Math.random() * quizData.length)].answer;
                 options.add(randomOption);
             }
-
-            // 선택지를 랜덤으로 섞음
             const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
-
-            // 화면 업데이트
             document.getElementById("question").innerText = `이 히라가나의 발음은? ${currentQuestion.hiragana}`;
             const optionsContainer = document.getElementById("options");
             optionsContainer.innerHTML = "";
@@ -117,10 +187,13 @@
         }
 
         function checkAnswer(selected) {
+            const resultElement = document.getElementById("result");
             if (selected === currentQuestion.answer) {
-                document.getElementById("result").innerText = "정답입니다!!!!!!";
+                resultElement.innerText = "정답입니다!!!!!!";
+                resultElement.style.color = "#0f0";
             } else {
-                document.getElementById("result").innerText = `틀렸습니다!!!!!! 정답은 "${currentQuestion.answer}" 입니다!!!!!`;
+                resultElement.innerText = `틀렸습니다!!!!!! 정답은 "${currentQuestion.answer}" 입니다!!!!!`;
+                resultElement.style.color = "#f00";
             }
         }
 
@@ -128,7 +201,6 @@
             generateQuestion();
         }
 
-        // 첫 문제 생성
         generateQuestion();
     </script>
 </body>
