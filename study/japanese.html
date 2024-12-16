@@ -15,24 +15,26 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: linear-gradient(135deg, #ffafbd, #ffc3a0);
-            color: #fff;
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #333;
             text-align: center;
         }
 
         h1 {
             margin-top: 20px;
             font-size: 2.5em;
-            text-shadow: 2px 2px #000;
+            color: #333;
         }
 
         .question {
-            font-size: 2.5em;
+            font-size: 5em;
             font-weight: bold;
-            margin: 20px 0;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
+            margin: 30px 0;
+            padding: 20px;
+            color: #444;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .options {
@@ -46,8 +48,8 @@
         .options button {
             font-size: 1.5em;
             padding: 15px;
-            background: #fff;
-            color: #333;
+            background: #333;
+            color: #fff;
             border: none;
             border-radius: 10px;
             cursor: pointer;
@@ -56,14 +58,13 @@
 
         .options button:hover {
             transform: scale(1.05);
-            background-color: #ffddb3;
+            background-color: #ff6b6b;
         }
 
         #result {
             font-size: 1.5em;
             font-weight: bold;
             margin-top: 20px;
-            text-shadow: 1px 1px #000;
         }
 
         .next-btn {
@@ -71,7 +72,7 @@
             padding: 15px 30px;
             font-size: 1.5em;
             font-weight: bold;
-            background: #ff7f50;
+            background: #28a745;
             color: #fff;
             border: none;
             border-radius: 10px;
@@ -81,7 +82,7 @@
 
         .next-btn:hover {
             transform: scale(1.1);
-            background-color: #ff6f35;
+            background-color: #218838;
         }
 
         @media (max-width: 768px) {
@@ -90,7 +91,7 @@
             }
 
             .question {
-                font-size: 2em;
+                font-size: 4em;
             }
 
             .options button {
@@ -174,7 +175,7 @@
                 options.add(randomOption);
             }
             const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
-            document.getElementById("question").innerText = `이 히라가나의 발음은? ${currentQuestion.hiragana}`;
+            document.getElementById("question").innerText = currentQuestion.hiragana;
             const optionsContainer = document.getElementById("options");
             optionsContainer.innerHTML = "";
             shuffledOptions.forEach(option => {
@@ -190,10 +191,10 @@
             const resultElement = document.getElementById("result");
             if (selected === currentQuestion.answer) {
                 resultElement.innerText = "정답입니다!!!!!!";
-                resultElement.style.color = "#0f0";
+                resultElement.style.color = "#28a745";
             } else {
                 resultElement.innerText = `틀렸습니다!!!!!! 정답은 "${currentQuestion.answer}" 입니다!!!!!`;
-                resultElement.style.color = "#f00";
+                resultElement.style.color = "#dc3545";
             }
         }
 
