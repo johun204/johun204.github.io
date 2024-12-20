@@ -2,7 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- 기본 설정 -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta name="apple-mobile-web-app-title" content="히라가나 퀴즈">
+
+	<!-- 웹 앱 아이콘 -->
+	<link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
+	<link rel="apple-touch-icon" sizes="192x192" href="icon-192x192.png">
+
+	<!-- 매니페스트 파일 연결 -->
+	<link rel="manifest" href="manifest.json">
+
     <title>히라가나 & 가타카나 퀴즈</title>
     <style>
         body {
@@ -240,6 +253,11 @@
         function nextQuestion() {
             generateQuestion();
         }
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(() => console.log('Service Worker 등록 완료!!!!!!'))
+            .catch((error) => console.error('Service Worker 등록 실패!!!!!!', error));
+    }
     </script>
 </body>
 </html>
