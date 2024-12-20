@@ -2,262 +2,182 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-	<!-- 기본 설정 -->
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="default">
-	<meta name="apple-mobile-web-app-title" content="히라가나 퀴즈">
-
-	<!-- 웹 앱 아이콘 -->
-	<link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
-	<link rel="apple-touch-icon" sizes="192x192" href="icon-192x192.png">
-
-	<!-- 매니페스트 파일 연결 -->
-	<link rel="manifest" href="manifest.json">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>히라가나 & 가타카나 퀴즈</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background: #fff5f5;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: linear-gradient(135deg, #ffecd2, #fcb69f);
-            color: #333;
+        }
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            background: #f77e7e;
+            color: white;
+            padding: 10px;
+        }
+        header button {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            background: transparent;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        header button.active {
+            background: #ff4d4d;
+            font-weight: bold;
+        }
+        main {
             text-align: center;
+            margin-top: 20px;
         }
-
-        h1 {
-            font-size: 2.5em;
-            color: #333;
-        }
-
-        .selector {
+        .character {
+            font-size: 80px;
+            color: #ff6b6b;
             margin: 20px;
         }
-
-        .selector button {
-            font-size: 1.2em;
-            padding: 10px 20px;
-            margin: 10px;
-            background: #333;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-
-        .selector button:hover {
-            transform: scale(1.1);
-            background-color: #ff6b6b;
-        }
-
-        .question {
-            font-size: 5em;
-            font-weight: bold;
-            margin: 30px 0;
-            padding: 20px;
-            color: #444;
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
         .options {
-            display: flex;
-            flex-direction: column;
-            width: 90%;
-            max-width: 400px;
-            gap: 15px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
         }
-
         .options button {
-            font-size: 1.5em;
-            padding: 15px;
-            background: #333;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #ffb3b3;
+            background: white;
             cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
+            border-radius: 5px;
+            transition: 0.3s;
         }
-
         .options button:hover {
-            transform: scale(1.05);
-            background-color: #ff6b6b;
+            background: #ffe3e3;
         }
-
-        #result {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-top: 20px;
+        .feedback {
+            font-size: 18px;
+            color: #ff4d4d;
+            margin-top: 10px;
         }
-
-        .next-btn {
-            margin-top: 20px;
-            padding: 15px 30px;
-            font-size: 1.5em;
-            font-weight: bold;
-            background: #28a745;
-            color: #fff;
+        #next-button {
+            display: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            background: #f77e7e;
+            color: white;
             border: none;
-            border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-
-        .next-btn:hover {
-            transform: scale(1.1);
-            background-color: #218838;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2em;
-            }
-
-            .question {
-                font-size: 4em;
-            }
-
-            .options button {
-                font-size: 1.2em;
-                padding: 10px;
-            }
-
-            .next-btn {
-                font-size: 1.2em;
-                padding: 10px 20px;
-            }
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>히라가나 & 가타카나 퀴즈</h1>
-    <div class="selector">
-        <button onclick="selectQuiz('hiragana')">히라가나 퀴즈</button>
-        <button onclick="selectQuiz('katakana')">가타카나 퀴즈</button>
+<header>
+    <button id="hiragana-tab" class="active" onclick="switchMode('hiragana')">히라가나</button>
+    <button id="katakana-tab" onclick="switchMode('katakana')">가타카나</button>
+</header>
+<main>
+    <div id="quiz-container">
+        <div class="character" id="character">あ</div>
+        <div class="options" id="options"></div>
+        <div class="feedback" id="feedback"></div>
+        <button id="next-button" onclick="generateQuestion()">다음 문제</button>
     </div>
-    <div class="question" id="question" style="display: none;"></div>
-    <div class="options" id="options" style="display: none;"></div>
-    <div id="result" style="display: none;"></div>
-    <button class="next-btn" onclick="nextQuestion()" style="display: none;">다음 문제</button>
+</main>
+<script>
+    const hiragana = [
+        ["あ", "a"], ["い", "i"], ["う", "u"], ["え", "e"], ["お", "o"],
+        ["か", "ka"], ["き", "ki"], ["く", "ku"], ["け", "ke"], ["こ", "ko"],
+        ["さ", "sa"], ["し", "shi"], ["す", "su"], ["せ", "se"], ["そ", "so"],
+        ["た", "ta"], ["ち", "chi"], ["つ", "tsu"], ["て", "te"], ["と", "to"],
+        ["な", "na"], ["に", "ni"], ["ぬ", "nu"], ["ね", "ne"], ["の", "no"],
+        ["は", "ha"], ["ひ", "hi"], ["ふ", "fu"], ["へ", "he"], ["ほ", "ho"],
+        ["ま", "ma"], ["み", "mi"], ["む", "mu"], ["め", "me"], ["も", "mo"],
+        ["や", "ya"], ["ゆ", "yu"], ["よ", "yo"], ["ら", "ra"], ["り", "ri"],
+        ["る", "ru"], ["れ", "re"], ["ろ", "ro"], ["わ", "wa"], ["を", "wo"],
+        ["ん", "n"]
+    ];
+    const katakana = [
+        ["ア", "a"], ["イ", "i"], ["ウ", "u"], ["エ", "e"], ["オ", "o"],
+        ["カ", "ka"], ["キ", "ki"], ["ク", "ku"], ["ケ", "ke"], ["コ", "ko"],
+        ["サ", "sa"], ["シ", "shi"], ["ス", "su"], ["セ", "se"], ["ソ", "so"],
+        ["タ", "ta"], ["チ", "chi"], ["ツ", "tsu"], ["テ", "te"], ["ト", "to"],
+        ["ナ", "na"], ["ニ", "ni"], ["ヌ", "nu"], ["ネ", "ne"], ["ノ", "no"],
+        ["ハ", "ha"], ["ヒ", "hi"], ["フ", "fu"], ["ヘ", "he"], ["ホ", "ho"],
+        ["マ", "ma"], ["ミ", "mi"], ["ム", "mu"], ["メ", "me"], ["モ", "mo"],
+        ["ヤ", "ya"], ["ユ", "yu"], ["ヨ", "yo"], ["ラ", "ra"], ["リ", "ri"],
+        ["ル", "ru"], ["レ", "re"], ["ロ", "ro"], ["ワ", "wa"], ["ヲ", "wo"],
+        ["ン", "n"]
+    ];
 
-    <script>
-        const hiraganaData = [
-            { char: "あ", answer: "a" },
-            { char: "い", answer: "i" },
-            { char: "う", answer: "u" },
-            { char: "え", answer: "e" },
-            { char: "お", answer: "o" },
-            { char: "か", answer: "ka" },
-            { char: "き", answer: "ki" },
-            { char: "く", answer: "ku" },
-            { char: "け", answer: "ke" },
-            { char: "こ", answer: "ko" },
-            { char: "さ", answer: "sa" },
-            { char: "し", answer: "shi" },
-            { char: "す", answer: "su" },
-            { char: "せ", answer: "se" },
-            { char: "そ", answer: "so" },
-            { char: "た", answer: "ta" },
-            { char: "ち", answer: "chi" },
-            { char: "つ", answer: "tsu" },
-            { char: "て", answer: "te" },
-            { char: "と", answer: "to" },
-            { char: "な", answer: "na" },
-            { char: "に", answer: "ni" },
-            { char: "ぬ", answer: "nu" },
-            { char: "ね", answer: "ne" },
-            { char: "の", answer: "no" },
-            { char: "は", answer: "ha" },
-            { char: "ひ", answer: "hi" },
-            { char: "ふ", answer: "fu" },
-            { char: "へ", answer: "he" },
-            { char: "ほ", answer: "ho" },
-            { char: "ま", answer: "ma" },
-            { char: "み", answer: "mi" },
-            { char: "む", answer: "mu" },
-            { char: "め", answer: "me" },
-            { char: "も", answer: "mo" },
-            { char: "や", answer: "ya" },
-            { char: "ゆ", answer: "yu" },
-            { char: "よ", answer: "yo" },
-            { char: "ら", answer: "ra" },
-            { char: "り", answer: "ri" },
-            { char: "る", answer: "ru" },
-            { char: "れ", answer: "re" },
-            { char: "ろ", answer: "ro" },
-            { char: "わ", answer: "wa" },
-            { char: "を", answer: "wo" },
-            { char: "ん", answer: "n" }
-        ];
+    let currentMode = "hiragana";
+    let currentQuestion = {};
 
-        const katakanaData = hiraganaData.map(({ char, answer }) => ({
-            char: String.fromCharCode(char.charCodeAt(0) + 0x60),
-            answer
-        }));
-
-        let currentQuiz = [];
-        let currentQuestion = {};
-
-        function selectQuiz(type) {
-            currentQuiz = type === "hiragana" ? hiraganaData : katakanaData;
-            document.querySelector('.selector').style.display = 'none';
-            document.getElementById('question').style.display = 'block';
-            document.getElementById('options').style.display = 'flex';
-            document.querySelector('.next-btn').style.display = 'block';
-            nextQuestion();
-        }
-
-        function generateQuestion() {
-            const randomIndex = Math.floor(Math.random() * currentQuiz.length);
-            currentQuestion = currentQuiz[randomIndex];
-            const options = new Set();
-            options.add(currentQuestion.answer);
-            while (options.size < 5) {
-                const randomOption = currentQuiz[Math.floor(Math.random() * currentQuiz.length)].answer;
-                options.add(randomOption);
-            }
-            const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
-            document.getElementById("question").innerText = currentQuestion.char;
-            const optionsContainer = document.getElementById("options");
-            optionsContainer.innerHTML = "";
-            shuffledOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.innerText = option;
-                button.onclick = () => checkAnswer(option);
-                optionsContainer.appendChild(button);
-            });
-            document.getElementById("result").style.display = "none";
-        }
-
-        function checkAnswer(selected) {
-            const resultElement = document.getElementById("result");
-            resultElement.style.display = "block";
-            if (selected === currentQuestion.answer) {
-                resultElement.innerText = "정답입니다!!!!!!";
-                resultElement.style.color = "#28a745";
-            } else {
-                resultElement.innerText = `틀렸습니다!!!!!! 정답은 "${currentQuestion.answer}" 입니다!!!!!`;
-                resultElement.style.color = "#dc3545";
-            }
-        }
-
-        function nextQuestion() {
-            generateQuestion();
-        }
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(() => console.log('Service Worker 등록 완료!!!!!!'))
-            .catch((error) => console.error('Service Worker 등록 실패!!!!!!', error));
+    function switchMode(mode) {
+        currentMode = mode;
+        document.getElementById("hiragana-tab").classList.toggle("active", mode === "hiragana");
+        document.getElementById("katakana-tab").classList.toggle("active", mode === "katakana");
+        generateQuestion();
     }
-    </script>
+
+    function generateQuestion() {
+        const data = currentMode === "hiragana" ? hiragana : katakana;
+        const randomIndex = Math.floor(Math.random() * data.length);
+        const correctAnswer = data[randomIndex];
+        currentQuestion = { character: correctAnswer[0], pronunciation: correctAnswer[1] };
+
+        const options = [...data].sort(() => Math.random() - 0.5).slice(0, 6);
+        if (!options.some(option => option[1] === correctAnswer[1])) {
+            options[Math.floor(Math.random() * options.length)] = correctAnswer;
+        }
+
+        document.getElementById("character").textContent = correctAnswer[0];
+        const optionsHTML = options.map(
+            option => `<button onclick="checkAnswer('${option[1]}')">${option[1]}</button>`
+        ).join("");
+        document.getElementById("options").innerHTML = optionsHTML;
+        document.getElementById("feedback").textContent = "";
+        document.getElementById("next-button").style.display = "none";
+    }
+
+    function checkAnswer(selected) {
+        if (selected === currentQuestion.pronunciation) {
+            const feedbackText = `${currentQuestion.character} (${currentQuestion.pronunciation})`;
+            const equivalent = currentMode === "hiragana" 
+                ? getEquivalentCharacter(katakana) 
+                : getEquivalentCharacter(hiragana);
+            document.getElementById("feedback").textContent = `정답입니다! 같은 발음: ${equivalent} (${currentQuestion.pronunciation})`;
+            document.getElementById("next-button").style.display = "block";
+        } else {
+            document.getElementById("feedback").textContent = "틀렸습니다! 다시 시도해주세요.";
+        }
+    }
+
+    function getEquivalentCharacter(data) {
+        return data.find(item => item[1] === currentQuestion.pronunciation)[0];
+    }
+
+    generateQuestion();
+
+    // Register Service Worker
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js").then(registration => {
+            console.log("Service Worker registered with scope:", registration.scope);
+        }).catch(error => {
+            console.error("Service Worker registration failed:", error);
+        });
+    }
+</script>
 </body>
 </html>
