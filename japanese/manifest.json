@@ -1,7 +1,7 @@
 {
     "name": "히라가나 & 가타카나 퀴즈",
     "short_name": "퀴즈",
-    "start_url": "./",
+    "start_url": "./index.html",
     "display": "fullscreen",
     "background_color": "#fcb69f",
     "theme_color": "#ff6b6b",
