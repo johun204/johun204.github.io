@@ -173,11 +173,11 @@
         /* 위험 카운트다운 표시 */
         #countdown-container {
             position: absolute;
-            top: 35%; /* 화면 약간 상단에 위치 */
+            top: 35%; 
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
-            display: none; /* 기본 숨김 */
+            display: none; 
             pointer-events: none;
             z-index: 20;
         }
@@ -292,19 +292,21 @@
     const TOP_BUFFER = 190; 
     const DROP_Y = 100; 
 
-    // 과일 데이터
+    // --- 과일 데이터 (radius: 물리적 크기, visualSize: 이모지 크기) ---
+    // radius: 물리 엔진 충돌 원의 반지름
+    // visualSize: 화면에 그려질 이모지의 폰트 크기 (보통 지름의 2배 가까이 되어야 꽉 차 보임)
     const FRUITS = [
-        { index: 0, name: "cherry",     radius: 15,  score: 0,   color: "#FF0000", emoji: "🍒" },
-        { index: 1, name: "strawberry", radius: 25,  score: 10,  color: "#FF6666", emoji: "🍓" },
-        { index: 2, name: "grape",      radius: 35,  score: 20,  color: "#9933FF", emoji: "🍇" },
-        { index: 3, name: "dekopon",    radius: 45,  score: 30,  color: "#FFAA00", emoji: "🍊" },
-        { index: 4, name: "persimmon",  radius: 55,  score: 40,  color: "#FF7700", emoji: "🥭" },
-        { index: 5, name: "apple",      radius: 68,  score: 50,  color: "#FF2222", emoji: "🍎" },
-        { index: 6, name: "pear",       radius: 80,  score: 60,  color: "#FFFF66", emoji: "🍐" },
-        { index: 7, name: "peach",      radius: 95,  score: 70,  color: "#FFCCCC", emoji: "🍑" },
-        { index: 8, name: "pineapple",  radius: 110, score: 80,  color: "#FFFF00", emoji: "🍍" },
-        { index: 9, name: "melon",      radius: 130, score: 90,  color: "#99FF99", emoji: "🍈" },
-        { index: 10, name: "watermelon",radius: 150, score: 100, color: "#00FF00", emoji: "🍉" },
+        { index: 0, name: "cherry",     radius: 15,  visualSize: 28,  score: 0,   color: "#FF0000", emoji: "🍒" },
+        { index: 1, name: "strawberry", radius: 25,  visualSize: 48,  score: 10,  color: "#FF6666", emoji: "🍓" },
+        { index: 2, name: "grape",      radius: 35,  visualSize: 65,  score: 20,  color: "#9933FF", emoji: "🍇" },
+        { index: 3, name: "dekopon",    radius: 45,  visualSize: 85,  score: 30,  color: "#FFAA00", emoji: "🍊" },
+        { index: 4, name: "persimmon",  radius: 55,  visualSize: 100, score: 40,  color: "#FF7700", emoji: "🥭" },
+        { index: 5, name: "apple",      radius: 68,  visualSize: 125, score: 50,  color: "#FF2222", emoji: "🍎" },
+        { index: 6, name: "pear",       radius: 80,  visualSize: 145, score: 60,  color: "#FFFF66", emoji: "🍐" },
+        { index: 7, name: "peach",      radius: 95,  visualSize: 175, score: 70,  color: "#FFCCCC", emoji: "🍑" },
+        { index: 8, name: "pineapple",  radius: 110, visualSize: 200, score: 80,  color: "#FFFF00", emoji: "🍍" },
+        { index: 9, name: "melon",      radius: 130, visualSize: 240, score: 90,  color: "#99FF99", emoji: "🍈" },
+        { index: 10, name: "watermelon",radius: 150, visualSize: 270, score: 100, color: "#00FF00", emoji: "🍉" },
     ];
 
     // Matter.js 별칭
@@ -450,14 +452,16 @@
 
             const fruitInfo = FRUITS.find(f => f.name === body.label);
             if (fruitInfo) {
-                // 이모지 그리기 전 색상을 불투명(검정)으로 초기화 (중요 수정)
+                // 이모지 그리기 (검정색 불투명)
                 context.fillStyle = '#000000'; 
-                context.font = `${fruitInfo.radius * 1.5}px Arial`;
+                // visualSize 사용하여 크기 지정
+                context.font = `${fruitInfo.visualSize}px Arial`;
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
                 context.save();
                 context.translate(body.position.x, body.position.y);
                 context.rotate(body.angle);
+                // Y축 보정 (이모지마다 중심이 조금씩 다를 수 있어 약간 내림)
                 context.fillText(fruitInfo.emoji, 0, 5);
                 context.restore();
             }
@@ -477,9 +481,8 @@
             context.stroke();
             context.setLineDash([]);
             
-            // 미리보기 이모지도 불투명하게 설정
             context.fillStyle = '#000000';
-            context.font = `${info.radius * 1.5}px Arial`;
+            context.font = `${info.visualSize}px Arial`;
             context.textAlign = 'center';
             context.textBaseline = 'middle';
             context.fillText(info.emoji, currentFruit.x, currentFruit.y);
@@ -584,9 +587,9 @@
             friction: 0.1,
             density: 0.001,
             render: { 
-                fillStyle: 'transparent', 
-                strokeStyle: fruit.color, 
-                lineWidth: 4              
+                fillStyle: 'transparent', // 내부 투명
+                strokeStyle: fruit.color, // 테두리 색상
+                lineWidth: 3              // 테두리 두께 (조금 줄임)
             }
         });
         Composite.add(engine.world, body);
