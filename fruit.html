@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>수박 게임 (Watermelon Game)</title>
+    <!-- Matter.js 물리 엔진 로드 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        /* CSS 스타일링 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffeaa7;
+            overflow: hidden; /* 스크롤 방지 */
+            font-family: 'Noto Sans KR', sans-serif;
+            touch-action: none; /* 모바일 터치 시 브라우저 기본 동작 방지 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px; /* 모바일 폭 제한 */
+            height: 100vh;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* 클릭은 캔버스로 통과 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .score-board {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3436;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #fab1a0;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #636e72;
+            display: block;
+            text-align: center;
+        }
+
+        /* 게임 오버 화면 */
+        #game-over {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        #game-over h1 {
+            color: white;
+            font-size: 40px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #restart-btn {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #fab1a0;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #e17055;
+            transition: transform 0.1s;
+        }
+
+        #restart-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* 다음 과일 표시 */
+        #next-fruit-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.8);
+            padding: 5px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #ffeaa7;
+        }
+        #next-fruit-label {
+            font-size: 10px;
+            color: #636e72;
+        }
+        #next-fruit-emoji {
+            font-size: 30px;
+        }
+        
+        #permission-hint {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #aaa;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="ui-layer">
+        <div class="score-board">
+            <span class="score-label">SCORE</span>
+            <span id="score">0</span>
+        </div>
+        
+        <div id="next-fruit-display">
+            <div id="next-fruit-label">NEXT</div>
+            <div id="next-fruit-emoji">🍒</div>
+        </div>
+    </div>
+    
+    <div id="permission-hint">화면을 터치하면 자이로 센서가 활성화됩니다 (모바일)</div>
+
+    <div id="game-over">
+        <h1>게임 종료!</h1>
+        <button id="restart-btn">다시 하기</button>
+    </div>
+</div>
+
+<script>
+    // --- 게임 설정 및 데이터 ---
+    const FRUITS = [
+        { index: 0, name: "cherry",     radius: 15,  score: 0,   color: "#FF0000", emoji: "🍒" },
+        { index: 1, name: "strawberry", radius: 25,  score: 10,  color: "#FF6666", emoji: "🍓" },
+        { index: 2, name: "grape",      radius: 35,  score: 20,  color: "#9933FF", emoji: "🍇" },
+        { index: 3, name: "dekopon",    radius: 45,  score: 30,  color: "#FFAA00", emoji: "🍊" },
+        { index: 4, name: "persimmon",  radius: 55,  score: 40,  color: "#FF7700", emoji: "🥭" },
+        { index: 5, name: "apple",      radius: 68,  score: 50,  color: "#FF2222", emoji: "🍎" },
+        { index: 6, name: "pear",       radius: 80,  score: 60,  color: "#FFFF66", emoji: "🍐" },
+        { index: 7, name: "peach",      radius: 95,  score: 70,  color: "#FFCCCC", emoji: "🍑" },
+        { index: 8, name: "pineapple",  radius: 110, score: 80,  color: "#FFFF00", emoji: "🍍" },
+        { index: 9, name: "melon",      radius: 130, score: 90,  color: "#99FF99", emoji: "🍈" },
+        { index: 10, name: "watermelon",radius: 150, score: 100, color: "#00FF00", emoji: "🍉" },
+    ];
+
+    // Matter.js 모듈 별칭
+    const Engine = Matter.Engine,
+          Render = Matter.Render,
+          Runner = Matter.Runner,
+          Bodies = Matter.Bodies,
+          Composite = Matter.Composite,
+          Events = Matter.Events,
+          Body = Matter.Body,
+          Vector = Matter.Vector;
+
+    // 게임 상태 변수
+    let engine, render;
+    let currentFruit = null;
+    let nextFruitIndex = 0;
+    let isDropping = false;
+    let score = 0;
+    let gameOver = false;
+    let gameContainer = document.getElementById('game-container');
+    let width = gameContainer.clientWidth;
+    let height = gameContainer.clientHeight;
+    
+    // 파티클 시스템을 위한 배열
+    let particles = [];
+
+    const WALL_THICKNESS = 40;
+    const TOP_BUFFER = 100; 
+
+    // 자이로 센서 관련
+    let isGyroEnabled = false;
+
+    // 초기화 함수
+    function init() {
+        engine = Engine.create();
+        
+        render = Render.create({
+            element: gameContainer,
+            engine: engine,
+            options: {
+                width: width,
+                height: height,
+                wireframes: false,
+                background: 'transparent'
+            }
+        });
+
+        // 벽 생성
+        const ground = Bodies.rectangle(width / 2, height + WALL_THICKNESS / 2 - 10, width, WALL_THICKNESS, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        const leftWall = Bodies.rectangle(0 - WALL_THICKNESS / 2, height / 2, WALL_THICKNESS, height * 2, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        const rightWall = Bodies.rectangle(width + WALL_THICKNESS / 2, height / 2, WALL_THICKNESS, height * 2, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        
+        const dangerLine = Bodies.rectangle(width/2, TOP_BUFFER, width, 2, { 
+            isStatic: true, 
+            isSensor: true, 
+            render: { fillStyle: '#fab1a0', opacity: 0.5 } 
+        });
+
+        Composite.add(engine.world, [ground, leftWall, rightWall, dangerLine]);
+
+        // 렌더링 이벤트 (이모지 및 파티클 그리기)
+        Events.on(render, 'afterRender', function() {
+            const context = render.context;
+            const bodies = Composite.allBodies(engine.world);
+
+            // 1. 과일 이모지 그리기
+            for (let i = 0; i < bodies.length; i++) {
+                const body = bodies[i];
+                if (body.isStatic) continue;
+
+                const fruitInfo = FRUITS.find(f => f.name === body.label);
+                if (fruitInfo) {
+                    context.font = `${fruitInfo.radius * 1.5}px Arial`;
+                    context.textAlign = 'center';
+                    context.textBaseline = 'middle';
+                    context.save();
+                    context.translate(body.position.x, body.position.y);
+                    context.rotate(body.angle);
+                    context.fillText(fruitInfo.emoji, 0, 5);
+                    context.restore();
+                }
+            }
+            
+            // 2. 파티클(폭발) 효과 그리기
+            updateAndDrawParticles(context);
+
+            // 3. 현재 대기 중인 과일 표시
+            if (currentFruit && !isDropping) {
+                const info = FRUITS[currentFruit.index];
+                context.beginPath();
+                context.moveTo(currentFruit.x, TOP_BUFFER);
+                context.lineTo(currentFruit.x, height);
+                context.strokeStyle = 'rgba(0,0,0,0.1)';
+                context.stroke();
+
+                context.font = `${info.radius * 1.5}px Arial`;
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.fillText(info.emoji, currentFruit.x, currentFruit.y);
+            }
+        });
+
+        // 충돌 이벤트
+        Events.on(engine, 'collisionStart', function(event) {
+            if (gameOver) return;
+
+            const pairs = event.pairs;
+            const removedBodies = new Set();
+
+            for (let i = 0; i < pairs.length; i++) {
+                const bodyA = pairs[i].bodyA;
+                const bodyB = pairs[i].bodyB;
+
+                if (removedBodies.has(bodyA.id) || removedBodies.has(bodyB.id)) continue;
+
+                if (bodyA.label === bodyB.label) {
+                    const fruitIndex = FRUITS.findIndex(f => f.name === bodyA.label);
+                    
+                    if (fruitIndex !== -1 && fruitIndex < FRUITS.length - 1) {
+                        const midX = (bodyA.position.x + bodyB.position.x) / 2;
+                        const midY = (bodyA.position.y + bodyB.position.y) / 2;
+
+                        removedBodies.add(bodyA.id);
+                        removedBodies.add(bodyB.id);
+
+                        Composite.remove(engine.world, [bodyA, bodyB]);
+                        
+                        // 다음 단계 과일
+                        const nextFruit = FRUITS[fruitIndex + 1];
+                        
+                        // 폭발 이펙트 생성
+                        createExplosion(midX, midY, nextFruit.color);
+
+                        // **새 위치 계산: 합쳐진 위치보다 살짝 위**
+                        // 과일 반지름만큼 위로 올려서 생성하면 자연스럽게 떨어짐
+                        const spawnY = midY - nextFruit.radius * 0.5;
+
+                        const newBody = addFruitBody(midX, spawnY, nextFruit.index);
+                        
+                        // **생성 시 위로 살짝 튀어오르는 힘 부여 (Pop 효과)**
+                        Body.setVelocity(newBody, { x: 0, y: -3 });
+                        
+                        updateScore(nextFruit.score * 2);
+                    }
+                }
+            }
+        });
+
+        setInterval(checkGameOver, 1000);
+
+        Runner.run(Runner.create(), engine);
+        Render.run(render);
+
+        prepareNextFruit();
+    }
+
+    // --- 파티클 시스템 ---
+    function createExplosion(x, y, color) {
+        // 파티클 10개 생성
+        for (let i = 0; i < 12; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                radius: Math.random() * 5 + 2, // 크기 랜덤
+                color: color,
+                velocity: {
+                    x: (Math.random() - 0.5) * 10, // 사방으로 퍼짐
+                    y: (Math.random() - 0.5) * 10
+                },
+                alpha: 1.0, // 투명도
+                life: 1.0 // 수명
+            });
+        }
+    }
+
+    function updateAndDrawParticles(ctx) {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            
+            // 위치 업데이트
+            p.x += p.velocity.x;
+            p.y += p.velocity.y;
+            
+            // 중력 영향 (살짝 아래로 떨어지게)
+            p.velocity.y += 0.2;
+            
+            // 수명 감소
+            p.life -= 0.02;
+            p.alpha = p.life;
+
+            if (p.life <= 0) {
+                particles.splice(i, 1);
+                continue;
+            }
+
+            // 그리기
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+    }
+
+    function addFruitBody(x, y, index) {
+        const fruit = FRUITS[index];
+        const body = Bodies.circle(x, y, fruit.radius, {
+            label: fruit.name,
+            restitution: 0.2, 
+            friction: 0.1,
+            density: 0.001, 
+            render: { fillStyle: fruit.color }
+        });
+        Composite.add(engine.world, body);
+        return body;
+    }
+
+    function prepareNextFruit() {
+        if (gameOver) return;
+        
+        const index = nextFruitIndex;
+        nextFruitIndex = Math.floor(Math.random() * 5); 
+        
+        document.getElementById('next-fruit-emoji').textContent = FRUITS[nextFruitIndex].emoji;
+
+        currentFruit = {
+            index: index,
+            x: width / 2,
+            y: 50
+        };
+        isDropping = false;
+    }
+
+    // --- 입력 핸들러 및 자이로 센서 ---
+
+    function requestMotionPermission() {
+        if (isGyroEnabled) return;
+
+        // iOS 13+ 권한 요청
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(permissionState => {
+                    if (permissionState === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                        isGyroEnabled = true;
+                        document.getElementById('permission-hint').style.display = 'none';
+                    }
+                })
+                .catch(console.error);
+        } else {
+            // 안드로이드 및 구형 iOS
+            window.addEventListener('deviceorientation', handleOrientation);
+            isGyroEnabled = true;
+            document.getElementById('permission-hint').style.display = 'none';
+        }
+    }
+
+    function handleOrientation(event) {
+        if (!engine || gameOver) return;
+
+        // gamma: 좌우 기울기 (-90 ~ 90)
+        let gamma = event.gamma; 
+        
+        if (gamma === null) return;
+
+        // 값을 -30 ~ 30 정도로 제한하여 너무 심하게 쏠리지 않게 함
+        if (gamma > 30) gamma = 30;
+        if (gamma < -30) gamma = -30;
+
+        // 민감도 조절 (아주 약하게)
+        // Matter.js의 기본 gravity.y는 1입니다.
+        // gravity.x를 0.5 정도로만 줘도 꽤 많이 쏠립니다.
+        // 따라서 gamma 값을 아주 작게 나눕니다.
+        const sensitivity = 0.02; // 민감도
+        const gravityX = gamma * sensitivity;
+
+        // 중력 적용
+        engine.world.gravity.x = gravityX;
+    }
+
+    function handleInputStart(e) {
+        // 첫 인터랙션 시 자이로 권한 요청 시도
+        requestMotionPermission();
+
+        if (isDropping || gameOver) return;
+        updateCurrentFruitPos(e);
+    }
+
+    function handleInputMove(e) {
+        if (isDropping || gameOver) return;
+        updateCurrentFruitPos(e);
+    }
+
+    function handleInputEnd(e) {
+        if (isDropping || gameOver) return;
+        dropFruit();
+    }
+
+    function updateCurrentFruitPos(e) {
+        if (!currentFruit) return;
+        
+        let clientX;
+        if (e.type.includes('touch')) {
+            clientX = e.touches[0].clientX;
+        } else {
+            clientX = e.clientX;
+        }
+
+        const rect = gameContainer.getBoundingClientRect();
+        let x = clientX - rect.left;
+
+        const radius = FRUITS[currentFruit.index].radius;
+        x = Math.max(radius + 10, Math.min(width - radius - 10, x));
+
+        currentFruit.x = x;
+    }
+
+    function dropFruit() {
+        if (!currentFruit) return;
+        isDropping = true;
+
+        addFruitBody(currentFruit.x, currentFruit.y, currentFruit.index);
+        currentFruit = null;
+
+        setTimeout(prepareNextFruit, 800);
+    }
+
+    function updateScore(points) {
+        score += points;
+        document.getElementById('score').textContent = score;
+    }
+
+    function checkGameOver() {
+        if (gameOver) return;
+        
+        const bodies = Composite.allBodies(engine.world);
+        for (let i = 0; i < bodies.length; i++) {
+            const body = bodies[i];
+            if (!body.isStatic && body.position.y < TOP_BUFFER && body.speed < 0.2) {
+                if(body.position.y > 40) { 
+                    endGame();
+                    break;
+                }
+            }
+        }
+    }
+
+    function endGame() {
+        gameOver = true;
+        document.getElementById('game-over').style.display = 'flex';
+    }
+
+    function resetGame() {
+        Composite.clear(engine.world);
+        Engine.clear(engine);
+        score = 0;
+        updateScore(0);
+        gameOver = false;
+        particles = []; // 파티클 초기화
+        document.getElementById('game-over').style.display = 'none';
+        
+        // 중력 초기화
+        engine.world.gravity.x = 0;
+        engine.world.gravity.y = 1;
+        
+        const ground = Bodies.rectangle(width / 2, height + WALL_THICKNESS / 2 - 10, width, WALL_THICKNESS, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        const leftWall = Bodies.rectangle(0 - WALL_THICKNESS / 2, height / 2, WALL_THICKNESS, height * 2, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        const rightWall = Bodies.rectangle(width + WALL_THICKNESS / 2, height / 2, WALL_THICKNESS, height * 2, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        const dangerLine = Bodies.rectangle(width/2, TOP_BUFFER, width, 2, { isStatic: true, isSensor: true, render: { fillStyle: '#fab1a0', opacity: 0.5 } });
+        
+        Composite.add(engine.world, [ground, leftWall, rightWall, dangerLine]);
+
+        prepareNextFruit();
+    }
+
+    // 이벤트 리스너 등록
+    window.addEventListener('mousedown', handleInputStart);
+    window.addEventListener('mousemove', handleInputMove);
+    window.addEventListener('mouseup', handleInputEnd);
+
+    window.addEventListener('touchstart', handleInputStart, {passive: false});
+    window.addEventListener('touchmove', handleInputMove, {passive: false});
+    window.addEventListener('touchend', handleInputEnd);
+
+    document.getElementById('restart-btn').addEventListener('click', resetGame);
+    
+    window.addEventListener('resize', function() {
+        width = gameContainer.clientWidth;
+        height = gameContainer.clientHeight;
+        render.canvas.width = width;
+        render.canvas.height = height;
+    });
+
+    init();
+
+</script>
+</body>
+</html>
+
