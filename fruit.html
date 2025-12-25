@@ -53,20 +53,21 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
+            z-index: 5;
         }
 
-        /* 상단 헤더 레이아웃 (Grid 사용) */
+        /* 상단 헤더 */
         .header-info {
             display: grid;
-            grid-template-columns: 1fr auto 1fr; /* 좌(토글) 중(점수) 우(다음) */
+            grid-template-columns: 1fr auto 1fr;
             width: 100%;
             padding: 15px 20px;
             box-sizing: border-box;
             align-items: center;
-            pointer-events: auto; /* 토글 클릭을 위해 auto */
+            pointer-events: auto;
         }
 
-        /* 1. 좌측: 자이로 토글 스위치 */
+        /* 좌측: 자이로 토글 */
         .gyro-control {
             justify-self: start;
             display: flex;
@@ -74,25 +75,17 @@
             align-items: center;
             gap: 5px;
         }
-
         .switch {
             position: relative;
             display: inline-block;
             width: 50px;
             height: 26px;
         }
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ccc;
             transition: .4s;
             border-radius: 34px;
@@ -100,27 +93,17 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            bottom: 3px;
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
         }
-        input:checked + .slider {
-            background-color: #fab1a0;
-        }
-        input:checked + .slider:before {
-            transform: translateX(24px);
-        }
-        .gyro-label {
-            font-size: 10px;
-            color: #b2bec3;
-            font-weight: bold;
-        }
+        input:checked + .slider { background-color: #fab1a0; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .gyro-label { font-size: 10px; color: #b2bec3; font-weight: bold; }
 
-        /* 2. 중앙: 점수판 */
+        /* 중앙: 점수판 */
         .score-board {
             justify-self: center;
             background: rgba(255, 255, 255, 0.95);
@@ -131,19 +114,10 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             min-width: 80px;
         }
-        .score-label {
-            font-size: 11px;
-            color: #636e72;
-            display: block;
-            margin-bottom: 2px;
-        }
-        #score {
-            font-size: 28px;
-            font-weight: 800;
-            color: #2d3436;
-        }
+        .score-label { font-size: 11px; color: #636e72; display: block; margin-bottom: 2px; }
+        #score { font-size: 28px; font-weight: 800; color: #2d3436; }
 
-        /* 3. 우측: 다음 과일 */
+        /* 우측: 다음 과일 */
         #next-fruit-display {
             justify-self: end;
             background: rgba(255,255,255,0.9);
@@ -153,13 +127,8 @@
             border: 2px solid #ffeaa7;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        #next-fruit-label {
-            font-size: 10px;
-            color: #636e72;
-        }
-        #next-fruit-emoji {
-            font-size: 30px;
-        }
+        #next-fruit-label { font-size: 10px; color: #636e72; }
+        #next-fruit-emoji { font-size: 30px; }
 
         /* 하단 진화 단계 표시줄 */
         #evolution-container {
@@ -169,7 +138,6 @@
             padding-bottom: 15px;
             pointer-events: none;
         }
-
         #evolution-bar {
             width: 92%;
             background: rgba(255, 255, 255, 0.95);
@@ -181,114 +149,92 @@
             border: 3px solid #fab1a0;
             box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
         }
-        
         .evo-item {
             font-size: 16px;
             opacity: 0.3;
             transition: all 0.3s;
             filter: grayscale(100%);
-            width: 28px;
-            height: 28px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 28px; height: 28px;
+            display: flex; justify-content: center; align-items: center;
             border-radius: 50%;
         }
-        
-        .evo-active {
-            transform: scale(1.5);
-            opacity: 1;
-            filter: grayscale(0%);
-            z-index: 5;
-        }
-
+        .evo-active { transform: scale(1.5); opacity: 1; filter: grayscale(0%); z-index: 5; }
         .evo-current {
-            opacity: 1 !important;
-            filter: grayscale(0%) !important;
-            transform: scale(1.3);
-            background-color: #ffeaa7;
-            box-shadow: 0 0 10px rgba(255, 234, 167, 0.8);
-            z-index: 10;
-            animation: pulse-border 1.5s infinite;
+            opacity: 1 !important; filter: grayscale(0%) !important; transform: scale(1.3);
+            background-color: #ffeaa7; box-shadow: 0 0 10px rgba(255, 234, 167, 0.8);
+            z-index: 10; animation: pulse-border 1.5s infinite;
         }
-
         @keyframes pulse-border {
             0% { box-shadow: 0 0 0 0 rgba(250, 177, 160, 0.7); }
             70% { box-shadow: 0 0 0 6px rgba(250, 177, 160, 0); }
             100% { box-shadow: 0 0 0 0 rgba(250, 177, 160, 0); }
         }
 
-        /* 시작 화면 오버레이 */
+        /* 위험 카운트다운 표시 */
+        #countdown-container {
+            position: absolute;
+            top: 35%; /* 화면 약간 상단에 위치 */
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            display: none; /* 기본 숨김 */
+            pointer-events: none;
+            z-index: 20;
+        }
+        #countdown-text {
+            font-size: 80px;
+            font-weight: 900;
+            color: #ff4757;
+            text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 0px 0px 20px rgba(255,0,0,0.5);
+            animation: shake 0.5s infinite;
+        }
+        #countdown-sub {
+            font-size: 18px;
+            color: #ff6b81;
+            font-weight: bold;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* 시작 화면 */
         #start-screen {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 234, 167, 0.98);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            pointer-events: auto;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 30; pointer-events: auto;
         }
-
         #start-btn {
-            padding: 15px 40px;
-            font-size: 24px;
-            background-color: #ff7675;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #d63031;
-            font-weight: bold;
+            padding: 15px 40px; font-size: 24px;
+            background-color: #ff7675; color: white;
+            border: none; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 4px 0 #d63031; font-weight: bold;
             animation: pulse 1.5s infinite;
         }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        #gyro-status { margin-top: 15px; font-size: 14px; color: #636e72; }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        #gyro-status {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #636e72;
-        }
-
-        /* 게임 오버 화면 */
+        /* 게임 오버 */
         #game-over {
             display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            pointer-events: auto;
-            z-index: 10;
+            justify-content: center; align-items: center; flex-direction: column;
+            pointer-events: auto; z-index: 40;
         }
-
-        #game-over h1 {
-            color: white;
-            font-size: 40px;
-            margin-bottom: 20px;
-        }
-
+        #game-over h1 { color: white; font-size: 40px; margin-bottom: 20px; }
         #restart-btn {
-            padding: 15px 30px;
-            font-size: 20px;
-            background-color: #fab1a0;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
+            padding: 15px 30px; font-size: 20px;
+            background-color: #fab1a0; color: white;
+            border: none; border-radius: 50px; cursor: pointer;
             box-shadow: 0 4px 0 #e17055;
         }
     </style>
@@ -297,9 +243,7 @@
 
 <div id="game-container">
     <div id="ui-layer">
-        <!-- 상단 헤더 -->
         <div class="header-info">
-            <!-- 좌측: 자이로 토글 -->
             <div class="gyro-control">
                 <span class="gyro-label">기울기</span>
                 <label class="switch">
@@ -307,27 +251,27 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
-            <!-- 중앙: 점수 -->
             <div class="score-board">
                 <span class="score-label">SCORE</span>
                 <span id="score">0</span>
             </div>
-            
-            <!-- 우측: 다음 과일 -->
             <div id="next-fruit-display">
                 <div id="next-fruit-label">NEXT</div>
                 <div id="next-fruit-emoji">🍒</div>
             </div>
         </div>
 
-        <!-- 하단 진화 순서도 -->
+        <!-- 카운트다운 표시 -->
+        <div id="countdown-container">
+            <div id="countdown-text">3</div>
+            <div id="countdown-sub">위험!</div>
+        </div>
+
         <div id="evolution-container">
             <div id="evolution-bar"></div>
         </div>
     </div>
     
-    <!-- 시작 화면 -->
     <div id="start-screen">
         <h1>🍉 수박 게임</h1>
         <p style="margin-bottom: 30px; color: #555;">터치하여 과일을 떨어뜨리세요</p>
@@ -335,7 +279,6 @@
         <div id="gyro-status">센서 권한 확인 중...</div>
     </div>
 
-    <!-- 게임 오버 -->
     <div id="game-over">
         <h1>게임 종료!</h1>
         <button id="restart-btn">다시 하기</button>
@@ -346,9 +289,8 @@
     // --- 설정 변수 ---
     const BOTTOM_UI_OFFSET = 90; 
     const WALL_THICKNESS = 60;
-    // 게임오버 라인을 좀 더 아래로 내려서(190), 드롭 위치(100)와 겹치지 않게 함
     const TOP_BUFFER = 190; 
-    const DROP_Y = 100; // 과일이 떨어지기 전 대기하는 높이 (기존 50에서 하향 조정)
+    const DROP_Y = 100; 
 
     // 과일 데이터
     const FRUITS = [
@@ -383,8 +325,11 @@
     let gameOver = false;
     let particles = [];
     
-    // 자이로 상태
-    let isGyroEnabled = true; // 토글 상태
+    // 위험 상태 관리
+    let dangerStartTime = null; 
+    const DANGER_DURATION = 3000; 
+
+    let isGyroEnabled = true;
 
     // DOM
     const gameContainer = document.getElementById('game-container');
@@ -393,11 +338,12 @@
     const gyroStatus = document.getElementById('gyro-status');
     const evoBar = document.getElementById('evolution-bar');
     const gyroToggle = document.getElementById('gyro-toggle');
+    const countdownContainer = document.getElementById('countdown-container');
+    const countdownText = document.getElementById('countdown-text');
 
     let width = gameContainer.clientWidth;
     let height = gameContainer.clientHeight;
     
-    // 1. 진화 차트 생성
     function createEvolutionChart() {
         evoBar.innerHTML = '';
         FRUITS.forEach((fruit, idx) => {
@@ -410,9 +356,7 @@
         });
     }
 
-    // 2. 시작 버튼 및 권한 요청
     startBtn.addEventListener('click', async () => {
-        // 권한 요청 시도
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
             try {
                 const permissionState = await DeviceOrientationEvent.requestPermission();
@@ -420,16 +364,14 @@
                     window.addEventListener('deviceorientation', handleOrientation);
                     gyroStatus.textContent = "";
                 } else {
-                    gyroStatus.textContent = "센서 권한 없음 (게임 가능)";
-                    gyroToggle.checked = false; // 권한 없으면 토글 끔
+                    gyroStatus.textContent = "센서 권한 없음";
+                    gyroToggle.checked = false;
                     isGyroEnabled = false;
                 }
             } catch (error) {
                 console.error(error);
-                gyroStatus.textContent = "센서 오류";
             }
         } else {
-            // 안드로이드 등
             window.addEventListener('deviceorientation', handleOrientation);
             gyroStatus.textContent = "";
         }
@@ -437,31 +379,22 @@
         initGame();
     });
 
-    // 3. 자이로 토글 이벤트
     gyroToggle.addEventListener('change', (e) => {
         isGyroEnabled = e.target.checked;
         if (!isGyroEnabled && engine) {
-            // 끄면 중력 정위치로 복구
             engine.world.gravity.x = 0;
         }
     });
 
-    // 4. 자이로 센서 핸들러
     function handleOrientation(event) {
         if (!engine || gameOver || !isGyroEnabled) return;
-        
         let gamma = event.gamma; 
         if (gamma === null) return;
-        
-        // 각도 제한
         if (gamma > 30) gamma = 30;
         if (gamma < -30) gamma = -30;
-        
-        // 중력 적용
         engine.world.gravity.x = gamma * 0.03;
     }
 
-    // 5. 게임 초기화
     function initGame() {
         createEvolutionChart();
         engine = Engine.create();
@@ -480,17 +413,15 @@
             }
         });
 
-        // 벽과 바닥 생성
         const groundY = height - BOTTOM_UI_OFFSET + (WALL_THICKNESS / 2);
         const ground = Bodies.rectangle(width / 2, groundY, width, WALL_THICKNESS, { isStatic: true, render: { fillStyle: '#b2bec3' } });
         const leftWall = Bodies.rectangle(0 - WALL_THICKNESS / 2, height / 2, WALL_THICKNESS, height * 2, { isStatic: true, render: { fillStyle: '#b2bec3' } });
         const rightWall = Bodies.rectangle(width + WALL_THICKNESS / 2, height / 2, WALL_THICKNESS, height * 2, { isStatic: true, render: { fillStyle: '#b2bec3' } });
         
-        // 위험 라인 (TOP_BUFFER에 맞춤)
         const dangerLine = Bodies.rectangle(width/2, TOP_BUFFER, width, 2, { 
             isStatic: true, 
             isSensor: true, 
-            render: { fillStyle: '#fab1a0', opacity: 0.4 } 
+            render: { fillStyle: '#ff7675', opacity: 0.5, lineDash: [5, 5] } 
         });
 
         Composite.add(engine.world, [ground, leftWall, rightWall, dangerLine]);
@@ -498,7 +429,7 @@
         Events.on(render, 'afterRender', renderLoop);
         Events.on(engine, 'collisionStart', handleCollision);
 
-        setInterval(checkGameOver, 1000);
+        setInterval(checkDangerState, 100);
 
         Runner.run(Runner.create(), engine);
         Render.run(render);
@@ -506,11 +437,9 @@
         prepareNextFruit();
         bindInputEvents();
         
-        // 시작 시 토글 상태에 따라 중력 초기화
         if(!isGyroEnabled) engine.world.gravity.x = 0;
     }
 
-    // 렌더링 루프
     function renderLoop() {
         const context = render.context;
         const bodies = Composite.allBodies(engine.world);
@@ -521,6 +450,8 @@
 
             const fruitInfo = FRUITS.find(f => f.name === body.label);
             if (fruitInfo) {
+                // 이모지 그리기 전 색상을 불투명(검정)으로 초기화 (중요 수정)
+                context.fillStyle = '#000000'; 
                 context.font = `${fruitInfo.radius * 1.5}px Arial`;
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
@@ -534,20 +465,20 @@
         
         updateAndDrawParticles(context);
 
-        // 현재 조작 중인 과일 그리기
         if (currentFruit && !isDropping) {
             const info = FRUITS[currentFruit.index];
             context.beginPath();
             const floorY = height - BOTTOM_UI_OFFSET;
-            // 가이드라인
             context.moveTo(currentFruit.x, DROP_Y);
             context.lineTo(currentFruit.x, floorY);
             
-            context.strokeStyle = 'rgba(0,0,0,0.15)'; // 가이드라인 조금 더 진하게
-            context.setLineDash([5, 5]); // 점선 효과
+            context.strokeStyle = 'rgba(0,0,0,0.15)';
+            context.setLineDash([5, 5]);
             context.stroke();
             context.setLineDash([]);
-
+            
+            // 미리보기 이모지도 불투명하게 설정
+            context.fillStyle = '#000000';
             context.font = `${info.radius * 1.5}px Arial`;
             context.textAlign = 'center';
             context.textBaseline = 'middle';
@@ -652,7 +583,11 @@
             restitution: 0.2,
             friction: 0.1,
             density: 0.001,
-            render: { fillStyle: fruit.color }
+            render: { 
+                fillStyle: 'transparent', 
+                strokeStyle: fruit.color, 
+                lineWidth: 4              
+            }
         });
         Composite.add(engine.world, body);
         return body;
@@ -664,7 +599,6 @@
         nextFruitIndex = Math.floor(Math.random() * 5); 
         document.getElementById('next-fruit-emoji').textContent = FRUITS[nextFruitIndex].emoji;
         
-        // y 위치를 DROP_Y (100)으로 설정
         currentFruit = { index: index, x: width / 2, y: DROP_Y };
         isDropping = false;
 
@@ -672,14 +606,8 @@
     }
 
     function bindInputEvents() {
-        // ui-layer의 토글 스위치 등은 클릭 가능하게 하되, 
-        // 배경(ui-layer 빈공간) 클릭 시 게임 입력으로 처리하기 위해 
-        // game-container 자체에 이벤트를 걸거나 window에 걸고 타겟 확인
-        
         const handleInput = (e) => {
-            // 토글 스위치 클릭 시 게임 조작 방지
             if (e.target.closest('.gyro-control')) return;
-            
             if (e.type === 'mousedown' || e.type === 'touchstart') handleInputStart(e);
             else if (e.type === 'mousemove' || e.type === 'touchmove') handleInputMove(e);
             else if (e.type === 'mouseup' || e.type === 'touchend') handleInputEnd(e);
@@ -729,25 +657,42 @@
         document.getElementById('score').textContent = score;
     }
 
-    function checkGameOver() {
+    function checkDangerState() {
         if (gameOver) return;
+
         const bodies = Composite.allBodies(engine.world);
+        let inDanger = false;
+
         for (let i = 0; i < bodies.length; i++) {
             const body = bodies[i];
-            // 속도가 거의 0이고, 일정 높이(TOP_BUFFER)보다 위에 있으면 게임오버
-            // 단, 방금 생성된 과일은 제외해야 하므로 y값 체크를 보수적으로
-            if (!body.isStatic && body.position.y < TOP_BUFFER && body.speed < 0.2) {
-                // DROP_Y 근처(방금 떨어트린 과일)는 제외 (y > DROP_Y + a)
-                if(body.position.y > DROP_Y + 20) {
-                    endGame();
+            if (!body.isStatic) {
+                if (body.position.y < TOP_BUFFER && body.speed < 0.2 && body.position.y > DROP_Y + 20) {
+                    inDanger = true;
                     break;
                 }
             }
+        }
+
+        if (inDanger) {
+            if (dangerStartTime === null) {
+                dangerStartTime = Date.now();
+                countdownContainer.style.display = 'block';
+            }
+            const elapsed = Date.now() - dangerStartTime;
+            const remaining = Math.max(0, (DANGER_DURATION - elapsed) / 1000);
+            countdownText.textContent = Math.ceil(remaining);
+            if (remaining <= 0) {
+                endGame();
+            }
+        } else {
+            dangerStartTime = null;
+            countdownContainer.style.display = 'none';
         }
     }
 
     function endGame() {
         gameOver = true;
+        countdownContainer.style.display = 'none'; 
         document.getElementById('game-over').style.display = 'flex';
     }
 
@@ -758,9 +703,10 @@
         updateScore(0);
         gameOver = false;
         particles = [];
+        dangerStartTime = null;
+        countdownContainer.style.display = 'none';
         document.getElementById('game-over').style.display = 'none';
         
-        // 중력 초기화 로직은 initGame에서 처리 (토글 상태 반영)
         initGame();
     });
 
