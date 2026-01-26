@@ -10,9 +10,9 @@
 <style>
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: #111;
-  color: white;
+  font-family: "Courier New", monospace;
+  background: #0b0b0b;
+  color: #ffd400;
 }
 
 #map {
@@ -21,25 +21,51 @@ body {
 
 #panel {
   height: 40vh;
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background: radial-gradient(circle, #111 0%, #000 100%);
 }
 
 .info {
-  font-size: 18px;
+  font-size: 22px;
+  letter-spacing: 1px;
 }
 
+#fare {
+  font-size: 34px;
+  font-weight: 800;
+  text-shadow: 0 0 8px #ffcc00;
+  transition: transform 0.08s ease;
+}
+
+/* 숫자 점프 효과 */
+.bump {
+  transform: scale(1.08);
+}
+
+/* 미터기 깜빡임 */
+.pulse {
+  animation: pulse 0.7s infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 0.85; }
+  to { opacity: 1; }
+}
+
+/* 버튼 상단 배치 */
 button {
-  margin-top: auto;
-  height: 60px;
-  font-size: 22px;
-  font-weight: 700;
-  background: #FFD000;
+  height: 56px;
+  font-size: 20px;
+  font-weight: 800;
+  background: #ffcc00;
   border: none;
   border-radius: 12px;
   cursor: pointer;
+  color: black;
+  margin-bottom: 6px;
 }
 </style>
 </head>
@@ -49,89 +75,67 @@ button {
 <div id="map"></div>
 
 <div id="panel">
+  <button id="actionBtn">주행</button>
+
   <div class="info">주행 시간: <span id="time">0</span> 초</div>
   <div class="info">이동 거리: <span id="distance">0</span> m</div>
-  <div class="info">요금: <span id="fare">0</span> 원</div>
-  <button id="actionBtn">주행</button>
+  <div class="info">요금: <span id="fare" class="pulse">0</span> 원</div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-/* ================================
-   상태 머신
-================================ */
-let state = "IDLE"; // IDLE → RUNNING → FINISHED
+let state = "IDLE";
 
-/* ================================
-   지도 초기화
-================================ */
+/* 지도 */
 const map = L.map("map").setView([37.5665, 126.9780], 16);
-
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "&copy; OpenStreetMap contributors"
-}).addTo(map);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
 let marker = null;
 let polyline = L.polyline([], { color: "yellow" }).addTo(map);
 
-/* ================================
-   주행 데이터
-================================ */
+/* 데이터 */
 let watchId = null;
 let startTime = 0;
 let timerInterval = null;
 let lastPoint = null;
 let totalDistance = 0;
-let path = [];
 
-/* ================================
-   UI 요소
-================================ */
+/* UI */
 const timeEl = document.getElementById("time");
 const distanceEl = document.getElementById("distance");
 const fareEl = document.getElementById("fare");
 const btn = document.getElementById("actionBtn");
 
-/* ================================
-   버튼 클릭 로직
-================================ */
+/* 버튼 */
 btn.onclick = () => {
   if (state === "IDLE") startRide();
   else if (state === "RUNNING") endRide();
 };
 
-/* ================================
-   주행 시작
-================================ */
+/* 주행 시작 */
 function startRide() {
   state = "RUNNING";
   btn.innerText = "종료";
 
   startTime = Date.now();
   totalDistance = 0;
-  path = [];
   lastPoint = null;
 
   startTimer();
   startTracking();
 }
 
-/* ================================
-   주행 종료
-================================ */
+/* 주행 종료 */
 function endRide() {
   state = "FINISHED";
-
-  if (watchId) navigator.geolocation.clearWatch(watchId);
+  navigator.geolocation.clearWatch(watchId);
   clearInterval(timerInterval);
 
   alert("최종 요금: " + fareEl.innerText + " 원");
 }
 
-/* ================================
-   GPS 추적 (5초마다 기록)
-================================ */
+/* GPS */
 function startTracking() {
   watchId = navigator.geolocation.watchPosition(pos => {
     const now = Date.now();
@@ -147,47 +151,52 @@ function startTracking() {
       }
 
       lastPoint = point;
-      path.push(point);
       updateMap(point);
     }
-  }, console.error, {
-    enableHighAccuracy: true
-  });
+  }, console.error, { enableHighAccuracy: true });
 }
 
-/* ================================
-   지도 업데이트
-================================ */
+/* 지도 업데이트 */
 function updateMap(point) {
   const latlng = [point.lat, point.lng];
 
-  if (!marker) {
-    marker = L.marker(latlng).addTo(map);
-  } else {
-    marker.setLatLng(latlng);
-  }
+  if (!marker) marker = L.marker(latlng).addTo(map);
+  else marker.setLatLng(latlng);
 
   polyline.addLatLng(latlng);
   map.setView(latlng);
 }
 
-/* ================================
-   시간 타이머
-================================ */
+/* 타이머 */
 function startTimer() {
+  let visualFare = 0;
+
   timerInterval = setInterval(() => {
     const seconds = Math.floor((Date.now() - startTime) / 1000);
 
     timeEl.innerText = seconds;
     distanceEl.innerText = Math.floor(totalDistance);
-    fareEl.innerText = calcFare(seconds, totalDistance);
 
-  }, 1000);
+    const targetFare = calcFare(seconds, totalDistance);
+
+    /* 숫자가 점진적으로 올라가게 */
+    if (visualFare < targetFare) {
+      visualFare += Math.ceil((targetFare - visualFare) / 4);
+      animateFare();
+    }
+
+    fareEl.innerText = visualFare;
+
+  }, 200);
 }
 
-/* ================================
-   거리 계산 (Haversine)
-================================ */
+/* 숫자 흔들림 */
+function animateFare() {
+  fareEl.classList.add("bump");
+  setTimeout(() => fareEl.classList.remove("bump"), 80);
+}
+
+/* 거리 계산 */
 function calcDistance(a, b) {
   const R = 6371000;
   const dLat = (b.lat - a.lat) * Math.PI / 180;
@@ -203,19 +212,17 @@ function calcDistance(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-/* ================================
-   요금 계산 (서울 택시 기준 예시)
-================================ */
+/* 요금 */
 function calcFare(seconds, meters) {
-  const baseFare = 3800; // 기본요금
-  const distUnit = 132; // 132m당 증가
-  const timeUnit = 30; // 30초당 증가
-  const stepFare = 100;
+  const base = 3800;
+  const distUnit = 132;
+  const timeUnit = 30;
+  const step = 100;
 
-  const distFare = Math.floor(meters / distUnit) * stepFare;
-  const timeFare = Math.floor(seconds / timeUnit) * stepFare;
+  const distFare = Math.floor(meters / distUnit) * step;
+  const timeFare = Math.floor(seconds / timeUnit) * step;
 
-  return baseFare + distFare + timeFare;
+  return base + distFare + timeFare;
 }
 </script>
 
