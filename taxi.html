@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Taxi Meter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: #111;
+  color: white;
+}
+
+#map {
+  height: 60vh;
+}
+
+#panel {
+  height: 40vh;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info {
+  font-size: 18px;
+}
+
+button {
+  margin-top: auto;
+  height: 60px;
+  font-size: 22px;
+  font-weight: 700;
+  background: #FFD000;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div id="panel">
+  <div class="info">주행 시간: <span id="time">0</span> 초</div>
+  <div class="info">이동 거리: <span id="distance">0</span> m</div>
+  <div class="info">요금: <span id="fare">0</span> 원</div>
+  <button id="actionBtn">주행</button>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+/* ================================
+   상태 머신
+================================ */
+let state = "IDLE"; // IDLE → RUNNING → FINISHED
+
+/* ================================
+   지도 초기화
+================================ */
+const map = L.map("map").setView([37.5665, 126.9780], 16);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; OpenStreetMap contributors"
+}).addTo(map);
+
+let marker = null;
+let polyline = L.polyline([], { color: "yellow" }).addTo(map);
+
+/* ================================
+   주행 데이터
+================================ */
+let watchId = null;
+let startTime = 0;
+let timerInterval = null;
+let lastPoint = null;
+let totalDistance = 0;
+let path = [];
+
+/* ================================
+   UI 요소
+================================ */
+const timeEl = document.getElementById("time");
+const distanceEl = document.getElementById("distance");
+const fareEl = document.getElementById("fare");
+const btn = document.getElementById("actionBtn");
+
+/* ================================
+   버튼 클릭 로직
+================================ */
+btn.onclick = () => {
+  if (state === "IDLE") startRide();
+  else if (state === "RUNNING") endRide();
+};
+
+/* ================================
+   주행 시작
+================================ */
+function startRide() {
+  state = "RUNNING";
+  btn.innerText = "종료";
+
+  startTime = Date.now();
+  totalDistance = 0;
+  path = [];
+  lastPoint = null;
+
+  startTimer();
+  startTracking();
+}
+
+/* ================================
+   주행 종료
+================================ */
+function endRide() {
+  state = "FINISHED";
+
+  if (watchId) navigator.geolocation.clearWatch(watchId);
+  clearInterval(timerInterval);
+
+  alert("최종 요금: " + fareEl.innerText + " 원");
+}
+
+/* ================================
+   GPS 추적 (5초마다 기록)
+================================ */
+function startTracking() {
+  watchId = navigator.geolocation.watchPosition(pos => {
+    const now = Date.now();
+    const point = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      t: now
+    };
+
+    if (!lastPoint || now - lastPoint.t >= 5000) {
+      if (lastPoint) {
+        totalDistance += calcDistance(lastPoint, point);
+      }
+
+      lastPoint = point;
+      path.push(point);
+      updateMap(point);
+    }
+  }, console.error, {
+    enableHighAccuracy: true
+  });
+}
+
+/* ================================
+   지도 업데이트
+================================ */
+function updateMap(point) {
+  const latlng = [point.lat, point.lng];
+
+  if (!marker) {
+    marker = L.marker(latlng).addTo(map);
+  } else {
+    marker.setLatLng(latlng);
+  }
+
+  polyline.addLatLng(latlng);
+  map.setView(latlng);
+}
+
+/* ================================
+   시간 타이머
+================================ */
+function startTimer() {
+  timerInterval = setInterval(() => {
+    const seconds = Math.floor((Date.now() - startTime) / 1000);
+
+    timeEl.innerText = seconds;
+    distanceEl.innerText = Math.floor(totalDistance);
+    fareEl.innerText = calcFare(seconds, totalDistance);
+
+  }, 1000);
+}
+
+/* ================================
+   거리 계산 (Haversine)
+================================ */
+function calcDistance(a, b) {
+  const R = 6371000;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+
+  const lat1 = a.lat * Math.PI / 180;
+  const lat2 = b.lat * Math.PI / 180;
+
+  const h = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1) * Math.cos(lat2) *
+            Math.sin(dLng / 2) ** 2;
+
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/* ================================
+   요금 계산 (서울 택시 기준 예시)
+================================ */
+function calcFare(seconds, meters) {
+  const baseFare = 3800; // 기본요금
+  const distUnit = 132; // 132m당 증가
+  const timeUnit = 30; // 30초당 증가
+  const stepFare = 100;
+
+  const distFare = Math.floor(meters / distUnit) * stepFare;
+  const timeFare = Math.floor(seconds / timeUnit) * stepFare;
+
+  return baseFare + distFare + timeFare;
+}
+</script>
+
+</body>
+</html>
