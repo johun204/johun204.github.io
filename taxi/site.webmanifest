@@ -1,0 +1,12 @@
+{
+  "name": "Taxi Meter",
+  "short_name": "Taxi Meter",
+  "start_url": "/taxi",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/taxi/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/taxi/icon-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

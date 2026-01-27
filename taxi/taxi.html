@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Taxi Meter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Standard favicon -->
+<link rel="icon" type="image/png" sizes="16x16" href="/taxi/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/taxi/favicon-32x32.png">
+
+<!-- Apple Touch Icon (iOS 홈 화면) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/taxi/apple-touch-icon.png">
+
+<!-- Android / PWA Icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="/taxi/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/taxi/icon-512x512.png">
+
+<!-- Android Chrome Icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="/taxi/android-chrome-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/taxi/android-chrome-512x512.png">
+
+<!-- Web App Manifest (PWA) -->
+<link rel="manifest" href="/taxi/site.webmanifest">
+
+<!-- Theme Color (Android status bar) -->
+<meta name="theme-color" content="#ffffff">
+
+<!-- iOS Safari PWA mode -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Taxi Meter">
+
+<!-- Microsoft Tile -->
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/taxi/icon-192x192.png">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<style>
+body {
+  margin: 0;
+  font-family: "나눔고딕", "NanumGothic", "맑은 고딕", "Malgun Gothic", monospace;
+  background: #0b0b0b;
+  color: #ffd400;
+}
+
+#map {
+  height: 60vh;
+}
+
+#panel {
+  height: 40vh;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: radial-gradient(circle, #111 0%, #000 100%);
+}
+
+.info {
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+#fare {
+  font-size: 34px;
+  font-weight: 800;
+  text-shadow: 0 0 8px #ffcc00;
+  transition: transform 0.08s ease;
+}
+
+/* 숫자 점프 효과 */
+.bump {
+  transform: scale(1.08);
+}
+
+/* 미터기 깜빡임 */
+.pulse {
+  animation: pulse 0.7s infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 0.85; }
+  to { opacity: 1; }
+}
+
+/* 버튼 상단 배치 */
+button {
+  height: 56px;
+  font-size: 20px;
+  font-weight: 800;
+  background: #ffcc00;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: black;
+  margin-bottom: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div id="panel">
+  <button id="actionBtn">주행</button>
+
+  <div class="info">주행 시간: <span id="time">0</span> 초</div>
+  <div class="info">이동 거리: <span id="distance">0</span> m</div>
+  <div class="info">요금: <span id="fare" class="pulse">0</span> 원</div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+let state = "IDLE";
+
+/* 지도 */
+const map = L.map("map").setView([37.5665, 126.9780], 16);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+let marker = null;
+let polyline = L.polyline([], { color: "yellow" }).addTo(map);
+
+/* 데이터 */
+let watchId = null;
+let startTime = 0;
+let timerInterval = null;
+let lastPoint = null;
+let totalDistance = 0;
+
+/* UI */
+const timeEl = document.getElementById("time");
+const distanceEl = document.getElementById("distance");
+const fareEl = document.getElementById("fare");
+const btn = document.getElementById("actionBtn");
+
+/* 버튼 */
+btn.onclick = () => {
+  if (state === "IDLE") startRide();
+  else if (state === "RUNNING") endRide();
+};
+
+/* 주행 시작 */
+function startRide() {
+  state = "RUNNING";
+  btn.innerText = "종료";
+
+  startTime = Date.now();
+  totalDistance = 0;
+  lastPoint = null;
+
+  startTimer();
+  startTracking();
+}
+
+/* 주행 종료 */
+function endRide() {
+  state = "FINISHED";
+  navigator.geolocation.clearWatch(watchId);
+  clearInterval(timerInterval);
+
+  alert("최종 요금: " + fareEl.innerText + " 원");
+}
+
+/* GPS */
+function startTracking() {
+  watchId = navigator.geolocation.watchPosition(pos => {
+    const now = Date.now();
+    const point = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      t: now
+    };
+
+    if (!lastPoint || now - lastPoint.t >= 5000) {
+      if (lastPoint) {
+        totalDistance += calcDistance(lastPoint, point);
+      }
+
+      lastPoint = point;
+      updateMap(point);
+    }
+  }, console.error, { enableHighAccuracy: true });
+}
+
+/* 지도 업데이트 */
+function updateMap(point) {
+  const latlng = [point.lat, point.lng];
+
+  if (!marker) marker = L.marker(latlng).addTo(map);
+  else marker.setLatLng(latlng);
+
+  polyline.addLatLng(latlng);
+  map.setView(latlng);
+}
+
+/* 타이머 */
+function startTimer() {
+  let visualFare = 0;
+
+  timerInterval = setInterval(() => {
+    const seconds = Math.floor((Date.now() - startTime) / 1000);
+
+    timeEl.innerText = seconds;
+    distanceEl.innerText = Math.floor(totalDistance);
+
+    const targetFare = calcFare(seconds, totalDistance);
+
+    /* 숫자가 점진적으로 올라가게 */
+    if (visualFare < targetFare) {
+      visualFare += Math.ceil((targetFare - visualFare) / 4);
+      animateFare();
+    }
+
+    fareEl.innerText = visualFare;
+
+  }, 200);
+}
+
+/* 숫자 흔들림 */
+function animateFare() {
+  fareEl.classList.add("bump");
+  setTimeout(() => fareEl.classList.remove("bump"), 80);
+}
+
+/* 거리 계산 */
+function calcDistance(a, b) {
+  const R = 6371000;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+
+  const lat1 = a.lat * Math.PI / 180;
+  const lat2 = b.lat * Math.PI / 180;
+
+  const h = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1) * Math.cos(lat2) *
+            Math.sin(dLng / 2) ** 2;
+
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/* 요금 */
+function calcFare(seconds, meters) {
+  const base = 3800;
+  const distUnit = 132;
+  const timeUnit = 30;
+  const step = 100;
+
+  const distFare = Math.floor(meters / distUnit) * step;
+  const timeFare = Math.floor(seconds / timeUnit) * step;
+
+  return base + distFare + timeFare;
+}
+</script>
+
+</body>
+</html>
