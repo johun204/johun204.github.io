@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>수박 게임 (Watermelon Game)</title>
+	
+<!-- Standard favicon -->
+<link rel="icon" type="image/png" sizes="16x16" href="/fruit/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/fruit/favicon-32x32.png">
+
+<!-- Apple Touch Icon (iOS 홈 화면) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/fruit/apple-touch-icon.png">
+
+<!-- Android / PWA Icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="/fruit/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/fruit/icon-512x512.png">
+
+<!-- Android Chrome Icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="/fruit/android-chrome-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/fruit/android-chrome-512x512.png">
+
+<!-- Web App Manifest (PWA) -->
+<link rel="manifest" href="/fruit/site.webmanifest">
+
+<!-- Theme Color (Android status bar) -->
+<meta name="theme-color" content="#ffffff">
+
+<!-- iOS Safari PWA mode -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="fruit Merge">
+
+<!-- Microsoft Tile -->
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/fruit/icon-192x192.png">
+    <!-- Matter.js 물리 엔진 로드 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        /* CSS 스타일링 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fdf5e6;
+            overflow: hidden;
+            font-family: 'Noto Sans KR', sans-serif;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: 90vh;
+            max-height: 850px;
+            background: #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            flex-grow: 1; 
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 5;
+        }
+
+        /* 상단 헤더 */
+        .header-info {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            width: 100%;
+            padding: 15px 20px;
+            box-sizing: border-box;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        /* 좌측: 자이로 토글 */
+        .gyro-control {
+            justify-self: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #fab1a0; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .gyro-label { font-size: 10px; color: #b2bec3; font-weight: bold; }
+
+        /* 중앙: 점수판 */
+        .score-board {
+            justify-self: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 25px;
+            border-radius: 25px;
+            text-align: center;
+            border: 3px solid #fab1a0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            min-width: 80px;
+        }
+        .score-label { font-size: 11px; color: #636e72; display: block; margin-bottom: 2px; }
+        #score { font-size: 28px; font-weight: 800; color: #2d3436; }
+
+        /* 우측: 다음 과일 */
+        #next-fruit-display {
+            justify-self: end;
+            background: rgba(255,255,255,0.9);
+            padding: 5px 12px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #ffeaa7;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #next-fruit-label { font-size: 10px; color: #636e72; }
+        #next-fruit-emoji { font-size: 30px; }
+
+        /* 하단 진화 단계 표시줄 */
+        #evolution-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding-bottom: 15px;
+            pointer-events: none;
+        }
+        #evolution-bar {
+            width: 92%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 8px 5px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 3px solid #fab1a0;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+        }
+        .evo-item {
+            font-size: 16px;
+            opacity: 0.3;
+            transition: all 0.3s;
+            filter: grayscale(100%);
+            width: 28px; height: 28px;
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 50%;
+        }
+        .evo-active { transform: scale(1.5); opacity: 1; filter: grayscale(0%); z-index: 5; }
+        .evo-current {
+            opacity: 1 !important; filter: grayscale(0%) !important; transform: scale(1.3);
+            background-color: #ffeaa7; box-shadow: 0 0 10px rgba(255, 234, 167, 0.8);
+            z-index: 10; animation: pulse-border 1.5s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(250, 177, 160, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(250, 177, 160, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(250, 177, 160, 0); }
+        }
+
+        /* 위험 카운트다운 표시 */
+        #countdown-container {
+            position: absolute;
+            top: 35%; 
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            display: none; 
+            pointer-events: none;
+            z-index: 20;
+        }
+        #countdown-text {
+            font-size: 80px;
+            font-weight: 900;
+            color: #ff4757;
+            text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 0px 0px 20px rgba(255,0,0,0.5);
+            animation: shake 0.5s infinite;
+        }
+        #countdown-sub {
+            font-size: 18px;
+            color: #ff6b81;
+            font-weight: bold;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* 시작 화면 */
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 234, 167, 0.98);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 30; pointer-events: auto;
+        }
+        #start-btn {
+            padding: 15px 40px; font-size: 24px;
+            background-color: #ff7675; color: white;
+            border: none; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 4px 0 #d63031; font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        #gyro-status { margin-top: 15px; font-size: 14px; color: #636e72; }
+
+        /* 게임 오버 */
+        #game-over {
+            display: none;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center; align-items: center; flex-direction: column;
+            pointer-events: auto; z-index: 40;
+        }
+        #game-over h1 { color: white; font-size: 40px; margin-bottom: 20px; }
+        #restart-btn {
+            padding: 15px 30px; font-size: 20px;
+            background-color: #fab1a0; color: white;
+            border: none; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 4px 0 #e17055;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="ui-layer">
+        <div class="header-info">
+            <div class="gyro-control">
+                <span class="gyro-label">기울기</span>
+                <label class="switch">
+                    <input type="checkbox" id="gyro-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="score-board">
+                <span class="score-label">SCORE</span>
+                <span id="score">0</span>
+            </div>
+            <div id="next-fruit-display">
+                <div id="next-fruit-label">NEXT</div>
+                <div id="next-fruit-emoji">🍒</div>
+            </div>
+        </div>
+
+        <!-- 카운트다운 표시 -->
+        <div id="countdown-container">
+            <div id="countdown-text">3</div>
+            <div id="countdown-sub">위험!</div>
+        </div>
+
+        <div id="evolution-container">
+            <div id="evolution-bar"></div>
+        </div>
+    </div>
+    
+    <div id="start-screen">
+        <h1>🍉 수박 게임</h1>
+        <p style="margin-bottom: 30px; color: #555;">터치하여 과일을 떨어뜨리세요</p>
+        <button id="start-btn">게임 시작하기</button>
+        <div id="gyro-status">센서 권한 확인 중...</div>
+    </div>
+
+    <div id="game-over">
+        <h1>게임 종료!</h1>
+        <button id="restart-btn">다시 하기</button>
+    </div>
+</div>
+
+<script>
+    // --- 설정 변수 ---
+    const BOTTOM_UI_OFFSET = 90; 
+    const WALL_THICKNESS = 60;
+    const TOP_BUFFER = 190; 
+    const DROP_Y = 100; 
+
+    // --- 과일 데이터 (radius: 물리적 크기, visualSize: 이모지 크기) ---
+    // radius: 물리 엔진 충돌 원의 반지름
+    // visualSize: 화면에 그려질 이모지의 폰트 크기 (보통 지름의 2배 가까이 되어야 꽉 차 보임)
+    const FRUITS = [
+        { index: 0, name: "cherry",     radius: 15,  visualSize: 28,  score: 0,   color: "#FF0000", emoji: "🍒" },
+        { index: 1, name: "strawberry", radius: 25,  visualSize: 48,  score: 10,  color: "#FF6666", emoji: "🍓" },
+        { index: 2, name: "grape",      radius: 35,  visualSize: 65,  score: 20,  color: "#9933FF", emoji: "🍇" },
+        { index: 3, name: "dekopon",    radius: 45,  visualSize: 85,  score: 30,  color: "#FFAA00", emoji: "🍊" },
+        { index: 4, name: "persimmon",  radius: 55,  visualSize: 100, score: 40,  color: "#FF7700", emoji: "🥭" },
+        { index: 5, name: "apple",      radius: 68,  visualSize: 125, score: 50,  color: "#FF2222", emoji: "🍎" },
+        { index: 6, name: "pear",       radius: 80,  visualSize: 145, score: 60,  color: "#FFFF66", emoji: "🍐" },
+        { index: 7, name: "peach",      radius: 95,  visualSize: 175, score: 70,  color: "#FFCCCC", emoji: "🍑" },
+        { index: 8, name: "pineapple",  radius: 110, visualSize: 200, score: 80,  color: "#FFFF00", emoji: "🍍" },
+        { index: 9, name: "melon",      radius: 130, visualSize: 240, score: 90,  color: "#99FF99", emoji: "🍈" },
+        { index: 10, name: "watermelon",radius: 150, visualSize: 270, score: 100, color: "#00FF00", emoji: "🍉" },
+    ];
+
+    // Matter.js 별칭
+    const Engine = Matter.Engine,
+          Render = Matter.Render,
+          Runner = Matter.Runner,
+          Bodies = Matter.Bodies,
+          Composite = Matter.Composite,
+          Events = Matter.Events,
+          Body = Matter.Body;
+
+    // 게임 상태
+    let engine, render;
+    let currentFruit = null;
+    let nextFruitIndex = 0;
+    let isDropping = false;
+    let score = 0;
+    let gameOver = false;
+    let particles = [];
+    
+    // 위험 상태 관리
+    let dangerStartTime = null; 
+    const DANGER_DURATION = 3000; 
+
+    let isGyroEnabled = true;
+
+    // DOM
+    const gameContainer = document.getElementById('game-container');
+    const startScreen = document.getElementById('start-screen');
+    const startBtn = document.getElementById('start-btn');
+    const gyroStatus = document.getElementById('gyro-status');
+    const evoBar = document.getElementById('evolution-bar');
+    const gyroToggle = document.getElementById('gyro-toggle');
+    const countdownContainer = document.getElementById('countdown-container');
+    const countdownText = document.getElementById('countdown-text');
+
+    let width = gameContainer.clientWidth;
+    let height = gameContainer.clientHeight;
+    
+    function createEvolutionChart() {
+        evoBar.innerHTML = '';
+        FRUITS.forEach((fruit, idx) => {
+            const span = document.createElement('span');
+            span.textContent = fruit.emoji;
+            span.className = 'evo-item';
+            span.id = `evo-${idx}`;
+            if(idx === FRUITS.length-1) span.style.fontSize = '22px';
+            evoBar.appendChild(span);
+        });
+    }
+
+    startBtn.addEventListener('click', async () => {
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            try {
+                const permissionState = await DeviceOrientationEvent.requestPermission();
+                if (permissionState === 'granted') {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    gyroStatus.textContent = "";
+                } else {
+                    gyroStatus.textContent = "센서 권한 없음";
+                    gyroToggle.checked = false;
+                    isGyroEnabled = false;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation);
+            gyroStatus.textContent = "";
+        }
+        startScreen.style.display = 'none';
+        initGame();
+    });
+
+    gyroToggle.addEventListener('change', (e) => {
+        isGyroEnabled = e.target.checked;
+        if (!isGyroEnabled && engine) {
+            engine.world.gravity.x = 0;
+        }
+    });
+
+    function handleOrientation(event) {
+        if (!engine || gameOver || !isGyroEnabled) return;
+        let gamma = event.gamma; 
+        if (gamma === null) return;
+        if (gamma > 30) gamma = 30;
+        if (gamma < -30) gamma = -30;
+        engine.world.gravity.x = gamma * 0.03;
+    }
+
+    function initGame() {
+        createEvolutionChart();
+        engine = Engine.create();
+        
+        const existingCanvas = gameContainer.querySelector('canvas');
+        if (existingCanvas) existingCanvas.remove();
+
+        render = Render.create({
+            element: gameContainer,
+            engine: engine,
+            options: {
+                width: width,
+                height: height,
+                wireframes: false,
+                background: 'transparent'
+            }
+        });
+
+        const groundY = height - BOTTOM_UI_OFFSET + (WALL_THICKNESS / 2);
+        const ground = Bodies.rectangle(width / 2, groundY, width, WALL_THICKNESS, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        const leftWall = Bodies.rectangle(0 - WALL_THICKNESS / 2, height / 2, WALL_THICKNESS, height * 2, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        const rightWall = Bodies.rectangle(width + WALL_THICKNESS / 2, height / 2, WALL_THICKNESS, height * 2, { isStatic: true, render: { fillStyle: '#b2bec3' } });
+        
+        const dangerLine = Bodies.rectangle(width/2, TOP_BUFFER, width, 2, { 
+            isStatic: true, 
+            isSensor: true, 
+            render: { fillStyle: '#ff7675', opacity: 0.5, lineDash: [5, 5] } 
+        });
+
+        Composite.add(engine.world, [ground, leftWall, rightWall, dangerLine]);
+
+        Events.on(render, 'afterRender', renderLoop);
+        Events.on(engine, 'collisionStart', handleCollision);
+
+        setInterval(checkDangerState, 100);
+
+        Runner.run(Runner.create(), engine);
+        Render.run(render);
+
+        prepareNextFruit();
+        bindInputEvents();
+        
+        if(!isGyroEnabled) engine.world.gravity.x = 0;
+    }
+
+    function renderLoop() {
+        const context = render.context;
+        const bodies = Composite.allBodies(engine.world);
+
+        for (let i = 0; i < bodies.length; i++) {
+            const body = bodies[i];
+            if (body.isStatic) continue;
+
+            const fruitInfo = FRUITS.find(f => f.name === body.label);
+            if (fruitInfo) {
+                // 이모지 그리기 (검정색 불투명)
+                context.fillStyle = '#000000'; 
+                // visualSize 사용하여 크기 지정
+                context.font = `${fruitInfo.visualSize}px Arial`;
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.save();
+                context.translate(body.position.x, body.position.y);
+                context.rotate(body.angle);
+                // Y축 보정 (이모지마다 중심이 조금씩 다를 수 있어 약간 내림)
+                context.fillText(fruitInfo.emoji, 0, 5);
+                context.restore();
+            }
+        }
+        
+        updateAndDrawParticles(context);
+
+        if (currentFruit && !isDropping) {
+            const info = FRUITS[currentFruit.index];
+            context.beginPath();
+            const floorY = height - BOTTOM_UI_OFFSET;
+            context.moveTo(currentFruit.x, DROP_Y);
+            context.lineTo(currentFruit.x, floorY);
+            
+            context.strokeStyle = 'rgba(0,0,0,0.15)';
+            context.setLineDash([5, 5]);
+            context.stroke();
+            context.setLineDash([]);
+            
+            context.fillStyle = '#000000';
+            context.font = `${info.visualSize}px Arial`;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(info.emoji, currentFruit.x, currentFruit.y);
+        }
+    }
+
+    function handleCollision(event) {
+        if (gameOver) return;
+        const pairs = event.pairs;
+        const removedBodies = new Set();
+
+        for (let i = 0; i < pairs.length; i++) {
+            const bodyA = pairs[i].bodyA;
+            const bodyB = pairs[i].bodyB;
+
+            if (removedBodies.has(bodyA.id) || removedBodies.has(bodyB.id)) continue;
+
+            if (bodyA.label === bodyB.label) {
+                const fruitIndex = FRUITS.findIndex(f => f.name === bodyA.label);
+                
+                if (fruitIndex !== -1 && fruitIndex < FRUITS.length - 1) {
+                    const midX = (bodyA.position.x + bodyB.position.x) / 2;
+                    const midY = (bodyA.position.y + bodyB.position.y) / 2;
+
+                    removedBodies.add(bodyA.id);
+                    removedBodies.add(bodyB.id);
+
+                    Composite.remove(engine.world, [bodyA, bodyB]);
+                    
+                    const nextFruit = FRUITS[fruitIndex + 1];
+                    createExplosion(midX, midY, nextFruit.color);
+                    highlightMerge(nextFruit.index); 
+
+                    const spawnY = midY - nextFruit.radius * 0.5;
+                    const newBody = addFruitBody(midX, spawnY, nextFruit.index);
+                    Body.setVelocity(newBody, { x: 0, y: -4 });
+                    
+                    updateScore(nextFruit.score * 2);
+                }
+            }
+        }
+    }
+
+    function highlightMerge(index) {
+        const el = document.getElementById(`evo-${index}`);
+        if(el) {
+            el.classList.add('evo-active');
+            setTimeout(() => el.classList.remove('evo-active'), 500);
+        }
+    }
+
+    function highlightCurrentTurn(index) {
+        document.querySelectorAll('.evo-item').forEach(el => {
+            el.classList.remove('evo-current');
+        });
+        const el = document.getElementById(`evo-${index}`);
+        if(el) {
+            el.classList.add('evo-current');
+        }
+    }
+
+    function createExplosion(x, y, color) {
+        for (let i = 0; i < 15; i++) {
+            particles.push({
+                x: x, y: y,
+                radius: Math.random() * 6 + 2,
+                color: color,
+                velocity: { x: (Math.random() - 0.5) * 12, y: (Math.random() - 0.5) * 12 },
+                alpha: 1.0, life: 1.0
+            });
+        }
+    }
+
+    function updateAndDrawParticles(ctx) {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.velocity.x;
+            p.y += p.velocity.y;
+            p.velocity.y += 0.3;
+            p.life -= 0.03;
+            p.alpha = p.life;
+
+            if (p.life <= 0) {
+                particles.splice(i, 1);
+                continue;
+            }
+
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+    }
+
+    function addFruitBody(x, y, index) {
+        const fruit = FRUITS[index];
+        const body = Bodies.circle(x, y, fruit.radius, {
+            label: fruit.name,
+            restitution: 0.2,
+            friction: 0.1,
+            density: 0.001,
+            render: { 
+                fillStyle: 'transparent', // 내부 투명
+                strokeStyle: fruit.color, // 테두리 색상
+                lineWidth: 3              // 테두리 두께 (조금 줄임)
+            }
+        });
+        Composite.add(engine.world, body);
+        return body;
+    }
+
+    function prepareNextFruit() {
+        if (gameOver) return;
+        const index = nextFruitIndex;
+        nextFruitIndex = Math.floor(Math.random() * 5); 
+        document.getElementById('next-fruit-emoji').textContent = FRUITS[nextFruitIndex].emoji;
+        
+        currentFruit = { index: index, x: width / 2, y: DROP_Y };
+        isDropping = false;
+
+        highlightCurrentTurn(index);
+    }
+
+    function bindInputEvents() {
+        const handleInput = (e) => {
+            if (e.target.closest('.gyro-control')) return;
+            if (e.type === 'mousedown' || e.type === 'touchstart') handleInputStart(e);
+            else if (e.type === 'mousemove' || e.type === 'touchmove') handleInputMove(e);
+            else if (e.type === 'mouseup' || e.type === 'touchend') handleInputEnd(e);
+        };
+
+        window.addEventListener('mousedown', handleInput);
+        window.addEventListener('mousemove', handleInput);
+        window.addEventListener('mouseup', handleInput);
+        window.addEventListener('touchstart', handleInput, {passive: false});
+        window.addEventListener('touchmove', handleInput, {passive: false});
+        window.addEventListener('touchend', handleInput);
+    }
+
+    function handleInputStart(e) {
+        if (isDropping || gameOver) return;
+        updateCurrentFruitPos(e);
+    }
+    function handleInputMove(e) {
+        if (isDropping || gameOver) return;
+        updateCurrentFruitPos(e);
+    }
+    function handleInputEnd(e) {
+        if (isDropping || gameOver) return;
+        dropFruit();
+    }
+
+    function updateCurrentFruitPos(e) {
+        if (!currentFruit) return;
+        let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const rect = gameContainer.getBoundingClientRect();
+        let x = clientX - rect.left;
+        const radius = FRUITS[currentFruit.index].radius;
+        x = Math.max(radius + 5, Math.min(width - radius - 5, x));
+        currentFruit.x = x;
+    }
+
+    function dropFruit() {
+        if (!currentFruit) return;
+        isDropping = true;
+        addFruitBody(currentFruit.x, currentFruit.y, currentFruit.index);
+        currentFruit = null;
+        setTimeout(prepareNextFruit, 600);
+    }
+
+    function updateScore(points) {
+        score += points;
+        document.getElementById('score').textContent = score;
+    }
+
+    function checkDangerState() {
+        if (gameOver) return;
+
+        const bodies = Composite.allBodies(engine.world);
+        let inDanger = false;
+
+        for (let i = 0; i < bodies.length; i++) {
+            const body = bodies[i];
+            if (!body.isStatic) {
+                if (body.position.y < TOP_BUFFER && body.speed < 0.2 && body.position.y > DROP_Y + 20) {
+                    inDanger = true;
+                    break;
+                }
+            }
+        }
+
+        if (inDanger) {
+            if (dangerStartTime === null) {
+                dangerStartTime = Date.now();
+                countdownContainer.style.display = 'block';
+            }
+            const elapsed = Date.now() - dangerStartTime;
+            const remaining = Math.max(0, (DANGER_DURATION - elapsed) / 1000);
+            countdownText.textContent = Math.ceil(remaining);
+            if (remaining <= 0) {
+                endGame();
+            }
+        } else {
+            dangerStartTime = null;
+            countdownContainer.style.display = 'none';
+        }
+    }
+
+    function endGame() {
+        gameOver = true;
+        countdownContainer.style.display = 'none'; 
+        document.getElementById('game-over').style.display = 'flex';
+    }
+
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        Composite.clear(engine.world);
+        Engine.clear(engine);
+        score = 0;
+        updateScore(0);
+        gameOver = false;
+        particles = [];
+        dangerStartTime = null;
+        countdownContainer.style.display = 'none';
+        document.getElementById('game-over').style.display = 'none';
+        
+        initGame();
+    });
+
+    window.addEventListener('resize', () => {
+        width = gameContainer.clientWidth;
+        height = gameContainer.clientHeight;
+        if(render) {
+            render.canvas.width = width;
+            render.canvas.height = height;
+        }
+    });
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,12 @@
+{
+  "name": "Fruit Merge",
+  "short_name": "Fruit Merge",
+  "start_url": "/fruit",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/Fruit/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/Fruit/icon-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
