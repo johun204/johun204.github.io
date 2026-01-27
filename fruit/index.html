@@ -1,40 +1,43 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>수박 게임 (Watermelon Game)</title>
-	
-<!-- Standard favicon -->
-<link rel="icon" type="image/png" sizes="16x16" href="/fruit/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/fruit/favicon-32x32.png">
+    
+		
+	<!-- Standard favicon -->
+	<link rel="icon" type="image/png" sizes="16x16" href="/fruit/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/fruit/favicon-32x32.png">
 
-<!-- Apple Touch Icon (iOS 홈 화면) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/fruit/apple-touch-icon.png">
+	<!-- Apple Touch Icon (iOS 홈 화면) -->
+	<link rel="apple-touch-icon" sizes="180x180" href="/fruit/apple-touch-icon.png">
 
-<!-- Android / PWA Icons -->
-<link rel="icon" type="image/png" sizes="192x192" href="/fruit/icon-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/fruit/icon-512x512.png">
+	<!-- Android / PWA Icons -->
+	<link rel="icon" type="image/png" sizes="192x192" href="/fruit/icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/fruit/icon-512x512.png">
 
-<!-- Android Chrome Icons -->
-<link rel="icon" type="image/png" sizes="192x192" href="/fruit/android-chrome-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/fruit/android-chrome-512x512.png">
+	<!-- Android Chrome Icons -->
+	<link rel="icon" type="image/png" sizes="192x192" href="/fruit/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/fruit/android-chrome-512x512.png">
 
-<!-- Web App Manifest (PWA) -->
-<link rel="manifest" href="/fruit/site.webmanifest">
+	<!-- Web App Manifest (PWA) -->
+	<link rel="manifest" href="/fruit/site.webmanifest">
 
-<!-- Theme Color (Android status bar) -->
-<meta name="theme-color" content="#ffffff">
+	<!-- Theme Color (Android status bar) -->
+	<meta name="theme-color" content="#ffffff">
 
-<!-- iOS Safari PWA mode -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="fruit Merge">
+	<!-- iOS Safari PWA mode -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta name="apple-mobile-web-app-title" content="fruit Merge">
 
-<!-- Microsoft Tile -->
-<meta name="msapplication-TileColor" content="#ffffff">
-<meta name="msapplication-TileImage" content="/fruit/icon-192x192.png">
-    <!-- Matter.js 물리 엔진 로드 -->
+	<!-- Microsoft Tile -->
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="/fruit/icon-192x192.png">
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
         /* CSS 스타일링 */
@@ -159,6 +162,31 @@
         }
         #next-fruit-label { font-size: 10px; color: #636e72; }
         #next-fruit-emoji { font-size: 30px; }
+
+        /* "잘했어요" 콤보 메시지 */
+        #combo-message {
+            position: absolute;
+            top: 100px; /* 점수판 아래 */
+            left: 50%;
+            transform: translateX(-50%) scale(0.5);
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 3px solid #00b894;
+            color: #00b894;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 900;
+            opacity: 0;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            z-index: 25;
+            box-shadow: 0 5px 15px rgba(0,184,148, 0.3);
+        }
+        #combo-message.active {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+            top: 110px;
+        }
 
         /* 하단 진화 단계 표시줄 */
         #evolution-container {
@@ -291,7 +319,8 @@
             </div>
         </div>
 
-        <!-- 카운트다운 표시 -->
+        <div id="combo-message">잘했어요!</div>
+
         <div id="countdown-container">
             <div id="countdown-text">3</div>
             <div id="countdown-sub">위험!</div>
@@ -322,17 +351,15 @@
     const TOP_BUFFER = 190; 
     const DROP_Y = 100; 
 
-    // --- 과일 데이터 (radius: 물리적 크기, visualSize: 이모지 크기) ---
-    // radius: 물리 엔진 충돌 원의 반지름
-    // visualSize: 화면에 그려질 이모지의 폰트 크기 (보통 지름의 2배 가까이 되어야 꽉 차 보임)
+    // --- 과일 데이터 ---
     const FRUITS = [
-        { index: 0, name: "cherry",     radius: 15,  visualSize: 28,  score: 0,   color: "#FF0000", emoji: "🍒" },
+        { index: 0, name: "cherry",     radius: 15,  visualSize: 20,  score: 0,   color: "#FF0000", emoji: "🍒" },
         { index: 1, name: "strawberry", radius: 25,  visualSize: 48,  score: 10,  color: "#FF6666", emoji: "🍓" },
         { index: 2, name: "grape",      radius: 35,  visualSize: 65,  score: 20,  color: "#9933FF", emoji: "🍇" },
         { index: 3, name: "dekopon",    radius: 45,  visualSize: 85,  score: 30,  color: "#FFAA00", emoji: "🍊" },
-        { index: 4, name: "persimmon",  radius: 55,  visualSize: 100, score: 40,  color: "#FF7700", emoji: "🥭" },
+        { index: 4, name: "persimmon",  radius: 55,  visualSize: 105, score: 40,  color: "#FF7700", emoji: "🥭" },
         { index: 5, name: "apple",      radius: 68,  visualSize: 125, score: 50,  color: "#FF2222", emoji: "🍎" },
-        { index: 6, name: "pear",       radius: 80,  visualSize: 145, score: 60,  color: "#FFFF66", emoji: "🍐" },
+        { index: 6, name: "pear",       radius: 80,  visualSize: 155, score: 60,  color: "#FFFF66", emoji: "🍐" },
         { index: 7, name: "peach",      radius: 95,  visualSize: 175, score: 70,  color: "#FFCCCC", emoji: "🍑" },
         { index: 8, name: "pineapple",  radius: 110, visualSize: 200, score: 80,  color: "#FFFF00", emoji: "🍍" },
         { index: 9, name: "melon",      radius: 130, visualSize: 240, score: 90,  color: "#99FF99", emoji: "🍈" },
@@ -361,6 +388,10 @@
     let dangerStartTime = null; 
     const DANGER_DURATION = 3000; 
 
+    // 콤보 관리 (잘했어요 기능)
+    let mergeHistory = []; // 합체 시간 기록
+    let comboTimeout = null;
+
     let isGyroEnabled = true;
 
     // DOM
@@ -372,6 +403,7 @@
     const gyroToggle = document.getElementById('gyro-toggle');
     const countdownContainer = document.getElementById('countdown-container');
     const countdownText = document.getElementById('countdown-text');
+    const comboMessage = document.getElementById('combo-message');
 
     let width = gameContainer.clientWidth;
     let height = gameContainer.clientHeight;
@@ -472,6 +504,7 @@
         if(!isGyroEnabled) engine.world.gravity.x = 0;
     }
 
+    // 메인 렌더링 루프 (이 부분을 수정하여 과일 방울 효과 구현)
     function renderLoop() {
         const context = render.context;
         const bodies = Composite.allBodies(engine.world);
@@ -482,40 +515,73 @@
 
             const fruitInfo = FRUITS.find(f => f.name === body.label);
             if (fruitInfo) {
-                // 이모지 그리기 (검정색 불투명)
-                context.fillStyle = '#000000'; 
-                // visualSize 사용하여 크기 지정
-                context.font = `${fruitInfo.visualSize}px Arial`;
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
+                // 1. 방울 배경 (채워진 원)
+                context.beginPath();
+                context.arc(body.position.x, body.position.y, fruitInfo.radius, 0, Math.PI * 2);
+                context.fillStyle = fruitInfo.color;
+                context.fill();
+                
+                // 테두리 살짝 (선택 사항)
+                context.strokeStyle = 'rgba(0,0,0,0.1)';
+                context.lineWidth = 1;
+                context.stroke();
+
                 context.save();
                 context.translate(body.position.x, body.position.y);
                 context.rotate(body.angle);
-                // Y축 보정 (이모지마다 중심이 조금씩 다를 수 있어 약간 내림)
-                context.fillText(fruitInfo.emoji, 0, 5);
+
+                // 2. 하이라이트 (반사광) - 왼쪽 상단 타원
+                context.beginPath();
+                context.ellipse(-fruitInfo.radius * 0.3, -fruitInfo.radius * 0.3, fruitInfo.radius * 0.3, fruitInfo.radius * 0.2, Math.PI / 4, 0, Math.PI * 2);
+                context.fillStyle = 'rgba(255, 255, 255, 0.4)'; // 반투명 흰색
+                context.fill();
+
+                // 3. 이모지 그리기 (가운데)
+                context.fillStyle = '#000000'; 
+                context.font = `${fruitInfo.visualSize}px Arial`;
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                // 약간 투명하게 하여 방울 느낌과 섞이게 할 수도 있음 (여기선 선명하게)
+                context.fillText(fruitInfo.emoji, 0, 5); // Y축 약간 보정
+                
                 context.restore();
             }
         }
         
         updateAndDrawParticles(context);
 
+        // 상단 대기 과일 그리기 (가이드라인 포함)
         if (currentFruit && !isDropping) {
             const info = FRUITS[currentFruit.index];
-            context.beginPath();
             const floorY = height - BOTTOM_UI_OFFSET;
+
+            // 가이드라인
+            context.beginPath();
             context.moveTo(currentFruit.x, DROP_Y);
             context.lineTo(currentFruit.x, floorY);
-            
             context.strokeStyle = 'rgba(0,0,0,0.15)';
             context.setLineDash([5, 5]);
             context.stroke();
             context.setLineDash([]);
             
+            // 대기 과일 본체 (방울 효과 적용)
+            context.beginPath();
+            context.arc(currentFruit.x, currentFruit.y, info.radius, 0, Math.PI * 2);
+            context.fillStyle = info.color;
+            context.fill();
+
+            // 하이라이트
+            context.beginPath();
+            context.ellipse(currentFruit.x - info.radius * 0.3, currentFruit.y - info.radius * 0.3, info.radius * 0.3, info.radius * 0.2, Math.PI / 4, 0, Math.PI * 2);
+            context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            context.fill();
+            
+            // 이모지
             context.fillStyle = '#000000';
             context.font = `${info.visualSize}px Arial`;
             context.textAlign = 'center';
             context.textBaseline = 'middle';
-            context.fillText(info.emoji, currentFruit.x, currentFruit.y);
+            context.fillText(info.emoji, currentFruit.x, currentFruit.y + 5);
         }
     }
 
@@ -551,9 +617,38 @@
                     Body.setVelocity(newBody, { x: 0, y: -4 });
                     
                     updateScore(nextFruit.score * 2);
+
+                    // --- 콤보 로직 추가 ---
+                    checkCombo();
                 }
             }
         }
+    }
+
+    // 1초 이내 여러 개 합체 체크 함수
+    function checkCombo() {
+        const now = Date.now();
+        // 현재 시간 기록
+        mergeHistory.push(now);
+        
+        // 1초 지난 기록 제거
+        mergeHistory = mergeHistory.filter(time => now - time <= 1000);
+
+        // 1초 안에 2개 이상 기록이 있으면 칭찬
+        if (mergeHistory.length >= 2) {
+            showComboMessage();
+        }
+    }
+
+    function showComboMessage() {
+        comboMessage.classList.add('active');
+        
+        // 기존 타이머가 있다면 취소 (연속 발생 시 시간 연장 효과)
+        if (comboTimeout) clearTimeout(comboTimeout);
+
+        comboTimeout = setTimeout(() => {
+            comboMessage.classList.remove('active');
+        }, 1500);
     }
 
     function highlightMerge(index) {
@@ -616,10 +711,11 @@
             restitution: 0.2,
             friction: 0.1,
             density: 0.001,
+            // render 속성은 Matter.Render용이지만, 커스텀 렌더링을 쓰므로 참조용으로 남김
             render: { 
-                fillStyle: 'transparent', // 내부 투명
-                strokeStyle: fruit.color, // 테두리 색상
-                lineWidth: 3              // 테두리 두께 (조금 줄임)
+                fillStyle: fruit.color, 
+                strokeStyle: 'transparent', 
+                lineWidth: 1
             }
         });
         Composite.add(engine.world, body);
@@ -755,4 +851,3 @@
 </script>
 </body>
 </html>
-
