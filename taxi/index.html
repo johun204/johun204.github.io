@@ -165,11 +165,11 @@ function playTick() {
   const gain = audioCtx.createGain();
   osc.type = "square";
   osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-  gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+  gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
   osc.connect(gain);
   gain.connect(audioCtx.destination);
   osc.start();
-  osc.stop(audioCtx.currentTime + 0.03);
+  osc.stop(audioCtx.currentTime + 0.01);
 }
 
 /* ===========================
