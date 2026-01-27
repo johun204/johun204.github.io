@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>수박 게임 (Watermelon Game)</title>
+    
     
 		
 	<!-- Standard favicon -->
@@ -353,17 +353,17 @@
 
     // --- 과일 데이터 ---
     const FRUITS = [
-        { index: 0, name: "cherry",     radius: 15,  visualSize: 20,  score: 0,   color: "#FF0000", emoji: "🍒" },
-        { index: 1, name: "strawberry", radius: 25,  visualSize: 48,  score: 10,  color: "#FF6666", emoji: "🍓" },
-        { index: 2, name: "grape",      radius: 35,  visualSize: 65,  score: 20,  color: "#9933FF", emoji: "🍇" },
-        { index: 3, name: "dekopon",    radius: 45,  visualSize: 85,  score: 30,  color: "#FFAA00", emoji: "🍊" },
-        { index: 4, name: "persimmon",  radius: 55,  visualSize: 105, score: 40,  color: "#FF7700", emoji: "🥭" },
-        { index: 5, name: "apple",      radius: 68,  visualSize: 125, score: 50,  color: "#FF2222", emoji: "🍎" },
-        { index: 6, name: "pear",       radius: 80,  visualSize: 155, score: 60,  color: "#FFFF66", emoji: "🍐" },
-        { index: 7, name: "peach",      radius: 95,  visualSize: 175, score: 70,  color: "#FFCCCC", emoji: "🍑" },
-        { index: 8, name: "pineapple",  radius: 110, visualSize: 200, score: 80,  color: "#FFFF00", emoji: "🍍" },
-        { index: 9, name: "melon",      radius: 130, visualSize: 240, score: 90,  color: "#99FF99", emoji: "🍈" },
-        { index: 10, name: "watermelon",radius: 150, visualSize: 270, score: 100, color: "#00FF00", emoji: "🍉" },
+        { index: 0, name: "cherry",     radius: 17,  visualSize: 20,  score: 0,   color: "#FF0000", emoji: "🍒" },
+        { index: 1, name: "strawberry", radius: 25,  visualSize: 30,  score: 10,  color: "#FF6666", emoji: "🍓" },
+        { index: 2, name: "grape",      radius: 32,  visualSize: 60,  score: 20,  color: "#9933FF", emoji: "🍇" },
+        { index: 3, name: "dekopon",    radius: 40,  visualSize: 70,  score: 30,  color: "#FFAA00", emoji: "🍊" },
+        { index: 4, name: "persimmon",  radius: 50,  visualSize: 85, score: 40,  color: "#FF7700", emoji: "🥭" },
+        { index: 5, name: "apple",      radius: 60,  visualSize: 105, score: 50,  color: "#FF2222", emoji: "🍎" },
+        { index: 6, name: "pear",       radius: 80,  visualSize: 135, score: 60,  color: "#FFFF66", emoji: "🍐" },
+        { index: 7, name: "peach",      radius: 95,  visualSize: 145, score: 70,  color: "#FFCCCC", emoji: "🍑" },
+        { index: 8, name: "pineapple",  radius: 110, visualSize: 170, score: 80,  color: "#FFFF00", emoji: "🍍" },
+        { index: 9, name: "melon",      radius: 120, visualSize: 200, score: 90,  color: "#99FF99", emoji: "🍈" },
+        { index: 10, name: "watermelon",radius: 130, visualSize: 230, score: 100, color: "#00FF00", emoji: "🍉" },
     ];
 
     // Matter.js 별칭
@@ -504,7 +504,7 @@
         if(!isGyroEnabled) engine.world.gravity.x = 0;
     }
 
-    // 메인 렌더링 루프 (이 부분을 수정하여 과일 방울 효과 구현)
+    // 메인 렌더링 루프
     function renderLoop() {
         const context = render.context;
         const bodies = Composite.allBodies(engine.world);
@@ -515,13 +515,13 @@
 
             const fruitInfo = FRUITS.find(f => f.name === body.label);
             if (fruitInfo) {
-                // 1. 방울 배경 (채워진 원)
+                // 1. 방울 배경 (채워진 원) - 회전 전
                 context.beginPath();
                 context.arc(body.position.x, body.position.y, fruitInfo.radius, 0, Math.PI * 2);
                 context.fillStyle = fruitInfo.color;
                 context.fill();
                 
-                // 테두리 살짝 (선택 사항)
+                // 테두리 살짝
                 context.strokeStyle = 'rgba(0,0,0,0.1)';
                 context.lineWidth = 1;
                 context.stroke();
@@ -530,21 +530,28 @@
                 context.translate(body.position.x, body.position.y);
                 context.rotate(body.angle);
 
+                // === 클리핑 시작 ===
+                // 이모지가 원 밖으로 나가지 않도록 클리핑 영역 설정
+                context.beginPath();
+                // 현재 좌표계는 중심이 (0,0)으로 이동된 상태
+                context.arc(0, 0, fruitInfo.radius, 0, Math.PI * 2);
+                context.clip(); // 이 이후에 그리는 것은 이 원 안에서만 보임
+                // === 클리핑 끝 ===
+
                 // 2. 하이라이트 (반사광) - 왼쪽 상단 타원
                 context.beginPath();
                 context.ellipse(-fruitInfo.radius * 0.3, -fruitInfo.radius * 0.3, fruitInfo.radius * 0.3, fruitInfo.radius * 0.2, Math.PI / 4, 0, Math.PI * 2);
-                context.fillStyle = 'rgba(255, 255, 255, 0.4)'; // 반투명 흰색
+                context.fillStyle = 'rgba(255, 255, 255, 0.4)';
                 context.fill();
 
-                // 3. 이모지 그리기 (가운데)
+                // 3. 이모지 그리기 (가운데) - 클리핑 적용됨
                 context.fillStyle = '#000000'; 
                 context.font = `${fruitInfo.visualSize}px Arial`;
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
-                // 약간 투명하게 하여 방울 느낌과 섞이게 할 수도 있음 (여기선 선명하게)
                 context.fillText(fruitInfo.emoji, 0, 5); // Y축 약간 보정
                 
-                context.restore();
+                context.restore(); // restore 시 클리핑도 해제됨
             }
         }
         
@@ -564,11 +571,18 @@
             context.stroke();
             context.setLineDash([]);
             
-            // 대기 과일 본체 (방울 효과 적용)
+            // 대기 과일 본체 (방울 효과 + 클리핑 적용)
+            context.save(); // 클리핑을 위해 save
             context.beginPath();
             context.arc(currentFruit.x, currentFruit.y, info.radius, 0, Math.PI * 2);
             context.fillStyle = info.color;
             context.fill();
+            
+            // === 대기 과일 클리핑 시작 ===
+            context.beginPath();
+            context.arc(currentFruit.x, currentFruit.y, info.radius, 0, Math.PI * 2);
+            context.clip();
+            // === 대기 과일 클리핑 끝 ===
 
             // 하이라이트
             context.beginPath();
@@ -582,6 +596,8 @@
             context.textAlign = 'center';
             context.textBaseline = 'middle';
             context.fillText(info.emoji, currentFruit.x, currentFruit.y + 5);
+
+            context.restore(); // 클리핑 해제
         }
     }
 
