@@ -1,10 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
 
 <title>Taxi Meter</title>
 
@@ -30,23 +28,27 @@ body {
     overflow: hidden; touch-action: manipulation;
 }
 
-/* 지도 영역 - 경계선 제거 및 밝은 배경 대비 */
 #map { height: 42vh; width: 100%; background: #f0f0f0; }
 
 .panel {
     height: 58vh; background: #111;
     padding: 15px; display: flex; flex-direction: column;
     justify-content: space-between; position: relative; box-sizing: border-box;
+    z-index: 1;
 }
-
-/* 내비게이션 화살표 CSS */
+.panel > *:not(.scanline) {
+    position: relative;
+    z-index: 2;
+}
+/* 내비게이션 화살표 스타일 */
 .nav-arrow {
     width: 0; height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-bottom: 20px solid #007AFF; /* 내비게이션 블루 */
+    border-bottom: 20px solid #007AFF;
     filter: drop-shadow(0 0 5px rgba(0,0,0,0.3));
     transform-origin: center;
+    transition: transform 0.2s ease-out; /* 회전 부드럽게 */
 }
 
 .fare-container {
@@ -95,8 +97,9 @@ button:active { transform: scale(0.95); }
     width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none;
     background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                 linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size: 100% 4px, 3px 100%; z-index: 10;
+    background-size: 100% 4px, 3px 100%; z-index: 0;
 }
+
 </style>
 </head>
 <body>
@@ -140,10 +143,9 @@ button:active { transform: scale(0.95); }
 <script>
 /* --- INIT MAP (Bright Mode) --- */
 let map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.5665, 126.9780], 17);
-// 밝은 스타일의 OpenStreetMap 타일로 변경
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-/* --- NAVIGATION ARROW MARKER --- */
+/* --- NAV ARROW --- */
 const navIcon = L.divIcon({
     className: 'nav-icon-container',
     html: '<div id="nav-arrow" class="nav-arrow"></div>',
@@ -153,53 +155,60 @@ const navIcon = L.divIcon({
 let marker = L.marker([37.5665, 126.9780], { icon: navIcon }).addTo(map);
 let pathLine = L.polyline([], { color: '#007AFF', weight: 6, opacity: 0.7, lineJoin: 'round' }).addTo(map);
 
-/* --- STATE VARIABLES --- */
+/* --- STATE --- */
 let running = false;
 let totalDistance = 0, totalSeconds = 0, lowSpeedSeconds = 0, currentSpeed = 0;
-let lastPoint = null, timer = null, wakeLock = null;
+let lastPoint = null, timer = null, gpsTimer = null, wakeLock = null;
 let currentPathData = [];
 
 const fareEl = document.getElementById("fare"), timeEl = document.getElementById("time");
 const distEl = document.getElementById("distance"), speedEl = document.getElementById("speed");
 const horseEl = document.getElementById("horse"), btn = document.getElementById("btn");
 
-/* --- GPS & MOVEMENT --- */
-navigator.geolocation.watchPosition(pos => {
-    const { latitude: lat, longitude: lng, speed, heading } = pos.coords;
-    const now = Date.now();
-    const arrow = document.getElementById('nav-arrow');
-    
-    marker.setLatLng([lat, lng]);
-    
-    // 방향(Heading) 처리: 기기에서 방향 정보를 주면 사용하고, 없으면 이동 궤적으로 계산
-    if (arrow) {
-        if (heading !== null && !isNaN(heading)) {
-            arrow.style.transform = `rotate(${heading}deg)`;
-        } else if (lastPoint) {
-            const angle = Math.atan2(lng - lastPoint.lng, lat - lastPoint.lat) * 180 / Math.PI;
-            arrow.style.transform = `rotate(${angle}deg)`;
-        }
-    }
-    
-    if (running) {
-        map.panTo([lat, lng]);
-        if (lastPoint) {
-            const p1 = L.latLng(lastPoint.lat, lastPoint.lng);
-            const p2 = L.latLng(lat, lng);
-            const dist = p1.distanceTo(p2);
-            
-            if (dist > 2 && dist < 50) {
-                totalDistance += dist;
-                pathLine.addLatLng([lat, lng]);
-                currentPathData.push([lat, lng]);
+/* --- 고속 위치 추적 엔진 (500ms) --- */
+function updateLocation() {
+    navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude: lat, longitude: lng, speed, heading } = pos.coords;
+        const now = Date.now();
+        const arrow = document.getElementById('nav-arrow');
+        
+        marker.setLatLng([lat, lng]);
+        
+        // 방향 처리
+        if (arrow) {
+            if (heading !== null && !isNaN(heading)) {
+                arrow.style.transform = `rotate(${heading}deg)`;
+            } else if (lastPoint) {
+                const angle = Math.atan2(lng - lastPoint.lng, lat - lastPoint.lat) * 180 / Math.PI;
+                arrow.style.transform = `rotate(${angle}deg)`;
             }
-            currentSpeed = (speed !== null) ? speed * 3.6 : (dist / ((now - lastPoint.t)/1000)) * 3.6;
         }
-        lastPoint = { lat, lng, t: now };
-    }
-}, err => console.error(err), { enableHighAccuracy: true });
+        
+        if (running) {
+            // 지도 부드럽게 이동 (500ms 주기에 맞춘 애니메이션)
+            map.panTo([lat, lng], { animate: true, duration: 0.5 });
+            
+            if (lastPoint) {
+                const p1 = L.latLng(lastPoint.lat, lastPoint.lng);
+                const p2 = L.latLng(lat, lng);
+                const dist = p1.distanceTo(p2);
+                
+                if (dist > 1.5 && dist < 50) { // 500ms 주기에 맞춰 감도 상향
+                    totalDistance += dist;
+                    pathLine.addLatLng([lat, lng]);
+                    currentPathData.push([lat, lng]);
+                }
+                currentSpeed = (speed !== null) ? speed * 3.6 : (dist / ((now - lastPoint.t)/1000)) * 3.6;
+            }
+            lastPoint = { lat, lng, t: now };
+        }
+    }, null, { enableHighAccuracy: true, timeout: 1000 });
+}
 
-/* --- FARE & ENGINE LOGIC (동일) --- */
+// 초기 위치 추적 시작
+gpsTimer = setInterval(updateLocation, 500);
+
+/* --- FARE & UI ENGINE --- */
 function getFare() {
     const h = new Date().getHours();
     let rate = 1.0;
@@ -209,7 +218,6 @@ function getFare() {
     const BASE_FARE = 4800 * rate;
     const extra = (totalDistance > 1600 ? Math.floor((totalDistance - 1600) / 131) * (100 * rate) : 0) +
                   (Math.floor(lowSpeedSeconds / 30) * (100 * rate));
-
     return Math.floor((BASE_FARE + extra) / 10) * 10;
 }
 
@@ -217,18 +225,18 @@ btn.onclick = async () => {
     if (!running) {
         running = true; totalDistance = 0; totalSeconds = 0; lowSpeedSeconds = 0; currentPathData = [];
         pathLine.setLatLngs([]); btn.innerText = "주행 종료"; btn.style.background = "var(--alert-red)";
-        timer = setInterval(updateEngine, 1000);
+        timer = setInterval(updateUI, 1000);
         try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
     } else {
         running = false; clearInterval(timer);
         btn.innerText = "주행 시작"; btn.style.background = "var(--neon-green)";
         saveRecord();
         if (wakeLock) wakeLock.release();
-        updateEngine();
+        updateUI();
     }
 };
 
-function updateEngine() {
+function updateUI() {
     if (running) totalSeconds++;
     const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
     const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
@@ -237,6 +245,7 @@ function updateEngine() {
     distEl.innerText = (totalDistance / 1000).toFixed(2) + " km";
     const roundedSpeed = Math.round(currentSpeed);
     speedEl.innerText = roundedSpeed + " km/h";
+    
     if (running && currentSpeed < 15.26) lowSpeedSeconds++;
 
     if (roundedSpeed > 0 && running) {
@@ -248,7 +257,7 @@ function updateEngine() {
     fareEl.innerText = "₩" + getFare().toLocaleString();
 }
 
-/* --- HISTORY LOGIC (동일) --- */
+/* --- HISTORY --- */
 function saveRecord() {
     const records = JSON.parse(localStorage.getItem('taxi_records') || '[]');
     records.unshift({
