@@ -173,6 +173,8 @@ function updateLocation() {
         const arrow = document.getElementById('nav-arrow');
         
         marker.setLatLng([lat, lng]);
+		// 지도 부드럽게 이동 (500ms 주기에 맞춘 애니메이션)
+		map.panTo([lat, lng], { animate: true, duration: 0.5 });
         
         // 방향 처리
         if (arrow) {
@@ -185,8 +187,6 @@ function updateLocation() {
         }
         
         if (running) {
-            // 지도 부드럽게 이동 (500ms 주기에 맞춘 애니메이션)
-            map.panTo([lat, lng], { animate: true, duration: 0.5 });
             
             if (lastPoint) {
                 const p1 = L.latLng(lastPoint.lat, lastPoint.lng);
