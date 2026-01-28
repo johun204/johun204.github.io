@@ -175,7 +175,7 @@ function updateLocation() {
         marker.setLatLng([lat, lng]);
 		// 지도 부드럽게 이동 (500ms 주기에 맞춘 애니메이션)
 		map.panTo([lat, lng], { animate: true, duration: 0.5 });
-        
+
         // 방향 처리
         if (arrow) {
             if (heading !== null && !isNaN(heading)) {
@@ -186,22 +186,26 @@ function updateLocation() {
             }
         }
         
-        if (running) {
+        // 속도 및 거리 계산
+        if (lastPoint) {
+            const p1 = L.latLng(lastPoint.lat, lastPoint.lng);
+            const p2 = L.latLng(lat, lng);
+            const dist = p1.distanceTo(p2);
             
-            if (lastPoint) {
-                const p1 = L.latLng(lastPoint.lat, lastPoint.lng);
-                const p2 = L.latLng(lat, lng);
-                const dist = p1.distanceTo(p2);
-                
-                if (dist > 1.5 && dist < 50) { // 500ms 주기에 맞춰 감도 상향
+            // 주행 중일 때만 요금 관련 데이터 기록
+            if (running) {
+                if (dist > 1.5 && dist < 50) {
                     totalDistance += dist;
                     pathLine.addLatLng([lat, lng]);
                     currentPathData.push([lat, lng]);
                 }
-                currentSpeed = (speed !== null) ? speed * 3.6 : (dist / ((now - lastPoint.t)/1000)) * 3.6;
             }
-            lastPoint = { lat, lng, t: now };
+            
+            // 속도는 상시 계산 (UI에 미리 표시됨)
+            currentSpeed = (speed !== null) ? speed * 3.6 : (dist / ((now - lastPoint.t)/1000)) * 3.6;
         }
+        
+        lastPoint = { lat, lng, t: now };
     }, null, { enableHighAccuracy: true, timeout: 1000 });
 }
 
