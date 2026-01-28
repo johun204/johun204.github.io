@@ -142,7 +142,7 @@ button:active { transform: scale(0.95); }
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 /* --- INIT MAP (Bright Mode) --- */
-let map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.5665, 126.9780], 17);
+let map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.5216, 126.9241], 17);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 /* --- NAV ARROW --- */
@@ -152,7 +152,7 @@ const navIcon = L.divIcon({
     iconSize: [20, 20],
     iconAnchor: [10, 10]
 });
-let marker = L.marker([37.5665, 126.9780], { icon: navIcon }).addTo(map);
+let marker = L.marker([37.5216, 126.9241], { icon: navIcon }).addTo(map);
 let pathLine = L.polyline([], { color: '#007AFF', weight: 6, opacity: 0.7, lineJoin: 'round' }).addTo(map);
 
 /* --- STATE --- */
