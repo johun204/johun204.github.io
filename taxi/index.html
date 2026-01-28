@@ -2,362 +2,244 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>Taxi Meter</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Standard favicon -->
-<link rel="icon" type="image/png" sizes="16x16" href="/taxi/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/taxi/favicon-32x32.png">
-
-<!-- Apple Touch Icon (iOS 홈 화면) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/taxi/apple-touch-icon.png">
-
-<!-- Android / PWA Icons -->
-<link rel="icon" type="image/png" sizes="192x192" href="/taxi/icon-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/taxi/icon-512x512.png">
-
-<!-- Android Chrome Icons -->
-<link rel="icon" type="image/png" sizes="192x192" href="/taxi/android-chrome-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/taxi/android-chrome-512x512.png">
-
-<!-- Web App Manifest (PWA) -->
-<link rel="manifest" href="/taxi/site.webmanifest">
-
-<!-- Theme Color (Android status bar) -->
-<meta name="theme-color" content="#ffffff">
-
-<!-- iOS Safari PWA mode -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Taxi Meter">
-
-<!-- Microsoft Tile -->
-<meta name="msapplication-TileColor" content="#ffffff">
-<meta name="msapplication-TileImage" content="/taxi/icon-192x192.png">
+<title>Taxi Meter</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
 body {
   margin: 0;
-  font-family: "Courier New", monospace;
-  background: #050505;
-  color: #ffd400;
+  background: #0a0a0a;
+  font-family: 'Courier New', monospace;
+  color: #00ff9c;
 }
 
+/* MAP */
 #map {
-  height: 58vh;
+  height: 55vh;
+  filter: contrast(1.2) brightness(0.9);
 }
 
-#panel {
-  height: 42vh;
+/* PANEL */
+.panel {
+  height: 45vh;
+  background: #111;
+  border-top: 4px solid #00ff9c;
   padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: radial-gradient(circle, #111 0%, #000 100%);
+  justify-content: space-between;
 }
 
-button {
-  height: 58px;
-  font-size: 20px;
-  font-weight: 900;
-  background: #ffcc00;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  color: black;
+/* DISPLAY */
+.display {
+  font-size: 2.4em;
+  text-align: center;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px #00ff9c;
 }
 
-.info {
-  font-size: 20px;
-  letter-spacing: 1px;
+/* HORSE */
+.horse {
+  font-size: 38px;
+  text-align: center;
+  animation: trot 0.6s infinite steps(2);
 }
 
-#fare {
-  font-size: 42px;
-  font-weight: 900;
-  text-shadow: 0 0 12px #ffcc00;
-  transition: transform 0.06s ease;
-}
-
-.bump {
-  transform: scale(1.09);
-}
-
-.pulse {
-  animation: pulse 0.6s infinite alternate;
-}
-
-.shake {
-  animation: shake 0.18s;
-}
-
-@keyframes pulse {
-  from { opacity: 0.88; }
-  to { opacity: 1; }
-}
-
-@keyframes shake {
-  0% { transform: translateX(-1px); }
-  50% { transform: translateX(1px); }
+@keyframes trot {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
   100% { transform: translateX(0); }
+}
+
+/* BUTTON */
+button {
+  padding: 16px;
+  font-size: 1.3em;
+  background: #00ff9c;
+  color: black;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:active {
+  background: #009966;
+}
+
+/* CRT SCANLINE */
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
 }
 </style>
 </head>
-
 <body>
 
 <div id="map"></div>
 
-<div id="panel">
-  <button id="actionBtn">주행</button>
-  <div class="info">주행 시간: <span id="time">0</span> 초</div>
-  <div class="info">이동 거리: <span id="distance">0</span> m</div>
-  <div class="info">현재 속도: <span id="speed">0</span> km/h</div>
-  <div class="info">요금: <span id="fare" class="pulse">0</span> 원</div>
+<div class="panel">
+  <div class="horse" id="horse">🐎</div>
+
+  <div class="display" id="time">00초</div>
+  <div class="display" id="distance">0.00 km</div>
+  <div class="display" id="fare">₩4,800</div>
+
+  <button id="btn">주행 시작</button>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
-/* ===========================
-   상태
-=========================== */
-let state = "IDLE";
+let map = L.map('map').setView([37.5665, 126.9780], 16);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-/* ===========================
-   지도
-=========================== */
-const map = L.map("map").setView([37.5665, 126.9780], 16);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+let marker = L.marker([37.5665,126.9780]).addTo(map);
+let pathLine = L.polyline([], { color:'#00ff9c' }).addTo(map);
 
-let marker = null;
-let polyline = L.polyline([], { color: "yellow" }).addTo(map);
-
-/* ===========================
-   데이터
-=========================== */
 let watchId = null;
-let startTime = 0;
-let timerInterval = null;
+let running = false;
+let startTime = null;
 let lastPoint = null;
 let totalDistance = 0;
-let currentSpeed = 0;
-let visualFare = 0;
+let seconds = 0;
+let timer = null;
 
-/* ===========================
-   UI
-=========================== */
 const timeEl = document.getElementById("time");
-const distanceEl = document.getElementById("distance");
-const speedEl = document.getElementById("speed");
+const distEl = document.getElementById("distance");
 const fareEl = document.getElementById("fare");
-const btn = document.getElementById("actionBtn");
+const horseEl = document.getElementById("horse");
+const btn = document.getElementById("btn");
 
-/* ===========================
-   사운드 (틱 소리)
-=========================== */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playTick() {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = "square";
-  osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-  gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.01);
+/* WAKE LOCK */
+let wakeLock = null;
+async function enableWakeLock() {
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
 }
 
-/* ===========================
-   버튼
-=========================== */
-btn.onclick = () => {
-  if (state === "IDLE") startRide();
-  else if (state === "RUNNING") endRide();
+/* DISTANCE */
+function calcDistance(a,b){
+  const R=6371000;
+  const dLat=(b.lat-a.lat)*Math.PI/180;
+  const dLon=(b.lng-a.lng)*Math.PI/180;
+  const x=Math.sin(dLat/2)**2+
+    Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+  return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+/* SPEED */
+function calcSpeed(a,b){
+  const d = calcDistance(a,b);
+  const dt = (b.t-a.t)/1000;
+  return dt>0 ? (d/dt)*3.6 : 0;
+}
+
+/* TIME FORMAT */
+function formatTime(sec){
+  let h=Math.floor(sec/3600);
+  let m=Math.floor((sec%3600)/60);
+  let s=sec%60;
+  let out=[];
+  if(h>0) out.push(h+"시간");
+  if(m>0 || h>0) out.push(m+"분");
+  out.push(s+"초");
+  return out.join(" ");
+}
+
+/* SEOUL TAXI ENGINE */
+function calcFare(sec, meters, speed){
+  const BASE=4800;
+  const BASE_DIST=1600;
+  const DIST_UNIT=131;
+  const TIME_UNIT=30;
+  const STEP=100;
+  const LOW_SPEED=15.72;
+
+  let extra=0;
+
+  if(meters>BASE_DIST){
+    extra += Math.floor((meters-BASE_DIST)/DIST_UNIT)*STEP;
+  }
+
+  if(speed<LOW_SPEED && sec>0){
+    extra += Math.floor(sec/TIME_UNIT)*STEP;
+  }
+
+  let h=new Date().getHours();
+  let rate=1;
+  if(h>=22 && h<23) rate=1.2;
+  if(h>=23 || h<4) rate=1.4;
+
+  extra *= rate;
+  let fare = BASE + extra;
+  return Math.round(fare/10)*10;
+}
+
+/* GPS ALWAYS ON */
+navigator.geolocation.watchPosition(pos=>{
+  const now = Date.now();
+  const point = {lat:pos.coords.latitude, lng:pos.coords.longitude, t:now};
+
+  marker.setLatLng([point.lat,point.lng]);
+  map.setView([point.lat,point.lng], map.getZoom());
+
+  if(running && (!lastPoint || now-lastPoint.t>=5000)){
+    if(lastPoint){
+      totalDistance += calcDistance(lastPoint, point);
+      pathLine.addLatLng([point.lat, point.lng]);
+    }
+    lastPoint = point;
+  }
+});
+
+/* TIMER */
+function startTimer(){
+  timer = setInterval(()=>{
+    seconds++;
+    timeEl.innerText = formatTime(seconds);
+
+    let km = (totalDistance/1000).toFixed(2);
+    distEl.innerText = km + " km";
+
+    let speed = lastPoint ? calcSpeed(lastPoint,lastPoint) : 0;
+    let fare = calcFare(seconds,totalDistance,speed);
+
+    fareEl.innerText = "₩" + fare.toLocaleString();
+
+    /* Horse speed animation */
+    horseEl.style.animationDuration = speed>20 ? "0.2s" : speed>5 ? "0.4s" : "0.7s";
+
+  },1000);
+}
+
+/* BUTTON */
+btn.onclick = ()=>{
+  if(!running){
+    running = true;
+    enableWakeLock();
+    btn.innerText = "종료";
+    seconds = 0;
+    totalDistance = 0;
+    pathLine.setLatLngs([]);
+    startTime = Date.now();
+    lastPoint = null;
+    startTimer();
+  } else {
+    running = false;
+    clearInterval(timer);
+    btn.innerText = "주행 시작";
+    alert("최종 요금: ₩" + fareEl.innerText.replace("₩",""));
+  }
 };
-
-/* ===========================
-   시작
-=========================== */
-function startRide() {
-  state = "RUNNING";
-  btn.innerText = "종료";
-
-  startTime = Date.now();
-  totalDistance = 0;
-  lastPoint = null;
-  currentSpeed = 0;
-  visualFare = 4800;
-
-  polyline.setLatLngs([]);
-
-  startTimer();
-  startTracking();
-}
-
-/* ===========================
-   종료
-=========================== */
-function endRide() {
-  state = "FINISHED";
-  navigator.geolocation.clearWatch(watchId);
-  clearInterval(timerInterval);
-
-  alert("최종 요금: " + fareEl.innerText + " 원");
-}
-
-/* ===========================
-   GPS 추적
-=========================== */
-function startTracking() {
-  watchId = navigator.geolocation.watchPosition(pos => {
-    const now = Date.now();
-    const point = {
-      lat: pos.coords.latitude,
-      lng: pos.coords.longitude,
-      t: now
-    };
-
-    if (!lastPoint || now - lastPoint.t >= 3000) {
-      if (lastPoint) {
-        const dist = calcDistance(lastPoint, point);
-        totalDistance += dist;
-        currentSpeed = calcSpeedKmh(lastPoint, point);
-      }
-
-      lastPoint = point;
-      updateMap(point);
-    }
-  }, console.error, { enableHighAccuracy: true });
-}
-
-/* ===========================
-   지도 업데이트
-=========================== */
-function updateMap(point) {
-  const latlng = [point.lat, point.lng];
-
-  if (!marker) marker = L.marker(latlng).addTo(map);
-  else marker.setLatLng(latlng);
-
-  polyline.addLatLng(latlng);
-  map.setView(latlng);
-}
-
-/* ===========================
-   타이머
-=========================== */
-function startTimer() {
-  timerInterval = setInterval(() => {
-    const seconds = Math.floor((Date.now() - startTime) / 1000);
-
-    timeEl.innerText = seconds;
-    distanceEl.innerText = Math.floor(totalDistance);
-    speedEl.innerText = currentSpeed.toFixed(1);
-
-    const targetFare = calcFare(seconds, totalDistance, currentSpeed);
-
-    if (visualFare < targetFare) {
-      visualFare += Math.ceil((targetFare - visualFare) / 5);
-      animateFare();
-      playTick();
-    }
-
-    fareEl.innerText = visualFare;
-
-  }, 160);
-}
-
-/* ===========================
-   요금 애니메이션
-=========================== */
-function animateFare() {
-  fareEl.classList.add("bump");
-  fareEl.classList.add("shake");
-  setTimeout(() => {
-    fareEl.classList.remove("bump");
-    fareEl.classList.remove("shake");
-  }, 80);
-}
-
-/* ===========================
-   거리 계산
-=========================== */
-function calcDistance(a, b) {
-  const R = 6371000;
-  const dLat = (b.lat - a.lat) * Math.PI / 180;
-  const dLng = (b.lng - a.lng) * Math.PI / 180;
-
-  const lat1 = a.lat * Math.PI / 180;
-  const lat2 = b.lat * Math.PI / 180;
-
-  const h = Math.sin(dLat / 2) ** 2 +
-            Math.cos(lat1) * Math.cos(lat2) *
-            Math.sin(dLng / 2) ** 2;
-
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-
-/* ===========================
-   속도 계산
-=========================== */
-function calcSpeedKmh(lastPoint, currentPoint) {
-  if (!lastPoint) return 0;
-
-  const dist = calcDistance(lastPoint, currentPoint);
-  const dt = (currentPoint.t - lastPoint.t) / 1000;
-
-  if (dt <= 0) return 0;
-
-  return (dist / dt) * 3.6;
-}
-
-/* ===========================
-   서울 택시 요금 엔진 (실기기급)
-=========================== */
-function calcFare(seconds, meters, speedKmh) {
-  const BASE_FARE = 4800;
-  const BASE_DISTANCE = 1600;
-  const DIST_UNIT = 131;
-  const TIME_UNIT = 30;
-  const STEP_FARE = 100;
-  const LOW_SPEED = 15.72;
-
-  let extraFare = 0;
-
-  // 거리 초과 요금
-  if (meters > BASE_DISTANCE) {
-    const extra = meters - BASE_DISTANCE;
-    extraFare += Math.floor(extra / DIST_UNIT) * STEP_FARE;
-  }
-
-  // 저속일 때만 시간요금
-  if (speedKmh < LOW_SPEED && seconds > 0) {
-    extraFare += Math.floor(seconds / TIME_UNIT) * STEP_FARE;
-  }
-
-  // 야간 할증 (초과 요금에만 적용)
-  const hour = new Date().getHours();
-  let nightRate = 1;
-  if (hour >= 22 && hour < 23) nightRate = 1.2;
-  if (hour >= 23 || hour < 4) nightRate = 1.4;
-
-  extraFare *= nightRate;
-
-  // 최종 요금 = 기본요금 + 초과요금
-  let fare = BASE_FARE + extraFare;
-
-  // 10원 단위 반올림
-  fare = Math.round(fare / 10) * 10;
-
-  return fare;
-}
-
 </script>
-
 </body>
 </html>
