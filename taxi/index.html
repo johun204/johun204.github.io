@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Taxi Meter</title>
 
 <link rel="icon" type="image/png" sizes="16x16" href="/taxi/favicon-16x16.png">
@@ -17,62 +17,70 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
+:root { --neon-green: #00ff9c; --alert-red: #ff4b4b; --bg-dark: #0a0a0a; }
 body {
-  margin: 0; background: #0a0a0a;
-  font-family: 'Courier New', monospace; color: #00ff9c;
-  overflow: hidden;
+    margin: 0; background: var(--bg-dark);
+    font-family: 'Courier New', monospace; color: var(--neon-green);
+    overflow: hidden; touch-action: manipulation;
 }
 
-#map { height: 45vh; }
+#map { height: 42vh; width: 100%; border-bottom: 2px solid #222; }
 
 .panel {
-  height: 55vh; background: #111;
-  border-top: 4px solid #00ff9c; padding: 12px;
-  display: flex; flex-direction: column;
-  justify-content: space-between; position: relative; box-sizing: border-box;
+    height: 58vh; background: #111;
+    padding: 15px; display: flex; flex-direction: column;
+    justify-content: space-between; position: relative; box-sizing: border-box;
 }
 
+/* 요금창 디자인 강화 */
+.fare-container {
+    background: #000; border: 2px solid #333; padding: 10px; border-radius: 12px;
+    box-shadow: inset 0 0 15px rgba(0,255,156,0.1);
+}
 .fare-display {
-  font-size: 3.2em; text-align: center; font-weight: bold;
-  color: #fff; text-shadow: 0 0 20px #00ff9c; margin: 5px 0;
+    font-size: 3.5em; text-align: center; font-weight: bold;
+    color: #fff; text-shadow: 0 0 15px var(--neon-green); margin: 0;
 }
 
-.info-row { display: flex; justify-content: space-around; margin-bottom: 5px; }
-.display { font-size: 1.5em; text-align: center; text-shadow: 0 0 10px #00ff9c; }
+.info-row { display: flex; justify-content: space-around; margin: 10px 0; }
+.display { font-size: 1.4em; text-align: center; color: var(--neon-green); }
+.label { font-size: 0.6em; color: #666; display: block; margin-bottom: 4px; }
 
-.horse-container { height: 50px; display: flex; justify-content: center; align-items: center; }
+.horse-container { height: 45px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 .horse { font-size: 35px; animation: trot 0.6s infinite steps(2); animation-play-state: paused; }
 
 @keyframes trot {
-  0% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  100% { transform: translateX(-5px); }
+    0% { transform: translateX(-8px) rotate(-2deg); }
+    50% { transform: translateX(8px) rotate(2deg); }
+    100% { transform: translateX(-8px) rotate(-2deg); }
 }
 
-.controls { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+.controls { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 5px; }
 button {
-  padding: 15px; font-size: 1.2em; background: #00ff9c;
-  color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 8px;
+    padding: 18px; font-size: 1.1em; background: var(--neon-green);
+    color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 10px;
+    transition: transform 0.1s;
 }
-#history-btn { background: #333; color: #00ff9c; border: 1px solid #00ff9c; }
+button:active { transform: scale(0.95); }
+#history-btn { background: #222; color: var(--neon-green); border: 1px solid var(--neon-green); }
 
-/* HISTORY MODAL */
+/* 히스토리 모달 */
 #history-modal {
-  position: absolute; inset: 0; background: rgba(0,0,0,0.95);
-  display: none; flex-direction: column; padding: 20px; z-index: 1000;
-  border-top: 4px solid #00ff9c;
+    position: absolute; inset: 0; background: rgba(0,0,0,0.95);
+    display: none; flex-direction: column; padding: 20px; z-index: 2000;
 }
-.history-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+.history-list { overflow-y: auto; flex-grow: 1; }
 .history-item {
-  border-bottom: 1px solid #333; padding: 10px 0;
-  display: flex; justify-content: space-between; align-items: center;
+    background: #1a1a1a; margin-bottom: 10px; padding: 12px; border-radius: 8px;
+    display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--neon-green);
 }
-.history-item div { font-size: 0.9em; }
-.del-btn { color: #ff4b4b; cursor: pointer; padding: 5px 10px; border: 1px solid #ff4b4b; border-radius: 4px; font-size: 0.8em; }
+.view-path-btn { background: #333; color: #fff; padding: 5px 8px; font-size: 0.7em; border-radius: 4px; margin-top: 5px; display: inline-block; }
 
-.panel::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 1px, transparent 2px, transparent 4px);
+.scanline {
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 3px 100%; z-index: 10;
 }
 </style>
 </head>
@@ -81,61 +89,166 @@ button {
 <div id="map"></div>
 
 <div class="panel">
-  <div id="history-modal">
-    <h2 style="margin-top:0">Driving History</h2>
-    <div class="history-list" id="history-list"></div>
-    <div style="display:flex; gap:10px;">
-        <button style="flex:1" onclick="toggleHistory()">닫기</button>
-        <button style="flex:1; background:#ff4b4b;" onclick="clearAllHistory()">전체삭제</button>
+    <div class="scanline"></div>
+    
+    <div id="history-modal">
+        <h2 style="margin:0 0 15px 0;">Driving History</h2>
+        <div class="history-list" id="history-list"></div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button style="flex:1" onclick="toggleHistory()">닫기</button>
+            <button style="flex:1; background:var(--alert-red);" onclick="clearAllHistory()">전체삭제</button>
+        </div>
     </div>
-  </div>
 
-  <div class="horse-container"><div class="horse" id="horse">🐎</div></div>
-  <div class="fare-display" id="fare">₩4,800</div>
-  <div class="info-row">
-    <div class="display" id="time">00:00:00</div>
-    <div class="display" id="distance">0.00 km</div>
-  </div>
-  <div class="display" id="speed" style="font-size: 1em; color: #888;">0 km/h</div>
+    <div class="horse-container"><div class="horse" id="horse">🐎</div></div>
+    
+    <div class="fare-container">
+        <div class="fare-display" id="fare">₩4,800</div>
+    </div>
 
-  <div class="controls">
-    <button id="btn">주행 시작</button>
-    <button id="history-btn" onclick="toggleHistory()">기록 보기</button>
-  </div>
+    <div class="info-row">
+        <div class="display"><span class="label">TIME</span><span id="time">00:00:00</span></div>
+        <div class="display"><span class="label">DISTANCE</span><span id="distance">0.00 km</span></div>
+    </div>
+    
+    <div style="text-align:center;">
+        <div id="speed" style="font-size: 1.2em; color: #888; font-weight: bold;">0 km/h</div>
+    </div>
+
+    <div class="controls">
+        <button id="btn">주행 시작</button>
+        <button id="history-btn" onclick="toggleHistory()">기록</button>
+    </div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-let map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 16);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+/* --- INIT MAP --- */
+let map = L.map('map', { zoomControl: false, attributionControl: false }).setView([37.5665, 126.9780], 16);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
 let marker = L.marker([37.5665,126.9780]).addTo(map);
-let pathLine = L.polyline([], { color: '#00008B', weight: 6, opacity: 0.8 }).addTo(map);
+let pathLine = L.polyline([], { color: '#00ff9c', weight: 5, opacity: 0.8, lineJoin: 'round' }).addTo(map);
 
+/* --- STATE VARIABLES --- */
 let running = false;
 let totalDistance = 0, totalSeconds = 0, lowSpeedSeconds = 0, currentSpeed = 0;
 let lastPoint = null, timer = null, wakeLock = null;
+let currentPathData = []; // Snapshot용 경로 저장
 
 const fareEl = document.getElementById("fare"), timeEl = document.getElementById("time");
 const distEl = document.getElementById("distance"), speedEl = document.getElementById("speed");
 const horseEl = document.getElementById("horse"), btn = document.getElementById("btn");
 
-/* FARE CALCULATION */
+/* --- FARE CALCULATION (Seoul 2026 Standards) --- */
 function getFare() {
-    const h = new Date().getHours();
+    const now = new Date();
+    const h = now.getHours();
     let rate = 1.0;
+    
+    // 심야 할증: 22-23(20%), 23-02(40%), 02-04(20%)
     if ((h >= 22 && h < 23) || (h >= 2 && h < 4)) rate = 1.2;
     else if (h >= 23 || h < 2) rate = 1.4;
 
-    const BASE = 4800 * rate, BASE_DIST = 1600, DIST_UNIT = 131, TIME_UNIT = 30, STEP = 100 * rate;
-    let extra = 0;
-    if (totalDistance > BASE_DIST) extra += Math.floor((totalDistance - BASE_DIST) / DIST_UNIT) * STEP;
-    if (lowSpeedSeconds > 0) extra += Math.floor(lowSpeedSeconds / TIME_UNIT) * STEP;
+    const BASE_FARE = 4800 * rate;
+    const BASE_DIST = 1600; // 1.6km
+    const DIST_UNIT = 131;  // 131m당 100원
+    const TIME_UNIT = 30;   // 30초당 100원 (15.26km/h 미만 시)
+    const STEP_FARE = 100 * rate;
 
-    return Math.floor((BASE + extra) / 10) * 10;
+    let extra = 0;
+    if (totalDistance > BASE_DIST) {
+        extra += Math.floor((totalDistance - BASE_DIST) / DIST_UNIT) * STEP_FARE;
+    }
+    if (lowSpeedSeconds > 0) {
+        extra += Math.floor(lowSpeedSeconds / TIME_UNIT) * STEP_FARE;
+    }
+
+    return Math.floor((BASE_FARE + extra) / 10) * 10;
 }
 
-/* HISTORY LOGIC */
+/* --- GPS & MOVEMENT --- */
+navigator.geolocation.watchPosition(pos => {
+    const { latitude: lat, longitude: lng, speed } = pos.coords;
+    const now = Date.now();
+    
+    marker.setLatLng([lat, lng]);
+    
+    if (running) {
+        map.panTo([lat, lng]);
+        
+        if (lastPoint) {
+            const p1 = L.latLng(lastPoint.lat, lastPoint.lng);
+            const p2 = L.latLng(lat, lng);
+            const dist = p1.distanceTo(p2);
+            
+            // GPS 튀는 현상 방지 (정지 중이거나 너무 큰 도약 제외)
+            if (dist > 2 && dist < 50) {
+                totalDistance += dist;
+                pathLine.addLatLng([lat, lng]);
+                currentPathData.push([lat, lng]);
+            }
+            
+            // 실시간 속도 계산 (기기 GPS 속도 우선, 없으면 계산)
+            currentSpeed = (speed !== null) ? speed * 3.6 : (dist / ((now - lastPoint.t)/1000)) * 3.6;
+        }
+        lastPoint = { lat, lng, t: now };
+    }
+}, err => console.error(err), { enableHighAccuracy: true });
+
+/* --- CONTROLS --- */
+btn.onclick = async () => {
+    if (!running) {
+        // 주행 시작
+        running = true; 
+        totalDistance = 0; totalSeconds = 0; lowSpeedSeconds = 0; currentPathData = [];
+        pathLine.setLatLngs([]);
+        btn.innerText = "주행 종료"; btn.style.background = "var(--alert-red)";
+        
+        timer = setInterval(updateEngine, 1000);
+        try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+    } else {
+        // 주행 종료
+        running = false; clearInterval(timer);
+        btn.innerText = "주행 시작"; btn.style.background = "var(--neon-green)";
+        saveRecord();
+        alert(`운행 종료\n최종 요금: ${fareEl.innerText}`);
+        if (wakeLock) wakeLock.release();
+        currentSpeed = 0;
+        updateEngine(); // UI 초기화
+    }
+};
+
+function updateEngine() {
+    if (running) totalSeconds++;
+    
+    // 시간 표시
+    const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+    const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+    const s = String(totalSeconds % 60).padStart(2, '0');
+    timeEl.innerText = `${h}:${m}:${s}`;
+    
+    // 거리 표시
+    distEl.innerText = (totalDistance / 1000).toFixed(2) + " km";
+    
+    // 속도 표시 및 시간 요금 판정
+    const roundedSpeed = Math.round(currentSpeed);
+    speedEl.innerText = roundedSpeed + " km/h";
+    if (running && currentSpeed < 15.26) lowSpeedSeconds++;
+
+    // 말 애니메이션 (속도 연동)
+    if (roundedSpeed > 0 && running) {
+        horseEl.style.animationPlayState = "running";
+        const duration = Math.max(0.15, 1 - (roundedSpeed / 60));
+        horseEl.style.animationDuration = duration + "s";
+    } else {
+        horseEl.style.animationPlayState = "paused";
+    }
+
+    fareEl.innerText = "₩" + getFare().toLocaleString();
+}
+
+/* --- SNAPSHOT & HISTORY --- */
 function saveRecord() {
     const records = JSON.parse(localStorage.getItem('taxi_records') || '[]');
     const newRecord = {
@@ -143,7 +256,8 @@ function saveRecord() {
         date: new Date().toLocaleString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }),
         fare: fareEl.innerText,
         dist: distEl.innerText,
-        time: timeEl.innerText
+        time: timeEl.innerText,
+        path: currentPathData // 경로 스냅샷 데이터 저장
     };
     records.unshift(newRecord);
     localStorage.setItem('taxi_records', JSON.stringify(records));
@@ -152,17 +266,31 @@ function saveRecord() {
 function renderHistory() {
     const list = document.getElementById('history-list');
     const records = JSON.parse(localStorage.getItem('taxi_records') || '[]');
-    list.innerHTML = records.length ? '' : '<p style="color:#666">기록이 없습니다.</p>';
+    list.innerHTML = records.length ? '' : '<p style="color:#666; text-align:center;">기록이 없습니다.</p>';
+    
     records.forEach(r => {
-        list.innerHTML += `
-            <div class="history-item">
-                <div>
-                    <strong style="color:#fff">${r.fare}</strong> | ${r.dist}<br>
-                    <small style="color:#888">${r.date} (${r.time})</small>
-                </div>
-                <div class="del-btn" onclick="deleteRecord(${r.id})">삭제</div>
-            </div>`;
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.innerHTML = `
+            <div>
+                <strong style="color:#fff; font-size:1.1em;">${r.fare}</strong><br>
+                <small style="color:#888;">${r.date} (${r.time} / ${r.dist})</small><br>
+                <span class="view-path-btn" onclick="viewSnapshot('${encodeURIComponent(JSON.stringify(r.path))}')">경로 보기</span>
+            </div>
+            <div style="color:var(--alert-red); cursor:pointer; padding:10px;" onclick="deleteRecord(${r.id})">✕</div>
+        `;
+        list.appendChild(item);
     });
+}
+
+function viewSnapshot(pathJson) {
+    const path = JSON.parse(decodeURIComponent(pathJson));
+    if (!path || path.length === 0) return alert("경로 데이터가 없습니다.");
+    
+    toggleHistory(); // 모달 닫기
+    pathLine.setLatLngs(path); // 저장된 경로 그리기
+    map.fitBounds(pathLine.getBounds(), { padding: [30, 30] }); // 경로에 맞춰 지도 줌 조절
+    alert("과거 주행 경로를 지도에 표시했습니다.");
 }
 
 function deleteRecord(id) {
@@ -173,7 +301,7 @@ function deleteRecord(id) {
 }
 
 function clearAllHistory() {
-    if(confirm("모든 주행 기록을 삭제할까요?")) {
+    if(confirm("모든 기록을 삭제하시겠습니까?")) {
         localStorage.removeItem('taxi_records');
         renderHistory();
     }
@@ -185,48 +313,6 @@ function toggleHistory() {
     modal.style.display = isVisible ? 'none' : 'flex';
     if (!isVisible) renderHistory();
 }
-
-/* GPS & ENGINE */
-navigator.geolocation.watchPosition(pos => {
-  const point = { lat: pos.coords.latitude, lng: pos.coords.longitude, t: Date.now() };
-  marker.setLatLng([point.lat, point.lng]);
-  if (running) {
-    map.panTo([point.lat, point.lng]);
-    if (lastPoint) {
-      const d = L.latLng(lastPoint.lat, lastPoint.lng).distanceTo(L.latLng(point.lat, point.lng));
-      const dt = (point.t - lastPoint.t) / 1000;
-      currentSpeed = dt > 0 ? (d / dt) * 3.6 : 0;
-      if (d > 2) { totalDistance += d; pathLine.addLatLng([point.lat, point.lng]); }
-    }
-    lastPoint = point;
-  }
-}, null, { enableHighAccuracy: true });
-
-btn.onclick = async () => {
-  if (!running) {
-    running = true; totalDistance = 0; totalSeconds = 0; lowSpeedSeconds = 0;
-    pathLine.setLatLngs([]); btn.innerText = "주행 종료"; btn.style.background = "#ff4b4b";
-    timer = setInterval(() => {
-        totalSeconds++;
-        const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-        const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-        const s = String(totalSeconds % 60).padStart(2, '0');
-        timeEl.innerText = `${h}:${m}:${s}`;
-        distEl.innerText = (totalDistance / 1000).toFixed(2) + " km";
-        speedEl.innerText = Math.round(currentSpeed) + " km/h";
-        if (currentSpeed < 15.72) lowSpeedSeconds++;
-        horseEl.style.animationPlayState = currentSpeed < 15.72 ? "paused" : "running";
-        fareEl.innerText = "₩" + getFare().toLocaleString();
-    }, 1000);
-    try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
-  } else {
-    running = false; clearInterval(timer);
-    btn.innerText = "주행 시작"; btn.style.background = "#00ff9c";
-    saveRecord();
-    alert(`운행 완료: ${fareEl.innerText}`);
-    if (wakeLock) wakeLock.release();
-  }
-};
 </script>
 </body>
 </html>
