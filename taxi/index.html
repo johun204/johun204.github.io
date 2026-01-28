@@ -121,7 +121,7 @@ button:active { transform: scale(0.95); }
     <div class="horse-container"><div class="horse" id="horse">🐎</div></div>
     
     <div class="fare-container">
-        <div class="fare-display" id="fare">₩4,800</div>
+        <div class="fare-display" id="fare">-</div>
     </div>
 
     <div class="info-row">
@@ -258,7 +258,7 @@ function updateUI() {
     } else {
         horseEl.style.animationPlayState = "paused";
     }
-    fareEl.innerText = "₩" + getFare().toLocaleString();
+    fareEl.innerText = "₩ " + getFare().toLocaleString();
 }
 
 /* --- HISTORY --- */
