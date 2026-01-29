@@ -290,7 +290,7 @@ btn.onclick = async () => {
         try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
     } else {
         if (totalDistance < 100 || currentPathData.length === 0) {
-            showAlert("주행 취소", "주행 거리가 너무 짧아 기록을 저장하지 않았습니다.");
+            showAlert("주행 취소", "주행 거리가 너무 짧아 기록이 저장되지 않았습니다.");
         } else {
             saveRecord();
             showAlert("운행 완료", `정상적으로 주행이 종료되었습니다.\n최종 요금: ${fareEl.innerText}`);
