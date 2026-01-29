@@ -14,10 +14,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Taxi Meter">
-<link rel="apple-touch-icon" sizes="180x180" href="/taxi/apple-touch-icon.png">
-<meta name="theme-color" content="#ffffff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-    
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
@@ -80,7 +77,6 @@ button {
 button:active { transform: scale(0.95); }
 #history-btn { background: #222; color: var(--neon-green); border: 1px solid var(--neon-green); }
 
-/* 모달 레이어 */
 #history-modal {
     position: absolute; inset: 0; background: rgba(0,0,0,0.95);
     display: none; flex-direction: column; padding: 20px; z-index: 2000;
@@ -106,7 +102,6 @@ button:active { transform: scale(0.95); }
     cursor: pointer; z-index: 1000; transition: transform 0.1s;
 }
 
-/* 커스텀 알림 */
 .custom-alert-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.85);
     display: none; justify-content: center; align-items: center; z-index: 9999;
@@ -183,6 +178,9 @@ let lastPoint = null, timer = null, gpsTimer = null, wakeLock = null;
 let currentPathData = [];
 let isUserInteracting = false, resumeTimeout = null;
 
+// [추가] 속도 계산을 위한 위치 기록 배열
+let locationHistory = []; 
+
 const fareEl = document.getElementById("fare"), timeEl = document.getElementById("time");
 const distEl = document.getElementById("distance"), speedEl = document.getElementById("speed");
 const horseEl = document.getElementById("horse"), btn = document.getElementById("btn");
@@ -204,14 +202,16 @@ function recenterMap() {
     if (lastPoint) map.setView([lastPoint.lat, lastPoint.lng], 17, { animate: true });
 }
 
-/* --- GPS ENGINE --- */
+/* --- GPS ENGINE (1초 주기 및 3초 평균 속도 로직) --- */
 function updateLocation() {
     navigator.geolocation.getCurrentPosition(pos => {
         const { latitude: lat, longitude: lng, speed: gpsS, heading } = pos.coords;
         const now = Date.now();
-        marker.setLatLng([lat, lng]);
-        if (!isUserInteracting) map.panTo([lat, lng], { animate: true, duration: 0.5 });
         
+        marker.setLatLng([lat, lng]);
+        if (!isUserInteracting) map.panTo([lat, lng], { animate: true, duration: 0.8 });
+        
+        // 방향 처리
         const arrow = document.getElementById('nav-arrow');
         if (arrow) {
             if (heading !== null && !isNaN(heading)) arrow.style.transform = `rotate(${heading}deg)`;
@@ -221,22 +221,40 @@ function updateLocation() {
             }
         }
         
+        // [수정] 최근 3초간의 위치 기록 업데이트
+        locationHistory.push({ lat, lng, t: now });
+        locationHistory = locationHistory.filter(p => now - p.t <= 3000);
+
+        // [수정] 3초 평균 속도 계산
+        if (locationHistory.length >= 2) {
+            const first = locationHistory[0];
+            const last = locationHistory[locationHistory.length - 1];
+            const dist3s = L.latLng(first.lat, first.lng).distanceTo(L.latLng(last.lat, last.lng));
+            const time3s = (last.t - first.t) / 1000;
+            
+            // 단순 계산 속도가 150km/h 이상으로 튀면 무시
+            let calculatedSpeed = time3s > 0 ? (dist3s / time3s) * 3.6 : 0;
+            if (calculatedSpeed > 150) calculatedSpeed = currentSpeed;
+            
+            currentSpeed = calculatedSpeed;
+        }
+
+        // 주행 거리 누적 (1초 간격의 이동 거리 합산)
         if (lastPoint) {
             const d = L.latLng(lastPoint.lat, lastPoint.lng).distanceTo(L.latLng(lat, lng));
-            let rawS = (gpsS !== null && gpsS >= 0) ? gpsS * 3.6 : (d / ((now - lastPoint.t)/1000)) * 3.6;
-            if (rawS > 150) rawS = currentSpeed; 
-            currentSpeed = (currentSpeed * 0.6) + (rawS * 0.4);
-
             if (running && d > 1.5 && d < 50) {
                 totalDistance += d;
                 pathLine.addLatLng([lat, lng]);
                 currentPathData.push([lat, lng]);
             }
         }
+        
         lastPoint = { lat, lng, t: now };
     }, null, { enableHighAccuracy: true, timeout: 1000 });
 }
-gpsTimer = setInterval(updateLocation, 500);
+
+// [수정] GPS 새로고침 주기를 1초(1000ms)로 변경
+gpsTimer = setInterval(updateLocation, 1000);
 
 /* --- ALERT & NOTIFICATION --- */
 function showAlert(title, msg) {
@@ -264,19 +282,16 @@ btn.onclick = async () => {
     if (!running) {
         running = true; totalDistance = 0; totalSeconds = 0; lowSpeedSeconds = 0; currentPathData = [];
         pathLine.setLatLngs([]); btn.innerText = "주행 종료"; btn.style.background = "var(--alert-red)";
-        updateUI();
+        updateUI(); // 시작 즉시 요금 리셋
         timer = setInterval(updateUI, 1000);
         try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
     } else {
-        // [핵심 변경] 주행 거리가 100m 미만이거나 데이터가 없는 경우 처리
         if (totalDistance < 100 || currentPathData.length === 0) {
             showAlert("주행 취소", "주행 거리가 너무 짧아 기록을 저장하지 않았습니다.");
         } else {
-            const finalFare = fareEl.innerText;
             saveRecord();
-            showAlert("운행 완료", `정상적으로 주행이 종료되었습니다.\n최종 요금: ${finalFare}`);
+            showAlert("운행 완료", `정상적으로 주행이 종료되었습니다.\n최종 요금: ${fareEl.innerText}`);
         }
-        
         running = false; clearInterval(timer);
         btn.innerText = "주행 시작"; btn.style.background = "var(--neon-green)";
         if (wakeLock) wakeLock.release();
@@ -288,11 +303,16 @@ function updateUI() {
     if (running) totalSeconds++;
     timeEl.innerText = new Date(totalSeconds * 1000).toISOString().substr(11, 8);
     distEl.innerText = (totalDistance / 1000).toFixed(2) + " km";
+    
     const rs = Math.round(currentSpeed);
     speedEl.innerText = rs + " km/h";
+    
     if (running && currentSpeed < 15.26) lowSpeedSeconds++;
+    
+    // 말 애니메이션 및 속도
     horseEl.style.animationPlayState = (rs > 0 && running) ? "running" : "paused";
     if (rs > 0) horseEl.style.animationDuration = Math.max(0.15, 1 - (rs / 60)) + "s";
+    
     fareEl.innerText = "₩ " + getFare().toLocaleString();
 }
 
