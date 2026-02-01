@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Web Scanner - Feedback Fix</title>
+    <title>Web Scanner - Final Fix</title>
     <style>
         /* --- CSS Styles --- */
         body {
@@ -95,34 +95,34 @@
             border: 1px solid #333;
         }
 
-        /* [중요] 토스트 알림 스타일 */
+        /* 토스트 알림 스타일 */
         #toast {
             visibility: hidden;
             min-width: 200px;
             max-width: 80%;
-            background-color: rgba(30, 30, 30, 0.9);
+            background-color: rgba(30, 30, 30, 0.95);
             color: #fff;
             text-align: center;
             border-radius: 50px;
             padding: 12px 24px;
             position: fixed;
-            z-index: 99999; /* 최상단 보장 */
+            z-index: 99999; 
             left: 50%;
-            bottom: 120px; /* 버튼보다 위에 */
+            bottom: 120px; 
             transform: translateX(-50%);
             font-size: 0.95rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             opacity: 0;
             transition: opacity 0.3s, bottom 0.3s;
-            pointer-events: none; /* 터치 방해 안 함 */
-            white-space: pre-line; /* 줄바꿈 허용 */
-            border: 1px solid #444;
+            pointer-events: none;
+            white-space: pre-line;
+            border: 1px solid #555;
         }
 
         #toast.show {
             visibility: visible;
             opacity: 1;
-            bottom: 130px; /* 살짝 위로 떠오름 */
+            bottom: 130px;
         }
 
         input[type="file"] { display: none; }
@@ -164,10 +164,9 @@
 <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
 
 <script>
-    /* --- Logic --- */
+    /* --- Variables --- */
     let cvReady = false;
     let videoStream = null;
-    let isStreaming = false;
     let detectedQuad = null; // 실시간 감지된 좌표
 
     // DOM Elements
@@ -181,14 +180,13 @@
     // 1. 초기화
     function onOpenCvReady() {
         cvReady = true;
-        showToast("시스템 준비 완료!\n카메라를 켭니다.");
+        showToast("카메라를 실행합니다.");
         startCamera();
     }
 
     // 2. 카메라 시작
     async function startCamera() {
-        if (!cvReady) return;
-        
+        // OpenCV 로딩 전이라도 카메라는 먼저 켤 수 있음 (UX 향상)
         const constraints = {
             video: {
                 facingMode: { exact: "environment" },
@@ -205,17 +203,21 @@
             }
 
             video.srcObject = videoStream;
+            
+            // 메타데이터 로드 시 재생 시작
             video.onloadedmetadata = () => {
-                video.play();
-                isStreaming = true;
-                
-                overlayCanvas.width = video.videoWidth;
-                overlayCanvas.height = video.videoHeight;
-                requestAnimationFrame(processVideoFrame);
+                video.play().then(() => {
+                    // 비디오 재생 성공 시 캔버스 크기 맞춤
+                    overlayCanvas.width = video.videoWidth;
+                    overlayCanvas.height = video.videoHeight;
+                    requestAnimationFrame(processVideoFrame);
+                }).catch(err => {
+                    console.error("Video play error:", err);
+                });
             };
         } catch (err) {
             console.error(err);
-            showToast("❌ 카메라 권한이 없습니다.\n설정에서 허용해주세요.");
+            showToast("❌ 카메라 권한이 없습니다.");
         }
     }
 
@@ -224,12 +226,18 @@
             videoStream.getTracks().forEach(track => track.stop());
             videoStream = null;
         }
-        isStreaming = false;
     }
 
     // 3. 루프: 화면 인식 및 오버레이
     function processVideoFrame() {
-        if (!isStreaming) return;
+        // 비디오가 멈췄거나 없으면 루프 중단
+        if (video.paused || video.ended || !video.srcObject) return;
+
+        // OpenCV 로드 전이면 대기
+        if (!cvReady) {
+            requestAnimationFrame(processVideoFrame);
+            return;
+        }
 
         try {
             let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
@@ -248,86 +256,96 @@
             }
 
             src.delete();
-            requestAnimationFrame(processVideoFrame);
         } catch (err) {
-            isStreaming = false;
-            console.error(err);
+            console.error("Process error (ignoring):", err);
+            // 에러가 나도 루프는 멈추지 않음 (중요)
         }
+        
+        requestAnimationFrame(processVideoFrame);
     }
 
-    // 4. [중요] 버튼 클릭 핸들러 (반응성 강화)
+    // 4. [수정됨] 버튼 클릭 핸들러 (안전장치 강화)
     captureBtn.addEventListener('click', () => {
-        // A. OpenCV 로딩 전
+        // A. OpenCV 로딩 확인
         if (!cvReady) {
-            showToast("⏳ 시스템 로딩 중입니다...\n잠시만 기다려주세요.");
+            showToast("⏳ 스캔 엔진 로딩 중...\n잠시만 기다려주세요.");
             return;
         }
 
-        // B. 카메라 스트리밍 전
-        if (!isStreaming) {
-            showToast("📷 카메라를 불러오는 중입니다.");
+        // B. 카메라 실제 동작 여부 확인 (video 태그 직접 확인)
+        // readyState: 0(HAVE_NOTHING) ~ 4(HAVE_ENOUGH_DATA)
+        // 비디오가 재생 중이 아니거나 데이터가 없으면 리턴
+        if (!video.srcObject || video.readyState < 2) {
+            showToast("📷 카메라를 불러오는 중입니다.\n화면이 나오면 다시 눌러주세요.");
             return;
         }
 
         // C. 촬영 시도
-        let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-        let cap = new cv.VideoCapture(video);
-        cap.read(src);
-        
-        // 실시간 감지된 게 있으면 그걸 쓰고, 없으면 현재 프레임에서 재검사
-        let corners = detectedQuad;
-        if (!corners) {
-            corners = detectDocumentLoose(src);
-        }
+        try {
+            let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
+            let cap = new cv.VideoCapture(video);
+            cap.read(src);
+            
+            // 1. 실시간 감지 좌표 사용
+            let corners = detectedQuad;
 
-        // D. [핵심] 문서 없음 처리 -> 토스트 띄우기
-        if (!corners) {
-            showToast("⚠️ 문서가 인식되지 않았습니다.\n배경과 구분되게 놓아주세요.");
-            src.delete(); // 메모리 해제 필수
-            return; // 여기서 중단 (반응 끝)
-        }
+            // 2. 없으면 현재 프레임 정밀 분석 시도
+            if (!corners) {
+                corners = detectDocumentLoose(src);
+            }
 
-        // E. 성공 시 -> 변환 진행
-        showToast("✨ 스캔 성공!");
-        processCropAndScan(src, corners);
-        src.delete();
-        
-        stopCamera();
-        document.getElementById('cameraSection').style.display = 'none';
-        document.getElementById('resultSection').style.display = 'block';
+            // D. 문서 없음 -> 토스트 출력
+            if (!corners) {
+                showToast("⚠️ 문서를 찾지 못했습니다.\n배경과 구분되게 놓아주세요.");
+                src.delete(); 
+                return;
+            }
+
+            // E. 성공 -> 변환 및 UI 전환
+            showToast("✨ 스캔 완료!");
+            processCropAndScan(src, corners);
+            src.delete();
+            
+            stopCamera();
+            document.getElementById('cameraSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'block';
+
+        } catch(e) {
+            console.error(e);
+            showToast("❌ 촬영 중 오류가 발생했습니다.");
+        }
     });
 
-    // 5. 토스트 알림 함수 (중복 호출 방지)
+    // 5. 토스트 알림 함수
     let toastTimeout;
     function showToast(message) {
         toastEl.innerHTML = message;
         toastEl.className = "show";
-        
-        // 기존 타이머 취소 (연타 시 깜빡임 방지)
         if (toastTimeout) clearTimeout(toastTimeout);
-
         toastTimeout = setTimeout(() => { 
             toastEl.className = toastEl.className.replace("show", ""); 
-        }, 2500); // 2.5초 후 사라짐
+        }, 2500);
     }
 
-    // 6. 문서 감지 알고리즘
+    // 6. 문서 감지 알고리즘 (Loose Mode)
     function detectDocumentLoose(src) {
         let dst = new cv.Mat();
         let gray = new cv.Mat();
         let blur = new cv.Mat();
         let edges = new cv.Mat();
         
-        // 600px로 리사이징하여 속도 향상
+        // 600px 리사이징
         let scale = 600 / src.cols;
         let dsize = new cv.Size(600, Math.round(src.rows * scale));
         cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
 
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
         cv.GaussianBlur(gray, blur, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-        cv.Canny(blur, edges, 50, 150); // 민감도 낮음
+        
+        // 민감도 더 낮춤 (희미한 것도 잡도록)
+        cv.Canny(blur, edges, 30, 120); 
 
-        // 끊어진 선 잇기
+        // 모폴로지 (끊어진 선 잇기)
         let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
         cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
 
@@ -337,7 +355,7 @@
 
         let maxArea = 0;
         let foundCnt = null;
-        const minArea = (dsize.width * dsize.height) * 0.05; // 5% 이상
+        const minArea = (dsize.width * dsize.height) * 0.05;
 
         for (let i = 0; i < contours.size(); ++i) {
             let cnt = contours.get(i);
@@ -388,14 +406,14 @@
         overlayCtx.lineTo(corners[3].x, corners[3].y);
         overlayCtx.closePath();
 
-        overlayCtx.fillStyle = "rgba(50, 215, 75, 0.3)"; // 녹색 틴트
+        overlayCtx.fillStyle = "rgba(0, 255, 0, 0.2)";
         overlayCtx.fill();
-        overlayCtx.strokeStyle = "#32d74b";
+        overlayCtx.strokeStyle = "#00ff00";
         overlayCtx.lineWidth = 4;
         overlayCtx.stroke();
     }
 
-    // 8. 투시 변환 및 필터
+    // 8. 투시 변환 & 필터
     function processCropAndScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
