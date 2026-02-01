@@ -1,86 +1,73 @@
-/* 기본 설정 */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #222; /* 카메라 집중을 위해 어두운 배경 */
+    color: white;
+    margin: 0;
+    padding: 10px;
     display: flex;
     justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    margin: 0;
-    padding: 20px;
-    box-sizing: border-box;
 }
 
 .container {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     width: 100%;
     max-width: 500px;
     text-align: center;
+    position: relative;
 }
 
-h1 { margin-bottom: 20px; font-size: 1.5rem; color: #333; }
+h1 { font-size: 1.2rem; margin: 10px 0; }
+#status { font-size: 0.8rem; color: #aaa; margin-bottom: 10px; }
 
-/* 버튼 공통 스타일 */
-.btn {
-    display: block; /* 모바일에서 누르기 좋게 블록 처리 */
-    padding: 14px 24px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-    border: none;
-    color: white;
+/* 탭 스타일 */
+.tab-container { display: flex; gap: 10px; margin-bottom: 15px; }
+.tab-btn {
+    flex: 1; padding: 10px; border: none; background: #444; color: #ccc;
+    border-radius: 8px; cursor: pointer; font-weight: bold;
+}
+.tab-btn.active { background: #007bff; color: white; }
+
+/* 비디오 래퍼 (중요: 겹치기 위함) */
+.video-wrapper {
+    position: relative;
     width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 10px; /* 버튼 사이 간격 */
-    text-align: center;
-}
-
-/* 카메라 버튼 색상 */
-.camera-btn { background-color: #007bff; }
-.camera-btn:active { background-color: #0056b3; }
-
-/* 갤러리 버튼 색상 */
-.gallery-btn { background-color: #6c757d; }
-.gallery-btn:active { background-color: #545b62; }
-
-/* 다운로드 버튼 색상 */
-.download-btn { background-color: #28a745; margin-top: 10px;}
-.download-btn:active { background-color: #218838; }
-
-/* 파일 인풋 숨기기 */
-input[type="file"] { display: none; }
-
-/* 이미지 및 캔버스 */
-img#imageSrc {
-    display: none;
-    max-width: 100%;
-}
-
-.canvas-container {
-    margin-top: 20px;
-    width: 100%;
+    height: 0;
+    padding-bottom: 133%; /* 4:3 비율 유지 (모바일 카메라 비율) */
+    background: #000;
     overflow: hidden;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    background: #eee;
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-canvas {
-    max-width: 100%;
-    height: auto;
-}
-
-#status {
-    font-size: 0.9rem;
-    color: #666;
+    border-radius: 12px;
     margin-bottom: 15px;
 }
+
+video, #overlayCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+
+/* 결과 캔버스 */
+#outputCanvas {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 2px solid #fff;
+}
+
+/* 이미지 숨김 (처리용) */
+#imageSrc { display: none; }
+
+/* 버튼 공통 */
+.btn {
+    display: block; width: 100%; padding: 15px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: bold; cursor: pointer;
+    margin-top: 10px; color: white;
+}
+.capture-btn { background: #ff5252; font-size: 1.2rem; }
+.capture-btn:disabled { background: #555; cursor: not-allowed; }
+.upload-btn { background: #007bff; }
+.download-btn { background: #28a745; }
+.retry-btn { background: #6c757d; }
+.btn-group { display: flex; gap: 10px; margin-top: 10px; }
+
+input[type="file"] { display: none; }
