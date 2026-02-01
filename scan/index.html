@@ -3,49 +3,452 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Real-time Doc Scanner</title>
-    <link rel="stylesheet" href="style.css">
+    <title>High-Sens Web Scanner</title>
+    <style>
+        /* --- CSS Styles --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212; /* 다크 모드 배경 */
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h1 { margin: 10px 0; font-size: 1.2rem; opacity: 0.9; }
+        #status { font-size: 0.85rem; color: #aaaaaa; margin-bottom: 15px; }
+
+        /* 비디오 및 오버레이 영역 */
+        .camera-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            /* 모바일 세로 비율 대응 (4:3 ~ 16:9) */
+            aspect-ratio: 3/4; 
+        }
+
+        video, canvas#overlayCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* 컨트롤 버튼들 */
+        .controls {
+            margin-top: 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.1s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        
+        .btn-capture { background-color: #ff3b30; font-size: 1.1rem; } /* 빨간색 촬영 버튼 */
+        .btn-upload { background-color: #323232; color: #ccc; }
+        .btn-download { background-color: #30d158; color: #000; }
+        .btn-retry { background-color: #555; }
+
+        .btn-group { display: flex; gap: 10px; }
+        .btn-group .btn { flex: 1; }
+
+        /* 결과 화면 */
+        #resultSection { display: none; }
+        canvas#outputCanvas {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid #333;
+            margin-bottom: 15px;
+        }
+
+        /* 파일 인풋 숨김 */
+        input[type="file"] { display: none; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📄 실시간 문서 스캐너</h1>
-    
-    <p id="status">OpenCV 로딩 중...</p>
+    <h1>📄 문서 스캐너 (고감도)</h1>
+    <p id="status">시스템 로딩 중...</p>
 
-    <div class="tab-container">
-        <button id="tabCamera" class="tab-btn active">📷 실시간 카메라</button>
-        <button id="tabFile" class="tab-btn">📂 파일 업로드</button>
-    </div>
-
-    <div id="cameraSection" class="section active-section">
-        <div class="video-wrapper">
+    <div id="cameraSection">
+        <div class="camera-wrapper">
             <video id="videoInput" playsinline autoplay muted></video>
             <canvas id="overlayCanvas"></canvas>
         </div>
-        <button id="captureBtn" class="btn capture-btn" disabled>📸 찰칵 (스캔하기)</button>
+
+        <div class="controls">
+            <button id="captureBtn" class="btn btn-capture" disabled>
+                📸 촬영하기
+            </button>
+            <label class="btn btn-upload">
+                📂 갤러리에서 불러오기
+                <input type="file" id="fileInput" accept="image/*">
+            </label>
+        </div>
     </div>
 
-    <div id="fileSection" class="section" style="display:none;">
-        <label for="fileInput" class="btn upload-btn">
-            이미지 선택하기
-            <input type="file" id="fileInput" accept="image/*">
-        </label>
-        <img id="imageSrc" alt="No Image" />
-    </div>
-
-    <div class="result-container" id="resultContainer" style="display:none;">
-        <h3>✅ 스캔 결과</h3>
+    <div id="resultSection">
         <canvas id="outputCanvas"></canvas>
         <div class="btn-group">
-            <button id="downloadBtn" class="btn download-btn">⬇️ 저장하기</button>
-            <button id="retryBtn" class="btn retry-btn">🔄 다시 하기</button>
+            <button id="downloadBtn" class="btn btn-download">⬇️ 저장</button>
+            <button id="retryBtn" class="btn btn-retry">🔄 다시 촬영</button>
         </div>
     </div>
 </div>
 
 <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
-<script src="script.js"></script>
 
+<script>
+    /* --- JavaScript Logic --- */
+    
+    let cvReady = false;
+    let videoStream = null;
+    let isStreaming = false;
+    let detectedQuad = null; // 현재 감지된 좌표(원본 비율)
+
+    const video = document.getElementById('videoInput');
+    const overlayCanvas = document.getElementById('overlayCanvas');
+    const overlayCtx = overlayCanvas.getContext('2d');
+    const outputCanvas = document.getElementById('outputCanvas');
+    const statusMsg = document.getElementById('status');
+    const captureBtn = document.getElementById('captureBtn');
+
+    // 1. OpenCV 로드 완료 시
+    function onOpenCvReady() {
+        cvReady = true;
+        statusMsg.innerText = '✅ 준비 완료 (문서를 비춰주세요)';
+        startCamera();
+    }
+
+    // 2. 카메라 시작
+    async function startCamera() {
+        if (!cvReady) return;
+        
+        // 고화질 요청
+        const constraints = {
+            video: {
+                facingMode: { exact: "environment" },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        };
+
+        try {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+            } catch (e) {
+                // 후면 카메라 실패 시 fallback
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            }
+
+            video.srcObject = videoStream;
+            video.onloadedmetadata = () => {
+                video.play();
+                isStreaming = true;
+                captureBtn.disabled = false;
+                
+                // 캔버스 크기 맞춤
+                overlayCanvas.width = video.videoWidth;
+                overlayCanvas.height = video.videoHeight;
+                
+                requestAnimationFrame(processVideoFrame);
+            };
+        } catch (err) {
+            console.error(err);
+            statusMsg.innerText = "❌ 카메라 권한 실패. 파일 업로드를 사용하세요.";
+        }
+    }
+
+    function stopCamera() {
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            videoStream = null;
+        }
+        isStreaming = false;
+    }
+
+    // 3. 실시간 프레임 처리 루프
+    function processVideoFrame() {
+        if (!isStreaming) return;
+
+        try {
+            let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
+            let cap = new cv.VideoCapture(video);
+            cap.read(src);
+
+            // 문서 감지 수행
+            let resultCoords = detectDocumentLoose(src);
+
+            // 오버레이 그리기
+            overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+            if (resultCoords) {
+                detectedQuad = resultCoords; // 캡처용 저장
+                drawOverlay(resultCoords);
+                statusMsg.innerText = "✨ 문서 감지됨!";
+                statusMsg.style.color = "#4cd964";
+            } else {
+                detectedQuad = null;
+                statusMsg.innerText = "🔍 문서 찾는 중...";
+                statusMsg.style.color = "#aaaaaa";
+            }
+
+            src.delete();
+            requestAnimationFrame(processVideoFrame);
+        } catch (err) {
+            console.error(err);
+            isStreaming = false;
+        }
+    }
+
+    // 4. [핵심] 인식률 개선된 감지 알고리즘 (Loose Threshold)
+    function detectDocumentLoose(src) {
+        let dst = new cv.Mat();
+        let gray = new cv.Mat();
+        let blur = new cv.Mat();
+        let edges = new cv.Mat();
+        
+        // 다운샘플링 (속도 UP, 노이즈 DOWN) -> 가로 600px 기준
+        let scale = 600 / src.cols;
+        let downWidth = 600;
+        let downHeight = Math.round(src.rows * scale);
+        let dsize = new cv.Size(downWidth, downHeight);
+        cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
+
+        // 전처리
+        cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
+        cv.GaussianBlur(gray, blur, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+        
+        // [개선 1] Canny 임계값 낮춤 (50/150) -> 희미한 선도 잡음
+        cv.Canny(blur, edges, 50, 150);
+
+        // [개선 2] Morphology Close -> 끊어진 선을 강제로 이어줌
+        let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
+        cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
+
+        // 컨투어 찾기
+        let contours = new cv.MatVector();
+        let hierarchy = new cv.Mat();
+        cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+        let maxArea = 0;
+        let foundCnt = null;
+        
+        // [개선 3] 최소 면적 기준 완화 (화면의 5%만 돼도 인식)
+        const minArea = (downWidth * downHeight) * 0.05;
+
+        for (let i = 0; i < contours.size(); ++i) {
+            let cnt = contours.get(i);
+            let area = cv.contourArea(cnt);
+
+            if (area < minArea) continue;
+
+            let peri = cv.arcLength(cnt, true);
+            let approx = new cv.Mat();
+            
+            // [개선 4] 다각형 근사치 완화 (0.02 -> 0.03) -> 덜 직선이어도 사각형으로 인정
+            cv.approxPolyDP(cnt, approx, 0.03 * peri, true);
+
+            if (approx.rows === 4 && cv.isContourConvex(approx)) {
+                if (area > maxArea) {
+                    maxArea = area;
+                    if (foundCnt) foundCnt.delete();
+                    foundCnt = approx;
+                } else {
+                    approx.delete();
+                }
+            } else {
+                approx.delete();
+            }
+        }
+
+        // 결과 좌표 복원
+        let finalCorners = null;
+        if (foundCnt) {
+            finalCorners = [];
+            for (let i = 0; i < 4; i++) {
+                finalCorners.push({
+                    x: foundCnt.data32S[i * 2] / scale,
+                    y: foundCnt.data32S[i * 2 + 1] / scale
+                });
+            }
+            foundCnt.delete();
+        }
+
+        // 메모리 해제
+        dst.delete(); gray.delete(); blur.delete(); 
+        edges.delete(); kernel.delete(); contours.delete(); hierarchy.delete();
+
+        return finalCorners;
+    }
+
+    // 5. 오버레이 그리기
+    function drawOverlay(corners) {
+        if (!corners) return;
+        overlayCtx.beginPath();
+        overlayCtx.moveTo(corners[0].x, corners[0].y);
+        overlayCtx.lineTo(corners[1].x, corners[1].y);
+        overlayCtx.lineTo(corners[2].x, corners[2].y);
+        overlayCtx.lineTo(corners[3].x, corners[3].y);
+        overlayCtx.closePath();
+
+        // 파란색 반투명 채우기
+        overlayCtx.fillStyle = "rgba(0, 122, 255, 0.3)";
+        overlayCtx.fill();
+        overlayCtx.strokeStyle = "#007aff";
+        overlayCtx.lineWidth = 6;
+        overlayCtx.stroke();
+    }
+
+    // 6. 촬영 버튼 로직
+    captureBtn.addEventListener('click', () => {
+        if (!isStreaming) return;
+
+        // 촬영 순간 다시 한 번 정밀 감지 시도
+        // (실시간 감지가 가끔 놓칠 수 있으므로 현재 프레임에서 재검사)
+        let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
+        let cap = new cv.VideoCapture(video);
+        cap.read(src);
+        
+        let corners = detectDocumentLoose(src);
+        
+        // 만약 이번 프레임에서 못 찾았지만, 직전 프레임까지 찾고 있었다면 그걸 씀
+        if (!corners && detectedQuad) {
+            corners = detectedQuad;
+        }
+
+        // [요청사항] 인식된 게 없으면 알림 띄우기
+        if (!corners) {
+            alert("⚠️ 문서 테두리가 인식되지 않았습니다.\n배경과 구분이 잘 되도록 다시 비춰주세요.");
+            src.delete();
+            return;
+        }
+
+        // 인식되었으면 스캔 진행
+        processCropAndScan(src, corners);
+        src.delete();
+        
+        // UI 전환
+        stopCamera();
+        document.getElementById('cameraSection').style.display = 'none';
+        document.getElementById('resultSection').style.display = 'block';
+    });
+
+    // 7. 자르기 & 스캔 필터 적용
+    function processCropAndScan(srcMat, corners) {
+        let sorted = sortCorners(corners);
+
+        // 크기 계산
+        let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
+        let widthBottom = Math.hypot(sorted[2].x - sorted[3].x, sorted[2].y - sorted[3].y);
+        let maxWidth = Math.max(widthTop, widthBottom);
+
+        let heightLeft = Math.hypot(sorted[3].x - sorted[0].x, sorted[3].y - sorted[0].y);
+        let heightRight = Math.hypot(sorted[2].x - sorted[1].x, sorted[2].y - sorted[1].y);
+        let maxHeight = Math.max(heightLeft, heightRight);
+
+        let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+            sorted[0].x, sorted[0].y, sorted[1].x, sorted[1].y,
+            sorted[2].x, sorted[2].y, sorted[3].x, sorted[3].y
+        ]);
+        let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+            0, 0, maxWidth, 0, maxWidth, maxHeight, 0, maxHeight
+        ]);
+
+        let M = cv.getPerspectiveTransform(srcTri, dstTri);
+        let dst = new cv.Mat();
+        
+        // 투시 변환
+        cv.warpPerspective(srcMat, dst, M, new cv.Size(maxWidth, maxHeight), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+
+        // 스캔 필터 (Clean Scan Look)
+        cv.cvtColor(dst, dst, cv.COLOR_RGBA2GRAY, 0);
+        // Gaussian Adaptive Threshold: 그림자 제거하고 글씨만 선명하게
+        cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 15, 12);
+
+        cv.imshow('outputCanvas', dst);
+
+        // 메모리 해제
+        srcTri.delete(); dstTri.delete(); M.delete(); dst.delete();
+    }
+
+    function sortCorners(points) {
+        points.sort((a, b) => a.y - b.y);
+        let top = points.slice(0, 2).sort((a, b) => a.x - b.x);
+        let bottom = points.slice(2, 4).sort((a, b) => a.x - b.x);
+        return [top[0], top[1], bottom[1], bottom[0]];
+    }
+
+    // 8. 파일 업로드 로직 (갤러리)
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+        let file = e.target.files[0];
+        if(!file) return;
+
+        let reader = new FileReader();
+        reader.onload = (ev) => {
+            let img = new Image();
+            img.onload = () => {
+                let src = cv.imread(img);
+                let corners = detectDocumentLoose(src);
+                
+                if(!corners) {
+                    alert("⚠️ 이미지에서 문서를 찾을 수 없습니다.");
+                    src.delete();
+                    return;
+                }
+
+                stopCamera(); // 카메라 중지
+                document.getElementById('cameraSection').style.display = 'none';
+                document.getElementById('resultSection').style.display = 'block';
+                
+                processCropAndScan(src, corners);
+                src.delete();
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // 9. 기타 버튼
+    document.getElementById('retryBtn').addEventListener('click', () => {
+        location.reload();
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+        let link = document.createElement('a');
+        link.download = 'scan_result.png';
+        link.href = outputCanvas.toDataURL();
+        link.click();
+    });
+
+</script>
 </body>
 </html>
