@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>웹 카메라 & 갤러리</title>
+    <style>
+        /* --- CSS 스타일 --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: #000; 
+            color: white; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh; 
+            overflow: hidden; /* 스크롤 방지 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 공통 버튼 스타일 */
+        button { cursor: pointer; border: none; outline: none; background: none; color: white; }
+
+        /* === 1. 카메라 뷰 === */
+        #camera-view {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 비디오 영역 (전체 화면) */
+        #video-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 화면 꽉 차게 */
+        }
+
+        /* 하단 컨트롤 바 */
+        #camera-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 10;
+        }
+
+        /* 갤러리 썸네일 버튼 (좌측 하단) */
+        #gallery-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background-color: #333;
+            overflow: hidden;
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #aaa;
+            cursor: pointer;
+        }
+        #gallery-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 셔터 버튼 (중앙 하단) */
+        #shutter-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: white;
+            border: 5px solid rgba(255,255,255,0.3);
+            transition: transform 0.1s;
+        }
+        #shutter-btn:active { transform: scale(0.9); }
+
+        /* 우측 여백용 (레이아웃 밸런스) */
+        .spacer { width: 60px; }
+
+        /* === 2. 갤러리 뷰 === */
+        #gallery-view {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #111;
+            display: none; /* 기본 숨김 */
+            flex-direction: column;
+            z-index: 20;
+        }
+        
+        /* 갤러리 헤더 */
+        .gallery-header {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            background-color: rgba(0,0,0,0.8);
+            border-bottom: 1px solid #333;
+        }
+        .btn-text { font-size: 16px; font-weight: bold; color: #0095f6; padding: 10px; }
+        .gallery-title { font-size: 18px; font-weight: 600; }
+
+        /* 갤러리 그리드 영역 */
+        #gallery-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3열 그리드 */
+            gap: 2px;
+            align-content: start;
+        }
+
+        /* 개별 사진 아이템 */
+        .photo-item {
+            position: relative;
+            padding-bottom: 100%; /* 1:1 비율 유지 */
+            background: #222;
+            cursor: pointer;
+        }
+        .photo-item img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* 체크박스 스타일 */
+        .photo-check {
+            position: absolute;
+            top: 5px; right: 5px;
+            width: 20px; height: 20px;
+            background: rgba(255,255,255,0.3);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: none; /* 선택 모드일 때만 표시 */
+        }
+        .photo-item.selected .photo-check {
+            background: #0095f6;
+            border-color: #0095f6;
+            display: block;
+        }
+        .photo-item.selected .photo-check::after {
+            content: '✔';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -55%);
+            font-size: 12px;
+            color: white;
+        }
+        /* 선택 모드 활성화 시 항상 체크박스 영역 보이기 */
+        .selection-mode .photo-check { display: block; }
+
+        /* 하단 액션 바 (다운로드 등) */
+        .gallery-footer {
+            height: 60px;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid #333;
+        }
+        .btn-action {
+            background-color: #333;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        /* 플래시 효과 */
+        #flash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; opacity: 0; pointer-events: none; z-index: 50;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="flash"></div>
+
+    <div id="camera-view">
+        <div id="video-container">
+            <video id="video" autoplay playsinline muted></video>
+        </div>
+        <div id="camera-controls">
+            <div id="gallery-btn" onclick="openGallery()">
+                <span>Gallery</span>
+            </div>
+            
+            <button id="shutter-btn" onclick="takePhoto()"></button>
+            
+            <div class="spacer"></div>
+        </div>
+    </div>
+
+    <div id="gallery-view">
+        <div class="gallery-header">
+            <button class="btn-text" style="color:white" onclick="closeGallery()">Back</button>
+            <span class="gallery-title">갤러리</span>
+            <button class="btn-text" id="select-toggle-btn" onclick="toggleSelectionMode()">선택</button>
+        </div>
+        
+        <div id="gallery-grid">
+            </div>
+
+        <div class="gallery-footer">
+            <button id="download-btn" class="btn-action" onclick="downloadSelected()" style="display:none">
+                다운로드 (<span id="selected-count">0</span>)
+            </button>
+            <span id="footer-msg" style="color:#666; font-size:12px;">사진을 터치하여 확대/다운로드</span>
+        </div>
+    </div>
+
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        /* --- JavaScript 로직 --- */
+
+        // 1. 변수 및 DB 설정
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const galleryBtn = document.getElementById('gallery-btn');
+        const galleryView = document.getElementById('gallery-view');
+        const cameraView = document.getElementById('camera-view');
+        const galleryGrid = document.getElementById('gallery-grid');
+        const selectToggleBtn = document.getElementById('select-toggle-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const footerMsg = document.getElementById('footer-msg');
+        const selectedCountSpan = document.getElementById('selected-count');
+
+        let db;
+        let isSelectionMode = false;
+        let selectedPhotoIds = new Set();
+
+        // IndexedDB 초기화
+        const request = indexedDB.open("WebCameraApp", 1);
+        
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            // id를 키로 하고, createdDate 인덱스를 가진 photos 저장소 생성
+            if (!db.objectStoreNames.contains("photos")) {
+                const objectStore = db.createObjectStore("photos", { keyPath: "id", autoIncrement: true });
+                objectStore.createIndex("createdDate", "createdDate", { unique: false });
+            }
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            updateThumbnail(); // 앱 시작 시 썸네일 로드
+        };
+
+        request.onerror = function(event) {
+            console.error("IndexedDB error:", event.target.errorCode);
+        };
+
+        // 2. 카메라 시작
+        async function startCamera() {
+            try {
+                // 후면 카메라 우선, 없으면 전면
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: { ideal: "environment" } }, 
+                    audio: false 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                alert("카메라에 접근할 수 없습니다. 권한을 확인해주세요.");
+                console.error(err);
+            }
+        }
+        startCamera();
+
+        // 3. 사진 촬영
+        function takePhoto() {
+            if (!video.srcObject) return;
+
+            // 캔버스 크기를 비디오 실제 해상도에 맞춤
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const context = canvas.getContext('2d');
+            
+            // 좌우 반전 처리 (필요시) - 후면카메라는 보통 정방향
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // 플래시 효과
+            const flash = document.getElementById('flash');
+            flash.style.opacity = 0.8;
+            setTimeout(() => { flash.style.opacity = 0; }, 100);
+
+            // Blob으로 변환하여 저장
+            canvas.toBlob((blob) => {
+                savePhotoToDB(blob);
+            }, 'image/jpeg', 0.95);
+        }
+
+        // 4. DB 저장 및 썸네일 업데이트
+        function savePhotoToDB(blob) {
+            const transaction = db.transaction(["photos"], "readwrite");
+            const objectStore = transaction.objectStore("photos");
+            const newItem = { blob: blob, createdDate: new Date() };
+            
+            const request = objectStore.add(newItem);
+            
+            request.onsuccess = function() {
+                console.log("Photo saved!");
+                updateThumbnail(); // 저장 후 썸네일 갱신
+            };
+        }
+
+        function updateThumbnail() {
+            const transaction = db.transaction(["photos"], "readonly");
+            const objectStore = transaction.objectStore("photos");
+            const index = objectStore.index("createdDate");
+            
+            // 가장 최근 사진 하나만 가져오기 (방향: prev)
+            const request = index.openCursor(null, "prev");
+
+            request.onsuccess = function(event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const url = URL.createObjectURL(cursor.value.blob);
+                    galleryBtn.innerHTML = `<img src="${url}">`;
+                } else {
+                    galleryBtn.innerHTML = "<span>Gallery</span>";
+                }
+            };
+        }
+
+        // 5. 갤러리 열기 & 렌더링
+        function openGallery() {
+            cameraView.style.display = 'none';
+            galleryView.style.display = 'flex';
+            renderGalleryGrid();
+        }
+
+        function closeGallery() {
+            galleryView.style.display = 'none';
+            cameraView.style.display = 'flex';
+            // 선택 모드 초기화
+            if(isSelectionMode) toggleSelectionMode();
+        }
+
+        function renderGalleryGrid() {
+            galleryGrid.innerHTML = ''; // 초기화
+            selectedPhotoIds.clear();
+            updateSelectionUI();
+
+            const transaction = db.transaction(["photos"], "readonly");
+            const objectStore = transaction.objectStore("photos");
+            const index = objectStore.index("createdDate");
+            
+            // 최신순 정렬
+            const request = index.openCursor(null, "prev");
+
+            request.onsuccess = function(event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const photo = cursor.value;
+                    createPhotoElement(photo);
+                    cursor.continue();
+                }
+            };
+        }
+
+        function createPhotoElement(photo) {
+            const div = document.createElement('div');
+            div.className = 'photo-item';
+            div.dataset.id = photo.id;
+            
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(photo.blob);
+            
+            const check = document.createElement('div');
+            check.className = 'photo-check';
+
+            div.appendChild(img);
+            div.appendChild(check);
+
+            // 클릭 이벤트
+            div.onclick = () => handlePhotoClick(photo, div);
+
+            galleryGrid.appendChild(div);
+        }
+
+        // 6. 선택 및 다운로드 로직
+        function toggleSelectionMode() {
+            isSelectionMode = !isSelectionMode;
+            
+            const items = document.querySelectorAll('.photo-item');
+            if (isSelectionMode) {
+                selectToggleBtn.textContent = '취소';
+                downloadBtn.style.display = 'block';
+                footerMsg.style.display = 'none';
+                galleryGrid.classList.add('selection-mode');
+            } else {
+                selectToggleBtn.textContent = '선택';
+                downloadBtn.style.display = 'none';
+                footerMsg.style.display = 'block';
+                galleryGrid.classList.remove('selection-mode');
+                
+                // 선택 초기화
+                items.forEach(el => el.classList.remove('selected'));
+                selectedPhotoIds.clear();
+                updateSelectionUI();
+            }
+        }
+
+        function handlePhotoClick(photo, element) {
+            if (isSelectionMode) {
+                // 선택 모드: 토글
+                if (selectedPhotoIds.has(photo.id)) {
+                    selectedPhotoIds.delete(photo.id);
+                    element.classList.remove('selected');
+                } else {
+                    selectedPhotoIds.add(photo.id);
+                    element.classList.add('selected');
+                }
+                updateSelectionUI();
+            } else {
+                // 일반 모드: 단일 사진 다운로드 (또는 상세보기)
+                downloadSingle(photo.blob, `photo_${photo.id}.jpg`);
+            }
+        }
+
+        function updateSelectionUI() {
+            selectedCountSpan.textContent = selectedPhotoIds.size;
+        }
+
+        function downloadSingle(blob, filename) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function downloadSelected() {
+            if (selectedPhotoIds.size === 0) {
+                alert("선택된 사진이 없습니다.");
+                return;
+            }
+
+            const transaction = db.transaction(["photos"], "readonly");
+            const objectStore = transaction.objectStore("photos");
+
+            let processed = 0;
+            
+            selectedPhotoIds.forEach(id => {
+                const request = objectStore.get(id);
+                request.onsuccess = function(event) {
+                    const photo = event.target.result;
+                    if (photo) {
+                        // 브라우저가 연속 다운로드를 차단하지 않도록 약간의 딜레이를 줌
+                        setTimeout(() => {
+                            downloadSingle(photo.blob, `photo_${photo.id}.jpg`);
+                        }, processed * 200);
+                        processed++;
+                    }
+                };
+            });
+            
+            // 다운로드 후 선택 모드 종료 (선택사항)
+            // toggleSelectionMode(); 
+        }
+
+    </script>
+</body>
+</html>
