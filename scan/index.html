@@ -96,8 +96,11 @@
         .btn-group .btn { flex: 1; }
 
         #resultSection { display: none; width: 100%; }
+        
+        /* 결과 캔버스 스타일 (화면엔 작게 보여도 원본 해상도 유지) */
         canvas#outputCanvas {
             width: 100%;
+            height: auto;
             border-radius: 8px;
             border: 1px solid #333;
         }
@@ -139,7 +142,7 @@
 <div id="toast">알림</div>
 
 <div class="container">
-    <h1>Smart Scanner Pro</h1>
+    <h1>High-Res Scanner</h1>
 
     <div id="cameraSection">
         <div class="camera-wrapper">
@@ -173,11 +176,11 @@
     let cvReady = false;
     let videoStream = null;
     
-    // 안정화를 위한 변수 (Jitter Reduction)
+    // 안정화를 위한 변수
     let lastStableQuad = null; 
     let missingFrames = 0;
     const MAX_MISSING_FRAMES = 12; 
-    const SMOOTHING_FACTOR = 0.3; // 부드럽게 따라오도록 설정
+    const SMOOTHING_FACTOR = 0.3;
 
     // DOM Elements
     const video = document.getElementById('videoInput');
@@ -194,11 +197,12 @@
     }
 
     async function startCamera() {
+        // [중요] 가능한 최고 해상도 요청 (4K 지원 기기는 4K로)
         const constraints = {
             video: {
                 facingMode: { exact: "environment" },
-                width: { ideal: 1920 },
-                height: { ideal: 1080 }
+                width: { ideal: 3840 }, // 4K 목표
+                height: { ideal: 2160 }
             }
         };
 
@@ -206,7 +210,10 @@
             try {
                 videoStream = await navigator.mediaDevices.getUserMedia(constraints);
             } catch (e) {
-                videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                // 4K 실패시 FHD 시도
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
+                });
             }
 
             video.srcObject = videoStream;
@@ -236,11 +243,11 @@
         capCanvas.width = videoElement.videoWidth;
         capCanvas.height = videoElement.videoHeight;
         let ctx = capCanvas.getContext('2d');
+        // 원본 해상도 그대로 그리기
         ctx.drawImage(videoElement, 0, 0, capCanvas.width, capCanvas.height);
         return cv.imread(capCanvas);
     }
 
-    // --- 실시간 루프 ---
     function processVideoFrame() {
         if (video.paused || video.ended || !video.srcObject) return;
         if (!cvReady) {
@@ -251,16 +258,12 @@
         try {
             let src = captureFrameFromVideo(video);
             if (src) {
-                // 문서 찾기
                 let currQuad = detectDocumentRobust(src);
-
                 overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-                // 안정화 로직
                 if (currQuad) {
                     missingFrames = 0;
                     currQuad = sortCorners(currQuad);
-
                     if (lastStableQuad) {
                         lastStableQuad = interpolateQuad(lastStableQuad, currQuad, SMOOTHING_FACTOR);
                     } else {
@@ -268,20 +271,13 @@
                     }
                 } else {
                     missingFrames++;
-                    if (missingFrames > MAX_MISSING_FRAMES) {
-                        lastStableQuad = null; 
-                    }
+                    if (missingFrames > MAX_MISSING_FRAMES) lastStableQuad = null; 
                 }
 
-                if (lastStableQuad) {
-                    drawOverlay(lastStableQuad);
-                }
-                
+                if (lastStableQuad) drawOverlay(lastStableQuad);
                 src.delete();
             }
-        } catch (err) {
-            // console.error(err);
-        }
+        } catch (err) {}
         requestAnimationFrame(processVideoFrame);
     }
 
@@ -296,59 +292,41 @@
         return result;
     }
 
-    // --- [핵심] 표 인식 방지 & 외곽선 강화 알고리즘 ---
+    // --- 문서 감지 로직 (Robust) ---
     function detectDocumentRobust(src) {
         let dst = new cv.Mat();
         let gray = new cv.Mat();
         let blur = new cv.Mat();
         let edges = new cv.Mat();
         
-        // 1. 다운샘플링 (속도 향상 및 미세 노이즈 제거)
+        // 탐지는 속도를 위해 리사이징 (600px)
         let scale = 600 / src.cols;
         let dsize = new cv.Size(600, Math.round(src.rows * scale));
         cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
 
-        // 2. 그레이스케일
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
-
-        // 3. [중요] 강력한 블러링 (Blurring)
-        // 표나 글자는 선이 얇기 때문에 블러를 강하게 주면 뭉개져서 엣지로 인식이 안 됩니다.
-        // 반면, 종이의 외곽선은 큰 덩어리의 경계이므로 살아남습니다.
-        // (9, 9) 사이즈로 블러를 키웠습니다.
         cv.GaussianBlur(gray, blur, new cv.Size(9, 9), 0, 0, cv.BORDER_DEFAULT);
-
-        // 4. Canny Edge (감도 조절)
-        // 아이보리 배경은 대비가 낮으므로 낮은 임계값 사용 (10, 40)
         cv.Canny(blur, edges, 10, 40);
 
-        // 5. [중요] 모폴로지 닫기 (Morphology Close) 강화
-        // 끊어진 외곽선을 연결하기 위해 커널 크기를 (9,9)로 키웁니다.
-        // 이는 내부의 자잘한 텍스트나 표 라인을 하나로 뭉쳐버리거나 무시하게 만듭니다.
         let kernel = cv.Mat.ones(9, 9, cv.CV_8U);
         cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
 
-        // 6. 컨투어 찾기 (RETR_EXTERNAL)
-        // RETR_EXTERNAL: 가장 바깥쪽 외곽선만 찾음. 
-        // 표가 인식되려면 표가 가장 바깥이어야 하는데, 모폴로지로 종이 테두리가 연결되면 
-        // 표는 종이 '안'에 있게 되므로 무시됩니다.
         let contours = new cv.MatVector();
         let hierarchy = new cv.Mat();
         cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 
         let maxArea = 0;
         let foundCnt = null;
-        // 면적 제한 강화: 화면의 15% 이상이어야 인정 (작은 표 무시)
         const minArea = (dsize.width * dsize.height) * 0.15; 
 
         for (let i = 0; i < contours.size(); ++i) {
             let cnt = contours.get(i);
             let area = cv.contourArea(cnt);
-
             if (area < minArea) continue;
 
             let peri = cv.arcLength(cnt, true);
             let approx = new cv.Mat();
-            cv.approxPolyDP(cnt, approx, 0.04 * peri, true); // 0.04: 도형 단순화
+            cv.approxPolyDP(cnt, approx, 0.04 * peri, true);
 
             if (approx.rows === 4 && cv.isContourConvex(approx)) {
                 if (area > maxArea) {
@@ -375,7 +353,6 @@
             foundCnt.delete();
         }
 
-        // 메모리 해제
         dst.delete(); gray.delete(); blur.delete(); 
         edges.delete(); kernel.delete(); contours.delete(); hierarchy.delete();
         
@@ -390,11 +367,8 @@
             let src = captureFrameFromVideo(video);
             if (!src) { showToast("⚠️ 캡처 실패"); return; }
 
-            // 촬영 시 안정화된 좌표 우선 사용
             let corners = lastStableQuad;
-            if (!corners) {
-                corners = detectDocumentRobust(src);
-            }
+            if (!corners) corners = detectDocumentRobust(src);
 
             if (!corners) {
                 showToast("⚠️ 문서 테두리를 찾지 못했습니다.");
@@ -402,13 +376,16 @@
                 return;
             }
 
-            showToast("✨ 스캔 완료");
-            processCropAndScanColor(src, corners);
-            src.delete();
+            showToast("✨ 고화질 스캔 변환 중...");
             
-            stopCamera();
-            document.getElementById('cameraSection').style.display = 'none';
-            document.getElementById('resultSection').style.display = 'block';
+            // 약간의 딜레이를 주어 UI 반응 확보
+            setTimeout(() => {
+                processProScan(src, corners);
+                src.delete();
+                stopCamera();
+                document.getElementById('cameraSection').style.display = 'none';
+                document.getElementById('resultSection').style.display = 'block';
+            }, 50);
 
         } catch(e) {
             console.error(e);
@@ -416,13 +393,15 @@
         }
     });
 
-    // 컬러 유지 스캔 변환
-    function processCropAndScanColor(srcMat, corners) {
+    // --- [핵심] Pro Scan Logic (선명함 & 컬러 유지) ---
+    function processProScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         
+        // 원본 해상도를 유지한 크기 계산
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
         let widthBottom = Math.hypot(sorted[2].x - sorted[3].x, sorted[2].y - sorted[3].y);
         let maxWidth = Math.max(widthTop, widthBottom);
+        
         let heightLeft = Math.hypot(sorted[3].x - sorted[0].x, sorted[3].y - sorted[0].y);
         let heightRight = Math.hypot(sorted[2].x - sorted[1].x, sorted[2].y - sorted[1].y);
         let maxHeight = Math.max(heightLeft, heightRight);
@@ -438,24 +417,55 @@
         let M = cv.getPerspectiveTransform(srcTri, dstTri);
         let dst = new cv.Mat();
         
-        cv.warpPerspective(srcMat, dst, M, new cv.Size(maxWidth, maxHeight), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+        // 1. 투시 변환 (원본 해상도 유지)
+        cv.warpPerspective(srcMat, dst, M, new cv.Size(maxWidth, maxHeight), cv.INTER_CUBIC, cv.BORDER_CONSTANT, new cv.Scalar());
 
-        // [스캔 효과] 컬러는 살리되, 배경은 날리고 글자는 진하게
-        // contrast(alpha): 1.2배, brightness(beta): 30 증가
-        dst.convertTo(dst, -1, 1.2, 30);
+        // 2. [선명도 강화] Unsharp Masking 기법 구현
+        // (원본) + (원본 - 블러) * 강도
+        let blurred = new cv.Mat();
+        // 해상도에 비례해서 블러 커널 크기 조절
+        let blurK = Math.max(3, Math.round(Math.min(maxWidth, maxHeight) / 200)) | 1; 
+        cv.GaussianBlur(dst, blurred, new cv.Size(blurK, blurK), 0, 0, cv.BORDER_DEFAULT);
+        
+        // addWeighted로 선명도 증가 (sharpness strength: 1.5)
+        cv.addWeighted(dst, 1.5, blurred, -0.5, 0, dst);
 
-        // 선명하게 필터
-        let kernel = cv.matFromArray(3, 3, cv.CV_32F, [
-            0, -0.5, 0,
-            -0.5, 3, -0.5,
-            0, -0.5, 0
-        ]);
-        let anchor = new cv.Point(-1, -1);
-        cv.filter2D(dst, dst, cv.CV_8U, kernel, anchor, 0, cv.BORDER_DEFAULT);
+        // 3. [스캔 톤 매핑] 감마 보정 & 대비 증가
+        // 흰색은 날리고, 유색/검은색은 진하게 만드는 Look Up Table (LUT) 적용
+        let matLUT = new cv.Mat();
+        let lutData = new Uint8Array(256);
+        
+        // S-Curve 및 Gamma 보정 값 계산
+        // 감마 < 1.0: 중간톤이 밝아짐 (그림자 제거 효과)
+        let gamma = 0.7; 
+        for (let i = 0; i < 256; i++) {
+            // 정규화 (0~1)
+            let val = i / 255.0;
+            // 감마 적용
+            val = Math.pow(val, gamma);
+            // 대비 증가 (S-Curve 유사 효과)
+            val = (val - 0.5) * 1.2 + 0.5; 
+            // 클램핑 (0~1)
+            if (val < 0) val = 0;
+            if (val > 1) val = 1;
+            
+            lutData[i] = val * 255;
+        }
+        
+        // LUT 행렬 생성 (채널 1, 타입 8UC1)
+        matLUT.create(1, 256, cv.CV_8UC1);
+        matLUT.data.set(lutData);
+        
+        // 컬러 영상이므로 각 채널별로 LUT 적용 필요하지만,
+        // OpenCV.js의 LUT 함수는 멀티채널 지원
+        cv.LUT(dst, matLUT, dst);
 
+        // 결과 출력
         cv.imshow('outputCanvas', dst);
 
-        srcTri.delete(); dstTri.delete(); M.delete(); dst.delete(); kernel.delete();
+        // 메모리 해제
+        srcTri.delete(); dstTri.delete(); M.delete(); dst.delete(); 
+        blurred.delete(); matLUT.delete();
     }
 
     function drawOverlay(corners) {
@@ -472,14 +482,6 @@
         overlayCtx.strokeStyle = "#32d74b";
         overlayCtx.lineWidth = 5;
         overlayCtx.stroke();
-        
-        // 코너 포인트
-        overlayCtx.fillStyle = "#fff";
-        corners.forEach(p => {
-            overlayCtx.beginPath();
-            overlayCtx.arc(p.x, p.y, 6, 0, 2 * Math.PI);
-            overlayCtx.fill();
-        });
     }
 
     function sortCorners(points) {
@@ -506,12 +508,16 @@
                     return;
                 }
 
-                showToast("✨ 이미지 로드 성공");
+                showToast("✨ 이미지 처리 중...");
                 stopCamera();
                 document.getElementById('cameraSection').style.display = 'none';
                 document.getElementById('resultSection').style.display = 'block';
-                processCropAndScanColor(src, corners);
-                src.delete();
+                
+                // 파일 업로드 시에도 Pro Scan 로직 적용
+                setTimeout(() => {
+                    processProScan(src, corners);
+                    src.delete();
+                }, 50);
             };
             img.src = ev.target.result;
         };
@@ -532,8 +538,8 @@
     document.getElementById('retryBtn').addEventListener('click', () => location.reload());
     document.getElementById('downloadBtn').addEventListener('click', () => {
         let link = document.createElement('a');
-        link.download = 'scan_result.png';
-        link.href = outputCanvas.toDataURL();
+        link.download = 'scan_highres.png';
+        link.href = outputCanvas.toDataURL('image/png', 1.0); // 최고 화질 저장
         link.click();
     });
 </script>
