@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Doc Scanner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>📄 문서 스캐너</h1>
+    
+    <p id="status">OpenCV 로딩 중...</p>
+
+    <div class="controls">
+        <label for="fileInput" class="btn upload-btn">
+            📷 카메라/사진 선택
+            <input type="file" id="fileInput" accept="image/*" capture="environment">
+        </label>
+    </div>
+
+    <img id="imageSrc" alt="No Image" />
+
+    <div class="canvas-container">
+        <canvas id="outputCanvas"></canvas>
+    </div>
+
+    <button id="downloadBtn" class="btn download-btn" style="display:none;">⬇️ 이미지 저장</button>
+</div>
+
+<script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
