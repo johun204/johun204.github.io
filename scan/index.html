@@ -17,40 +17,55 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
 	<meta name="theme-color" content="#ffffff">
 	<meta name="apple-mobile-web-app-capable" content="yes">
-
+	
     <style>
         /* --- CSS Styles --- */
-        body {
+        html, body {
+            /* 1. 당겨서 새로고침(Pull-to-Refresh) 원천 차단 */
+            overscroll-behavior-y: none;
+            
+            /* 2. 터치 액션 제어 (확대/축소 등 시스템 제스처 방지) */
+            touch-action: pan-x pan-y;
+            
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #000;
             color: #fff;
             margin: 0;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden; /* 스크롤바 숨김 */
+            
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .container {
             width: 100%;
             max-width: 600px;
+            height: 100vh; /* 전체 화면 사용 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 10px;
             box-sizing: border-box;
-            text-align: center;
             position: relative;
         }
 
-        h1 { margin: 15px 0; font-size: 1.1rem; opacity: 0.8; font-weight: normal; }
+        h1 { margin: 10px 0; font-size: 1.1rem; opacity: 0.8; font-weight: normal; }
 
         .camera-wrapper {
             position: relative;
             width: 100%;
+            flex: 1; /* 남은 공간 모두 차지 */
             border-radius: 12px;
             overflow: hidden;
             background: #111;
-            aspect-ratio: 3/4; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
         }
 
         video, canvas#overlayCanvas {
@@ -61,12 +76,11 @@
         }
 
         .controls {
-            margin-top: 20px;
             width: 100%;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            padding-bottom: 30px;
+            padding-bottom: 20px;
         }
 
         .btn {
@@ -98,9 +112,8 @@
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
         .btn-group .btn { flex: 1; }
 
-        #resultSection { display: none; width: 100%; }
+        #resultSection { display: none; width: 100%; height: 100%; overflow-y: auto; }
         
-        /* 결과 캔버스 스타일 (화면엔 작게 보여도 원본 해상도 유지) */
         canvas#outputCanvas {
             width: 100%;
             height: auto;
@@ -120,7 +133,7 @@
             position: fixed;
             z-index: 99999; 
             left: 50%;
-            bottom: 120px; 
+            bottom: 140px; 
             transform: translateX(-50%);
             font-size: 0.95rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
@@ -134,7 +147,7 @@
         #toast.show {
             visibility: visible;
             opacity: 1;
-            bottom: 130px;
+            bottom: 150px;
         }
 
         input[type="file"] { display: none; }
@@ -145,9 +158,9 @@
 <div id="toast">알림</div>
 
 <div class="container">
-    <h1>Document Scanner</h1>
+    <h1 id="appTitle">Document Scanner</h1>
 
-    <div id="cameraSection">
+    <div id="cameraSection" style="width:100%; height:100%; display:flex; flex-direction:column;">
         <div class="camera-wrapper">
             <video id="videoInput" playsinline autoplay muted></video>
             <canvas id="overlayCanvas"></canvas>
@@ -178,12 +191,14 @@
 <script>
     let cvReady = false;
     let videoStream = null;
-    
-    // 안정화를 위한 변수
     let lastStableQuad = null; 
     let missingFrames = 0;
     const MAX_MISSING_FRAMES = 12; 
     const SMOOTHING_FACTOR = 0.3;
+
+    // [중요] 연산 부하 조절을 위한 타이머 변수
+    let lastProcessTime = 0;
+    const PROCESS_INTERVAL = 60; // 60ms마다 한 번씩만 감지 (초당 약 15프레임) -> 발열/튕김 방지
 
     // DOM Elements
     const video = document.getElementById('videoInput');
@@ -200,12 +215,12 @@
     }
 
     async function startCamera() {
-        // [중요] 가능한 최고 해상도 요청 (4K 지원 기기는 4K로)
+        // [수정] 4K -> FHD (1920x1080)로 하향 조정하여 메모리 안정성 확보
         const constraints = {
             video: {
                 facingMode: { exact: "environment" },
-                width: { ideal: 3840 }, 
-                height: { ideal: 2160 }
+                width: { ideal: 1920 }, 
+                height: { ideal: 1080 }
             }
         };
 
@@ -213,9 +228,8 @@
             try {
                 videoStream = await navigator.mediaDevices.getUserMedia(constraints);
             } catch (e) {
-                // 4K 실패시 FHD 시도
                 videoStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
+                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } 
                 });
             }
 
@@ -246,17 +260,23 @@
         capCanvas.width = videoElement.videoWidth;
         capCanvas.height = videoElement.videoHeight;
         let ctx = capCanvas.getContext('2d');
-        // 원본 해상도 그대로 그리기
         ctx.drawImage(videoElement, 0, 0, capCanvas.width, capCanvas.height);
         return cv.imread(capCanvas);
     }
 
-    function processVideoFrame() {
+    function processVideoFrame(timestamp) {
         if (video.paused || video.ended || !video.srcObject) return;
         if (!cvReady) {
             requestAnimationFrame(processVideoFrame);
             return;
         }
+
+        // [중요] 프레임 스킵 (과부하 방지)
+        if (timestamp - lastProcessTime < PROCESS_INTERVAL) {
+            requestAnimationFrame(processVideoFrame);
+            return;
+        }
+        lastProcessTime = timestamp;
 
         try {
             let src = captureFrameFromVideo(video);
@@ -280,7 +300,9 @@
                 if (lastStableQuad) drawOverlay(lastStableQuad);
                 src.delete();
             }
-        } catch (err) {}
+        } catch (err) {
+            // console.error("Process error", err);
+        }
         requestAnimationFrame(processVideoFrame);
     }
 
@@ -295,21 +317,19 @@
         return result;
     }
 
-    // --- 문서 감지 로직 (Robust) ---
     function detectDocumentRobust(src) {
         let dst = new cv.Mat();
         let gray = new cv.Mat();
         let blur = new cv.Mat();
         let edges = new cv.Mat();
         
-        // 탐지는 속도를 위해 리사이징 (600px)
         let scale = 600 / src.cols;
         let dsize = new cv.Size(600, Math.round(src.rows * scale));
         cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
 
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
         cv.GaussianBlur(gray, blur, new cv.Size(9, 9), 0, 0, cv.BORDER_DEFAULT);
-        cv.Canny(blur, edges, 10, 40); // 낮은 임계값
+        cv.Canny(blur, edges, 10, 40);
 
         let kernel = cv.Mat.ones(9, 9, cv.CV_8U);
         cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
@@ -367,7 +387,6 @@
         if (!video.srcObject || video.readyState < 2) { showToast("📷 카메라 준비 중..."); return; }
 
         try {
-            // 원본 해상도 캡처
             let src = captureFrameFromVideo(video);
             if (!src) { showToast("⚠️ 캡처 실패"); return; }
 
@@ -380,32 +399,29 @@
                 return;
             }
 
-            showToast("✨ 고화질 스캔 변환 중...");
+            showToast("✨ 변환 중...");
             
-            // [중요 수정] setTimeout을 사용하여 UI를 먼저 렌더링하고,
-            // 변환 로직 내부에서 src.delete()를 수행하도록 순서 변경
             setTimeout(() => {
                 try {
-                    processProScan(src, corners); // 변환 수행
-                    src.delete(); // [중요] 사용 후 여기서 삭제해야 함
-                    
+                    processProScan(src, corners);
+                    src.delete();
                     stopCamera();
                     document.getElementById('cameraSection').style.display = 'none';
                     document.getElementById('resultSection').style.display = 'block';
+                    document.getElementById('appTitle').innerText = "스캔 결과";
                 } catch (err) {
-                    console.error("Scan Process Error:", err);
-                    showToast("❌ 변환 중 오류가 발생했습니다.");
+                    console.error("Scan error:", err);
+                    showToast("오류가 발생했습니다.");
                     if(src && !src.isDeleted()) src.delete();
                 }
-            }, 100); // 100ms 딜레이로 토스트가 보일 시간 확보
+            }, 100);
 
         } catch(e) {
             console.error(e);
-            showToast("❌ 캡처 오류 발생");
+            showToast("❌ 오류 발생");
         }
     });
 
-    // --- [핵심] Pro Scan Logic (선명함 & 컬러 유지 - 안정화 버전) ---
     function processProScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         
@@ -428,24 +444,19 @@
         let M = cv.getPerspectiveTransform(srcTri, dstTri);
         let dst = new cv.Mat();
         
-        // 1. 투시 변환 (원본 해상도 유지)
         cv.warpPerspective(srcMat, dst, M, new cv.Size(maxWidth, maxHeight), cv.INTER_CUBIC, cv.BORDER_CONSTANT, new cv.Scalar());
 
-        // 2. [선명도 강화] Unsharp Masking
+        // Sharpening
         let blurred = new cv.Mat();
         let blurK = Math.max(3, Math.round(Math.min(maxWidth, maxHeight) / 200)) | 1; 
         cv.GaussianBlur(dst, blurred, new cv.Size(blurK, blurK), 0, 0, cv.BORDER_DEFAULT);
         cv.addWeighted(dst, 1.5, blurred, -0.5, 0, dst);
 
-        // 3. [스캔 톤 매핑] convertTo 사용 (LUT 대체 - 호환성 해결)
-        // alpha(대비) = 1.2, beta(밝기) = 15
-        // 밝기를 올려 흰색을 날리고, 대비를 올려 글자를 진하게 함
+        // Tone Mapping (Brighten & Contrast)
         dst.convertTo(dst, -1, 1.2, 15);
 
-        // 결과 출력
         cv.imshow('outputCanvas', dst);
 
-        // 메모리 해제
         srcTri.delete(); dstTri.delete(); M.delete(); dst.delete(); 
         blurred.delete();
     }
@@ -490,12 +501,11 @@
                     return;
                 }
 
-                showToast("✨ 이미지 처리 중...");
+                showToast("✨ 처리 중...");
                 stopCamera();
                 document.getElementById('cameraSection').style.display = 'none';
                 document.getElementById('resultSection').style.display = 'block';
                 
-                // 파일 업로드 시 딜레이 처리
                 setTimeout(() => {
                     processProScan(src, corners);
                     src.delete();
@@ -520,7 +530,7 @@
     document.getElementById('retryBtn').addEventListener('click', () => location.reload());
     document.getElementById('downloadBtn').addEventListener('click', () => {
         let link = document.createElement('a');
-        link.download = 'scan_highres.png';
+        link.download = 'scan.png';
         link.href = outputCanvas.toDataURL('image/png', 1.0); 
         link.click();
     });
