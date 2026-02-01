@@ -17,7 +17,7 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
 	<meta name="theme-color" content="#ffffff">
 	<meta name="apple-mobile-web-app-capable" content="yes">
-	
+
     <style>
         /* --- CSS Styles --- */
         html, body {
@@ -28,17 +28,17 @@
             color: #fff;
             margin: 0;
             padding: 0;
-            height: 100%; /* 전체 화면 높이 고정 */
+            height: 100%;
             display: flex;
-            flex-direction: column; /* 세로형 배치 (헤더-카메라-푸터) */
+            flex-direction: column;
             overflow: hidden;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        /* 1. 상단 헤더 (영역 고정) */
+        /* 헤더 */
         header {
-            flex: 0 0 60px; /* 높이 60px 고정 */
+            flex: 0 0 60px;
             background-color: #111;
             display: flex;
             align-items: center;
@@ -46,37 +46,27 @@
             border-bottom: 1px solid #222;
             z-index: 10;
         }
-        h1 { 
-            margin: 0; 
-            font-size: 1.1rem; 
-            font-weight: 600; 
-            letter-spacing: 0.5px;
-        }
+        h1 { margin: 0; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px; }
 
-        /* 2. 메인 컨텐츠 (카메라/결과) - 남은 공간 모두 차지 */
+        /* 메인 영역 */
         main {
-            flex: 1; 
+            flex: 1;
             position: relative;
             background-color: #000;
             overflow: hidden;
             width: 100%;
         }
 
-        /* 카메라 뷰포트 */
-        .camera-view {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
+        .camera-view { width: 100%; height: 100%; position: relative; }
 
         video, canvas#overlayCanvas {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            object-fit: cover; /* 화면 꽉 채우기 */
+            object-fit: cover;
         }
 
-        /* 결과 화면 (스크롤 가능) */
+        /* 결과 화면 */
         #resultSection {
             display: none;
             width: 100%;
@@ -95,9 +85,9 @@
             border: 2px solid #333;
         }
 
-        /* 3. 하단 컨트롤 (영역 고정) */
+        /* 푸터 */
         footer {
-            flex: 0 0 140px; /* 높이 140px 고정 */
+            flex: 0 0 140px;
             background-color: #111;
             border-top: 1px solid #222;
             padding: 20px;
@@ -109,7 +99,6 @@
             z-index: 10;
         }
 
-        /* 버튼 스타일 */
         .btn {
             width: 100%;
             padding: 16px;
@@ -127,16 +116,8 @@
         }
         .btn:active { opacity: 0.7; }
         
-        .btn-capture { 
-            background-color: #ff3b30; 
-            font-size: 1.1rem;
-            height: 55px;
-        }
-        .btn-sub { 
-            background-color: #333; 
-            color: #ccc; 
-            height: 45px;
-        }
+        .btn-capture { background-color: #ff3b30; font-size: 1.1rem; height: 55px; }
+        .btn-sub { background-color: #333; color: #ccc; height: 45px; }
         .btn-save { background-color: #30d158; color: #000; }
         .btn-retry { background-color: #444; }
 
@@ -155,7 +136,7 @@
             position: fixed;
             z-index: 9999; 
             left: 50%;
-            top: 80px; /* 헤더 아래쪽 */
+            top: 80px;
             transform: translateX(-50%);
             font-size: 0.9rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
@@ -171,7 +152,7 @@
 <body>
 
 <header>
-    <h1>Clear Scan Pro</h1>
+    <h1>Perfect Scan Pro</h1>
 </header>
 
 <main>
@@ -179,7 +160,6 @@
         <video id="videoInput" playsinline autoplay muted></video>
         <canvas id="overlayCanvas"></canvas>
     </div>
-
     <div id="resultSection">
         <canvas id="outputCanvas"></canvas>
     </div>
@@ -193,7 +173,6 @@
             <input type="file" id="fileInput" accept="image/*">
         </label>
     </div>
-
     <div id="resultControls" style="display:none;" class="btn-group">
         <button id="retryBtn" class="btn btn-retry">🔄 재촬영</button>
         <button id="downloadBtn" class="btn btn-save">⬇️ 갤러리 저장</button>
@@ -209,19 +188,15 @@
     let videoStream = null;
     let lastStableQuad = null; 
     let missingFrames = 0;
-    
-    // 과부하 방지
     let lastProcessTime = 0;
     const PROCESS_INTERVAL = 60; 
 
-    // DOM Elements
     const video = document.getElementById('videoInput');
     const overlayCanvas = document.getElementById('overlayCanvas');
     const overlayCtx = overlayCanvas.getContext('2d');
     const outputCanvas = document.getElementById('outputCanvas');
     const toastEl = document.getElementById('toast');
 
-    // UI Groups
     const cameraSection = document.getElementById('cameraSection');
     const resultSection = document.getElementById('resultSection');
     const cameraControls = document.getElementById('cameraControls');
@@ -316,7 +291,6 @@
         requestAnimationFrame(processVideoFrame);
     }
 
-    // --- 문서 감지 (안정성 강화) ---
     function detectDocumentRobust(src) {
         let dst = new cv.Mat();
         let gray = new cv.Mat();
@@ -382,11 +356,11 @@
         return finalCorners;
     }
 
-    // --- [핵심] Pure White & Red Boost 알고리즘 ---
-    function processHybridScan(srcMat, corners) {
+    // --- [핵심] 3-Step Perfect Scan Logic ---
+    function processPerfectScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         
-        // 1. 투시 변환 (원본 해상도)
+        // 투시 변환 (Warp)
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
         let widthBottom = Math.hypot(sorted[2].x - sorted[3].x, sorted[2].y - sorted[3].y);
         let maxWidth = Math.max(widthTop, widthBottom);
@@ -407,71 +381,67 @@
         let warped = new cv.Mat();
         cv.warpPerspective(srcMat, warped, M, new cv.Size(maxWidth, maxHeight), cv.INTER_CUBIC, cv.BORDER_CONSTANT, new cv.Scalar());
 
-        // --- 이미지 처리 파이프라인 시작 ---
+        // --- Step 1: Base Layer (완벽한 흑백 이진화) ---
+        let gray = new cv.Mat();
+        cv.cvtColor(warped, gray, cv.COLOR_RGBA2GRAY, 0);
         
-        // 2. 색상 증폭 (채도 높이기) - 빨간 도장 살리기용
+        let binaryBase = new cv.Mat();
+        // 주변 25픽셀을 비교하여 10 이상 차이나면 검은색, 아니면 무조건 흰색(255)
+        // -> 누런 배경, 그림자 전부 255로 강제됨
+        cv.adaptiveThreshold(gray, binaryBase, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 25, 12);
+        
+        // 흑백 이미지를 컬러(RGBA) 포맷으로 변환 (합성을 위해)
+        let finalResult = new cv.Mat();
+        cv.cvtColor(binaryBase, finalResult, cv.COLOR_GRAY2RGBA);
+
+
+        // --- Step 2: Color Layer (채도 마스킹) ---
+        // 원본(Warped)을 HSV로 변환
         let hsv = new cv.Mat();
         cv.cvtColor(warped, hsv, cv.COLOR_RGBA2RGB);
         cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
+        
         let hsvPlanes = new cv.MatVector();
         cv.split(hsv, hsvPlanes);
-        // 채도(S) 채널에 1.5배 곱해서 붉은색을 더 진하게
-        let sChannel = hsvPlanes.get(1);
+        let sChannel = hsvPlanes.get(1); // Saturation Channel
+
+        // 채도가 50 이상인 곳을 찾음 (도장, 서명 등) -> Mask 생성
+        let colorMask = new cv.Mat();
+        cv.threshold(sChannel, colorMask, 60, 255, cv.THRESH_BINARY);
+
+        // --- Step 3: Compositing (오버레이) ---
+        // 컬러를 더 진하게 만들기 (채도 부스팅)
         sChannel.convertTo(sChannel, -1, 1.5, 0); 
         cv.merge(hsvPlanes, hsv);
-        let enhancedColor = new cv.Mat();
-        cv.cvtColor(hsv, enhancedColor, cv.COLOR_HSV2RGB); // RGB로 변환
-
-        // 3. 텍스트 추출 (Adaptive Threshold) - 완벽한 흰색 배경/검은 글씨 생성
-        let gray = new cv.Mat();
-        cv.cvtColor(warped, gray, cv.COLOR_RGBA2GRAY, 0);
-        let textBinary = new cv.Mat();
-        // 주변 21픽셀을 보고, 상수 15만큼 빼서 이진화 -> 그림자/누런 배경 완벽 제거
-        cv.adaptiveThreshold(gray, textBinary, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 21, 15);
+        let boostedColor = new cv.Mat();
+        cv.cvtColor(hsv, boostedColor, cv.COLOR_HSV2RGB); // RGB
         
-        // textBinary는 지금 [Text=Black, BG=White] 상태임.
-        // 이를 RGBA로 변환해서 베이스로 삼음
-        let finalResult = new cv.Mat();
-        cv.cvtColor(textBinary, finalResult, cv.COLOR_GRAY2RGBA);
+        let boostedColorRGBA = new cv.Mat();
+        cv.cvtColor(boostedColor, boostedColorRGBA, cv.COLOR_RGB2RGBA);
 
-        // 4. 컬러 마스크 생성 (채도가 높은 부분만 추출)
-        // 기존 S채널(채도)을 이용하여, 채도가 일정 수준(예: 50) 이상인 부분만 마스킹
-        let colorMask = new cv.Mat();
-        cv.threshold(sChannel, colorMask, 50, 255, cv.THRESH_BINARY);
-
-        // 5. 합성 (Compositing)
-        // finalResult(흑백문서) 위에 enhancedColor(진한 원본)를 colorMask 모양대로 덮어씌움
-        // OpenCV.js에는 copyTo with mask가 까다로우므로 비트 연산 활용
-        
-        // (1) RGBA 변환
-        let enhancedColorRGBA = new cv.Mat();
-        cv.cvtColor(enhancedColor, enhancedColorRGBA, cv.COLOR_RGB2RGBA);
-
-        // (2) 픽셀 순회하며 합성 (JS 루프는 느리지만, 마스킹된 부분만 처리하면 복잡)
-        // 가장 빠른 방법: data 배열 직접 조작
-        let resData = finalResult.data; // 흑백 베이스
-        let colorData = enhancedColorRGBA.data; // 컬러 원본
-        let maskData = colorMask.data; // 채도 마스크 (1채널)
+        // 픽셀 합성: Mask가 흰색인 부분만 원본 컬러를 덮어씀
+        let resData = finalResult.data; // 베이스 (흑백)
+        let colorData = boostedColorRGBA.data; // 컬러 (부스팅됨)
+        let maskData = colorMask.data; // 마스크
 
         for (let i = 0; i < maskData.length; i++) {
-            // 마스크가 흰색(255, 즉 유색)이면 컬러 원본을 덮어씀
-            if (maskData[i] === 255) {
+            if (maskData[i] === 255) { // 채도가 높은 픽셀이라면
                 let idx = i * 4;
                 resData[idx] = colorData[idx];     // R
                 resData[idx + 1] = colorData[idx + 1]; // G
                 resData[idx + 2] = colorData[idx + 2]; // B
-                // Alpha는 그대로
+                // Alpha는 유지
             }
         }
 
         // 결과 출력
         cv.imshow('outputCanvas', finalResult);
 
-        // 메모리 해제
+        // 메모리 해제 (필수)
         srcTri.delete(); dstTri.delete(); M.delete(); warped.delete();
-        hsv.delete(); hsvPlanes.delete(); sChannel.delete(); enhancedColor.delete();
-        gray.delete(); textBinary.delete(); finalResult.delete(); 
-        colorMask.delete(); enhancedColorRGBA.delete();
+        gray.delete(); binaryBase.delete(); finalResult.delete();
+        hsv.delete(); hsvPlanes.delete(); sChannel.delete(); 
+        colorMask.delete(); boostedColor.delete(); boostedColorRGBA.delete();
     }
 
     // --- 유틸리티 ---
@@ -508,7 +478,7 @@
         return result;
     }
 
-    // --- 이벤트 핸들러 ---
+    // --- 이벤트 ---
     document.getElementById('captureBtn').addEventListener('click', () => {
         if (!cvReady || !video.srcObject) return;
         
@@ -522,9 +492,9 @@
             return;
         }
 
-        showToast("✨ 스캔 변환 중...");
+        showToast("✨ 완벽 스캔 변환 중...");
         setTimeout(() => {
-            processHybridScan(src, corners); // 새로운 하이브리드 알고리즘 적용
+            processPerfectScan(src, corners); // New Logic
             src.delete();
             stopCamera();
             cameraSection.style.display = 'none';
@@ -559,7 +529,7 @@
                 resultSection.style.display = 'flex';
                 cameraControls.style.display = 'none';
                 resultControls.style.display = 'flex';
-                setTimeout(() => { processHybridScan(src, corners); src.delete(); }, 50);
+                setTimeout(() => { processPerfectScan(src, corners); src.delete(); }, 50);
             };
             img.src = ev.target.result;
         };
