@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Web Scanner - Final Fix</title>
+    <title>Web Scanner - Error Fixed</title>
     <style>
         /* --- CSS Styles --- */
         body {
@@ -36,7 +36,6 @@
             border-radius: 12px;
             overflow: hidden;
             background: #111;
-            /* 세로형 비율 고정 */
             aspect-ratio: 3/4; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
@@ -71,7 +70,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            -webkit-tap-highlight-color: transparent; /* 모바일 터치 하이라이트 제거 */
+            -webkit-tap-highlight-color: transparent;
         }
         .btn:active { transform: scale(0.97); opacity: 0.8; }
         
@@ -95,7 +94,7 @@
             border: 1px solid #333;
         }
 
-        /* 토스트 알림 스타일 */
+        /* 토스트 알림 */
         #toast {
             visibility: hidden;
             min-width: 200px;
@@ -164,7 +163,6 @@
 <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
 
 <script>
-    /* --- Variables --- */
     let cvReady = false;
     let videoStream = null;
     let detectedQuad = null; // 실시간 감지된 좌표
@@ -186,7 +184,6 @@
 
     // 2. 카메라 시작
     async function startCamera() {
-        // OpenCV 로딩 전이라도 카메라는 먼저 켤 수 있음 (UX 향상)
         const constraints = {
             video: {
                 facingMode: { exact: "environment" },
@@ -203,17 +200,13 @@
             }
 
             video.srcObject = videoStream;
-            
-            // 메타데이터 로드 시 재생 시작
             video.onloadedmetadata = () => {
                 video.play().then(() => {
-                    // 비디오 재생 성공 시 캔버스 크기 맞춤
+                    // 비디오 실제 크기에 맞춰 오버레이 캔버스 조정
                     overlayCanvas.width = video.videoWidth;
                     overlayCanvas.height = video.videoHeight;
                     requestAnimationFrame(processVideoFrame);
-                }).catch(err => {
-                    console.error("Video play error:", err);
-                });
+                }).catch(err => console.error("Video play error:", err));
             };
         } catch (err) {
             console.error(err);
@@ -228,80 +221,94 @@
         }
     }
 
-    // 3. 루프: 화면 인식 및 오버레이
-    function processVideoFrame() {
-        // 비디오가 멈췄거나 없으면 루프 중단
-        if (video.paused || video.ended || !video.srcObject) return;
+    // 3. [핵심 수정] 안전한 프레임 읽기 함수 (Canvas 경유)
+    function captureFrameFromVideo(videoElement) {
+        // 비디오 크기 검증
+        if (!videoElement.videoWidth || !videoElement.videoHeight) {
+            return null;
+        }
+        
+        // 1. 임시 캔버스를 생성하거나 오버레이 캔버스 활용
+        // (여기서는 오버레이 캔버스에 이미 사이즈가 맞춰져 있으므로 활용 가능하지만,
+        //  순수 데이터 추출을 위해 별도 메모리 캔버스를 쓰는 게 가장 안전함)
+        let capCanvas = document.createElement('canvas');
+        capCanvas.width = videoElement.videoWidth;
+        capCanvas.height = videoElement.videoHeight;
+        let ctx = capCanvas.getContext('2d');
+        
+        // 2. 비디오 화면을 캔버스에 그림 (이 시점에 사이즈 불일치 문제 해결됨)
+        ctx.drawImage(videoElement, 0, 0, capCanvas.width, capCanvas.height);
+        
+        // 3. 캔버스에서 OpenCV Mat 생성 (imread는 사이즈 오류가 없음)
+        return cv.imread(capCanvas);
+    }
 
-        // OpenCV 로드 전이면 대기
+    // 4. 루프: 화면 인식
+    function processVideoFrame() {
+        if (video.paused || video.ended || !video.srcObject) return;
         if (!cvReady) {
             requestAnimationFrame(processVideoFrame);
             return;
         }
 
         try {
-            let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-            let cap = new cv.VideoCapture(video);
-            cap.read(src);
-
-            let resultCoords = detectDocumentLoose(src);
-
-            overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+            // [수정됨] VideoCapture 대신 Canvas 경유 캡처
+            let src = captureFrameFromVideo(video);
             
-            if (resultCoords) {
-                detectedQuad = resultCoords;
-                drawOverlay(resultCoords);
-            } else {
-                detectedQuad = null;
-            }
+            if (src) {
+                let resultCoords = detectDocumentLoose(src);
 
-            src.delete();
+                overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+                
+                if (resultCoords) {
+                    detectedQuad = resultCoords;
+                    drawOverlay(resultCoords);
+                } else {
+                    detectedQuad = null;
+                }
+                src.delete(); // 메모리 해제 필수
+            }
         } catch (err) {
-            console.error("Process error (ignoring):", err);
-            // 에러가 나도 루프는 멈추지 않음 (중요)
+            console.error("Frame process error:", err);
         }
         
         requestAnimationFrame(processVideoFrame);
     }
 
-    // 4. [수정됨] 버튼 클릭 핸들러 (안전장치 강화)
+    // 5. 버튼 클릭 핸들러
     captureBtn.addEventListener('click', () => {
-        // A. OpenCV 로딩 확인
         if (!cvReady) {
-            showToast("⏳ 스캔 엔진 로딩 중...\n잠시만 기다려주세요.");
+            showToast("⏳ 스캔 엔진 로딩 중...");
             return;
         }
-
-        // B. 카메라 실제 동작 여부 확인 (video 태그 직접 확인)
-        // readyState: 0(HAVE_NOTHING) ~ 4(HAVE_ENOUGH_DATA)
-        // 비디오가 재생 중이 아니거나 데이터가 없으면 리턴
         if (!video.srcObject || video.readyState < 2) {
-            showToast("📷 카메라를 불러오는 중입니다.\n화면이 나오면 다시 눌러주세요.");
+            showToast("📷 카메라 로딩 중...");
             return;
         }
 
-        // C. 촬영 시도
         try {
-            let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-            let cap = new cv.VideoCapture(video);
-            cap.read(src);
+            // [수정됨] 안전한 캡처 방식 사용
+            let src = captureFrameFromVideo(video);
             
-            // 1. 실시간 감지 좌표 사용
+            if (!src) {
+                showToast("⚠️ 화면 정보를 읽을 수 없습니다.\n잠시 후 다시 시도해주세요.");
+                return;
+            }
+
+            // 1. 실시간 감지 좌표 우선 사용
             let corners = detectedQuad;
 
-            // 2. 없으면 현재 프레임 정밀 분석 시도
+            // 2. 없으면 현재 프레임 정밀 분석
             if (!corners) {
                 corners = detectDocumentLoose(src);
             }
 
-            // D. 문서 없음 -> 토스트 출력
             if (!corners) {
                 showToast("⚠️ 문서를 찾지 못했습니다.\n배경과 구분되게 놓아주세요.");
                 src.delete(); 
                 return;
             }
 
-            // E. 성공 -> 변환 및 UI 전환
             showToast("✨ 스캔 완료!");
             processCropAndScan(src, corners);
             src.delete();
@@ -312,41 +319,25 @@
 
         } catch(e) {
             console.error(e);
-            alert(e);
-            showToast("❌ 촬영 중 오류가 발생했습니다.");
+            showToast("❌ 오류 발생: " + e);
         }
     });
 
-    // 5. 토스트 알림 함수
-    let toastTimeout;
-    function showToast(message) {
-        toastEl.innerHTML = message;
-        toastEl.className = "show";
-        if (toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => { 
-            toastEl.className = toastEl.className.replace("show", ""); 
-        }, 2500);
-    }
-
-    // 6. 문서 감지 알고리즘 (Loose Mode)
+    // 6. 감지 알고리즘 (Loose Mode)
     function detectDocumentLoose(src) {
         let dst = new cv.Mat();
         let gray = new cv.Mat();
         let blur = new cv.Mat();
         let edges = new cv.Mat();
         
-        // 600px 리사이징
         let scale = 600 / src.cols;
         let dsize = new cv.Size(600, Math.round(src.rows * scale));
         cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
 
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
         cv.GaussianBlur(gray, blur, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-        
-        // 민감도 더 낮춤 (희미한 것도 잡도록)
         cv.Canny(blur, edges, 30, 120); 
 
-        // 모폴로지 (끊어진 선 잇기)
         let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
         cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
 
@@ -397,7 +388,6 @@
         return finalCorners;
     }
 
-    // 7. 오버레이 그리기
     function drawOverlay(corners) {
         if (!corners) return;
         overlayCtx.beginPath();
@@ -414,7 +404,6 @@
         overlayCtx.stroke();
     }
 
-    // 8. 투시 변환 & 필터
     function processCropAndScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
@@ -451,7 +440,7 @@
         return [top[0], top[1], bottom[1], bottom[0]];
     }
 
-    // 9. 파일 업로드
+    // 파일 업로드
     document.getElementById('fileInput').addEventListener('change', (e) => {
         let file = e.target.files[0];
         if(!file) return;
@@ -481,6 +470,16 @@
         reader.readAsDataURL(file);
         e.target.value = ''; 
     });
+
+    let toastTimeout;
+    function showToast(message) {
+        toastEl.innerHTML = message;
+        toastEl.className = "show";
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => { 
+            toastEl.className = toastEl.className.replace("show", ""); 
+        }, 2500);
+    }
 
     document.getElementById('retryBtn').addEventListener('click', () => location.reload());
     document.getElementById('downloadBtn').addEventListener('click', () => {
