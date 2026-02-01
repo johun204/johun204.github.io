@@ -22,7 +22,7 @@
         /* --- CSS Styles --- */
         html, body {
             overscroll-behavior-y: none;
-            touch-action: none; /* 모든 제스처 차단 (스크롤, 줌 등) */
+            touch-action: none;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #000;
             color: #fff;
@@ -31,13 +31,13 @@
             width: 100%;
             height: 100%;
             display: flex;
-            flex-direction: column; /* 세로 배치 */
+            flex-direction: column;
             overflow: hidden;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        /* 1. 메인 카메라 영역 (화면의 남은 공간 모두 차지) */
+        /* 1. 메인 카메라 영역 */
         main {
             flex: 1; 
             position: relative;
@@ -59,7 +59,7 @@
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            object-fit: cover; /* 화면 꽉 채우기 */
+            object-fit: cover;
         }
 
         /* 결과 화면 */
@@ -82,31 +82,30 @@
             border: 1px solid #333;
         }
 
-        /* 2. 하단 컨트롤 영역 (물리적으로 분리됨) */
+        /* 2. 하단 컨트롤 영역 (수정됨) */
         footer {
-            flex: 0 0 160px; /* 높이 160px 고정 (아이폰 홈바 포함 넉넉하게) */
+            flex: 0 0 auto; /* 내용물만큼만 높이 차지 */
             width: 100%;
-            background-color: #111; /* 완전 불투명 배경 */
+            background-color: #111;
             border-top: 1px solid #222;
-            padding: 20px 20px 40px 20px; /* 하단 패딩 */
+            padding: 20px 20px 40px 20px; /* 좌우 패딩 20px */
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
             z-index: 20;
+            display: flex;
+            justify-content: center; /* 중앙 정렬 */
         }
 
         .btn-container {
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
+            max-width: 500px; /* 태블릿 대응 */
             display: flex;
             flex-direction: column;
             gap: 12px;
+            box-sizing: border-box; /* 패딩 포함 계산 */
         }
 
         .btn {
-            width: 100%;
+            width: 100%; /* 부모 너비 꽉 채움 */
             padding: 16px;
             border-radius: 14px;
             font-size: 1rem;
@@ -120,6 +119,8 @@
             gap: 8px;
             transition: opacity 0.2s;
             -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box; /* 중요 */
+            margin: 0; /* 마진 초기화 */
         }
         .btn:active { opacity: 0.7; }
         
@@ -178,8 +179,8 @@
 
 <footer>
     <div class="btn-container">
-        <div id="cameraControls">
-            <button id="captureBtn" class="btn btn-capture">📸 촬영하기</button>
+        <div id="cameraControls" style="width: 100%;">
+            <button id="captureBtn" class="btn btn-capture" style="margin-bottom: 12px;">📸 촬영하기</button>
             <label class="btn btn-sub">
                 📂 앨범 선택
                 <input type="file" id="fileInput" accept="image/*">
@@ -203,9 +204,9 @@
     let lastStableQuad = null; 
     let missingFrames = 0;
     
-    // [핵심] 메모리 튕김 방지용 변수
+    // 메모리 튕김 방지용 변수
     let lastProcessTime = 0;
-    const PROCESS_INTERVAL = 200; // 0.2초마다 1번 감지 (5 FPS) -> 메모리 부하 대폭 감소
+    const PROCESS_INTERVAL = 200; // 0.2초마다 1번 감지 (5 FPS)
 
     const video = document.getElementById('videoInput');
     const overlayCanvas = document.getElementById('overlayCanvas');
@@ -225,7 +226,6 @@
     }
 
     async function startCamera() {
-        // [핵심] 4K 대신 FHD 사용 (안정성 최우선)
         const constraints = {
             video: {
                 facingMode: { exact: "environment" },
@@ -276,7 +276,6 @@
         if (video.paused || video.ended || !video.srcObject) return;
         if (!cvReady) { requestAnimationFrame(processVideoFrame); return; }
         
-        // [핵심] FPS 제한 로직
         if (timestamp - lastProcessTime < PROCESS_INTERVAL) {
             requestAnimationFrame(processVideoFrame);
             return;
@@ -293,18 +292,16 @@
                     missingFrames = 0;
                     currQuad = sortCorners(currQuad);
                     if (lastStableQuad) {
-                        lastStableQuad = interpolateQuad(lastStableQuad, currQuad, 0.4); // 0.4 정도로 부드럽게
+                        lastStableQuad = interpolateQuad(lastStableQuad, currQuad, 0.4);
                     } else {
                         lastStableQuad = currQuad;
                     }
                 } else {
                     missingFrames++;
-                    if (missingFrames > 10) lastStableQuad = null; // 10프레임(약 2초) 놓치면 초기화
+                    if (missingFrames > 10) lastStableQuad = null;
                 }
 
                 if (lastStableQuad) drawOverlay(lastStableQuad);
-                
-                // [매우 중요] 반드시 메모리 해제
                 src.delete(); 
             }
         } catch (err) {
@@ -319,7 +316,6 @@
         let blur = new cv.Mat();
         let edges = new cv.Mat();
         
-        // 탐지는 500px로 축소하여 수행 (메모리 절약 + 속도 향상)
         let scale = 500 / src.cols;
         let dsize = new cv.Size(500, Math.round(src.rows * scale));
         cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
@@ -379,7 +375,7 @@
         return finalCorners;
     }
 
-    // --- High-Quality Scan Logic ---
+    // --- High-Quality Scan Logic (HSV Leveling) ---
     function processHighQualityScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         
@@ -419,8 +415,8 @@
 
         // Saturation Boost & Remove Yellow (S Channel)
         let sSub = new cv.Mat();
-        cv.subtract(s, new cv.Mat(s.rows, s.cols, s.type(), new cv.Scalar(40)), s); // Remove weak colors (yellow)
-        cv.multiply(s, new cv.Mat(s.rows, s.cols, s.type(), new cv.Scalar(2.0)), s); // Boost strong colors (red)
+        cv.subtract(s, new cv.Mat(s.rows, s.cols, s.type(), new cv.Scalar(40)), s); 
+        cv.multiply(s, new cv.Mat(s.rows, s.cols, s.type(), new cv.Scalar(2.0)), s); 
 
         hsvPlanes.set(1, s);
         hsvPlanes.set(2, v);
@@ -506,7 +502,7 @@
     
     document.getElementById('downloadBtn').addEventListener('click', () => {
         let link = document.createElement('a');
-        link.download = 'scan.png';
+        link.download = 'download.png';
         link.href = outputCanvas.toDataURL('image/png', 1.0);
         link.click();
     });
