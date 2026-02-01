@@ -2,36 +2,46 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Doc Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Real-time Doc Scanner</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>📄 문서 스캐너</h1>
+    <h1>📄 실시간 문서 스캐너</h1>
     
     <p id="status">OpenCV 로딩 중...</p>
 
-    <div class="controls">
-        <label for="cameraInput" class="btn camera-btn">
-            📷 카메라 촬영
-            <input type="file" id="cameraInput" accept="image/*" capture="environment">
-        </label>
-
-        <label for="galleryInput" class="btn gallery-btn">
-            🖼️ 사진 불러오기
-            <input type="file" id="galleryInput" accept="image/*">
-        </label>
+    <div class="tab-container">
+        <button id="tabCamera" class="tab-btn active">📷 실시간 카메라</button>
+        <button id="tabFile" class="tab-btn">📂 파일 업로드</button>
     </div>
 
-    <img id="imageSrc" alt="No Image" />
+    <div id="cameraSection" class="section active-section">
+        <div class="video-wrapper">
+            <video id="videoInput" playsinline autoplay muted></video>
+            <canvas id="overlayCanvas"></canvas>
+        </div>
+        <button id="captureBtn" class="btn capture-btn" disabled>📸 찰칵 (스캔하기)</button>
+    </div>
 
-    <div class="canvas-container">
+    <div id="fileSection" class="section" style="display:none;">
+        <label for="fileInput" class="btn upload-btn">
+            이미지 선택하기
+            <input type="file" id="fileInput" accept="image/*">
+        </label>
+        <img id="imageSrc" alt="No Image" />
+    </div>
+
+    <div class="result-container" id="resultContainer" style="display:none;">
+        <h3>✅ 스캔 결과</h3>
         <canvas id="outputCanvas"></canvas>
+        <div class="btn-group">
+            <button id="downloadBtn" class="btn download-btn">⬇️ 저장하기</button>
+            <button id="retryBtn" class="btn retry-btn">🔄 다시 하기</button>
+        </div>
     </div>
-
-    <button id="downloadBtn" class="btn download-btn" style="display:none;">⬇️ 스캔본 저장</button>
 </div>
 
 <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
