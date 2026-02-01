@@ -58,7 +58,7 @@
             object-fit: cover;
         }
 
-        /* 버튼 영역 */
+        /* 컨트롤 버튼 */
         .controls {
             margin-top: 20px;
             width: 100%;
@@ -143,7 +143,7 @@
 <div id="toast">알림</div>
 
 <div class="container">
-    <h1>Smart Doc Scanner (Color)</h1>
+    <h1>Smart Scanner Pro</h1>
 
     <div id="cameraSection">
         <div class="camera-wrapper">
@@ -176,7 +176,12 @@
 <script>
     let cvReady = false;
     let videoStream = null;
-    let detectedQuad = null; // 감지된 좌표
+    
+    // [중요] 안정화를 위한 상태 변수들
+    let lastStableQuad = null; // 마지막으로 안정적으로 감지된 좌표 (부드러운 이동용)
+    let missingFrames = 0;     // 문서를 놓친 프레임 수 카운트
+    const MAX_MISSING_FRAMES = 10; // 10프레임 정도는 놓쳐도 기존 위치 유지 (깜빡임 방지)
+    const SMOOTHING_FACTOR = 0.4;  // 0.0 ~ 1.0 (낮을수록 더 부드럽지만 반응이 느림)
 
     // DOM Elements
     const video = document.getElementById('videoInput');
@@ -186,14 +191,12 @@
     const captureBtn = document.getElementById('captureBtn');
     const toastEl = document.getElementById('toast');
 
-    // 1. 초기화
     function onOpenCvReady() {
         cvReady = true;
         showToast("카메라를 실행합니다.");
         startCamera();
     }
 
-    // 2. 카메라 시작
     async function startCamera() {
         const constraints = {
             video: {
@@ -231,7 +234,6 @@
         }
     }
 
-    // 3. 안전한 프레임 캡처
     function captureFrameFromVideo(videoElement) {
         if (!videoElement.videoWidth || !videoElement.videoHeight) return null;
         let capCanvas = document.createElement('canvas');
@@ -242,7 +244,7 @@
         return cv.imread(capCanvas);
     }
 
-    // 4. 감지 루프
+    // --- [핵심] 실시간 감지 루프 및 안정화 로직 ---
     function processVideoFrame() {
         if (video.paused || video.ended || !video.srcObject) return;
         if (!cvReady) {
@@ -253,90 +255,85 @@
         try {
             let src = captureFrameFromVideo(video);
             if (src) {
-                // CLAHE 적용된 감지 로직 호출
-                let resultCoords = detectDocumentAdvanced(src);
+                // 1. 현재 프레임에서 문서 찾기
+                let currQuad = detectDocumentSensitive(src);
 
                 overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-                
-                if (resultCoords) {
-                    detectedQuad = resultCoords;
-                    drawOverlay(resultCoords);
+
+                // 2. 안정화 (Stabilization) 로직 적용
+                if (currQuad) {
+                    // 문서가 감지됨
+                    missingFrames = 0;
+                    
+                    // 꼭짓점 순서 정렬 (좌상, 우상, 우하, 좌하) - 매우 중요! 순서 꼬이면 꽈배기됨
+                    currQuad = sortCorners(currQuad);
+
+                    if (lastStableQuad) {
+                        // 기존 위치가 있으면 부드럽게 이동 (Interpolation)
+                        lastStableQuad = interpolateQuad(lastStableQuad, currQuad, SMOOTHING_FACTOR);
+                    } else {
+                        // 처음 감지면 바로 적용
+                        lastStableQuad = currQuad;
+                    }
                 } else {
-                    detectedQuad = null;
+                    // 문서가 감지 안 됨 -> 바로 없애지 말고 잠시 유지
+                    missingFrames++;
+                    if (missingFrames > MAX_MISSING_FRAMES) {
+                        lastStableQuad = null; // 오랫동안 못 찾으면 초기화
+                    }
                 }
+
+                // 3. 최종 결정된 좌표(lastStableQuad) 그리기
+                if (lastStableQuad) {
+                    drawOverlay(lastStableQuad);
+                }
+                
                 src.delete();
             }
         } catch (err) {
-            // console.error(err); 
+            // console.error(err);
         }
         requestAnimationFrame(processVideoFrame);
     }
 
-    // 5. 버튼 핸들러
-    captureBtn.addEventListener('click', () => {
-        if (!cvReady) { showToast("⏳ 로딩 중..."); return; }
-        if (!video.srcObject || video.readyState < 2) { showToast("📷 카메라 준비 중..."); return; }
-
-        try {
-            let src = captureFrameFromVideo(video);
-            if (!src) { showToast("⚠️ 캡처 실패. 다시 시도해주세요."); return; }
-
-            let corners = detectedQuad;
-            if (!corners) {
-                corners = detectDocumentAdvanced(src); // 정밀 재검사
-            }
-
-            if (!corners) {
-                showToast("⚠️ 문서 테두리를 찾지 못했습니다.\n배경과 구분이 잘 되게 놓아주세요.");
-                src.delete(); 
-                return;
-            }
-
-            showToast("✨ 스캔 완료 (컬러 보정 중)");
-            processCropAndScanColor(src, corners); // 컬러 처리 함수 호출
-            src.delete();
-            
-            stopCamera();
-            document.getElementById('cameraSection').style.display = 'none';
-            document.getElementById('resultSection').style.display = 'block';
-
-        } catch(e) {
-            console.error(e);
-            showToast("❌ 오류 발생");
+    // --- [핵심] 보간법 함수 (부드러운 움직임) ---
+    function interpolateQuad(oldQuad, newQuad, factor) {
+        let result = [];
+        for (let i = 0; i < 4; i++) {
+            result.push({
+                x: oldQuad[i].x + (newQuad[i].x - oldQuad[i].x) * factor,
+                y: oldQuad[i].y + (newQuad[i].y - oldQuad[i].y) * factor
+            });
         }
-    });
+        return result;
+    }
 
-    // 6. [개선됨] 고급 문서 감지 (CLAHE 적용 - 흰 배경 인식 강화)
-    function detectDocumentAdvanced(src) {
+    // --- [핵심] 개선된 감지 알고리즘 (흰색/아이보리 구분) ---
+    function detectDocumentSensitive(src) {
         let dst = new cv.Mat();
         let gray = new cv.Mat();
         let blur = new cv.Mat();
         let edges = new cv.Mat();
         
-        // 리사이징
+        // 1. 다운샘플링
         let scale = 600 / src.cols;
         let dsize = new cv.Size(600, Math.round(src.rows * scale));
         cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
 
-        // 1. 그레이스케일 변환
+        // 2. 그레이스케일 & 블러
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
+        // 블러를 조금 더 강하게 주어 노이즈(책상 질감 등)를 뭉갭니다.
+        cv.GaussianBlur(gray, blur, new cv.Size(7, 7), 0, 0, cv.BORDER_DEFAULT);
 
-        // [핵심 1] CLAHE 적용 (대비 극대화)
-        // 하얀 종이 위 하얀 배경의 미세한 그림자를 강조함
-        let tileGridSize = new cv.Size(8, 8);
-        let clahe = new cv.CLAHE(2.0, tileGridSize); // 2.0은 대비 제한값
-        clahe.apply(gray, gray);
-        clahe.delete();
+        // 3. Canny Edge (임계값 대폭 하향)
+        // 아이보리-흰색 경계는 차이가 매우 적으므로 (10, 50) 정도로 낮춰서 미세 엣지까지 잡습니다.
+        cv.Canny(blur, edges, 10, 50); 
 
-        // 2. 가우시안 블러
-        cv.GaussianBlur(gray, blur, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-        
-        // 3. 엣지 검출
-        cv.Canny(blur, edges, 50, 150); 
-
-        // 4. 모폴로지 (끊어진 선 연결)
-        let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
-        cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
+        // 4. 모폴로지 (팽창) - 중요!
+        // 미세한 엣지들은 끊겨있을 확률이 높으므로 강하게 연결해줍니다.
+        let kernel = cv.Mat.ones(5, 5, cv.CV_8U); // 커널 크기를 키울 수도 있음
+        cv.dilate(edges, edges, kernel); 
+        // cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel); // 닫기 연산도 좋음
 
         // 5. 컨투어 찾기
         let contours = new cv.MatVector();
@@ -345,16 +342,19 @@
 
         let maxArea = 0;
         let foundCnt = null;
-        const minArea = (dsize.width * dsize.height) * 0.05;
+        // 너무 작은 노이즈 사각형은 무시 (화면의 10% 이상)
+        const minArea = (dsize.width * dsize.height) * 0.1; 
 
         for (let i = 0; i < contours.size(); ++i) {
             let cnt = contours.get(i);
             let area = cv.contourArea(cnt);
+
             if (area < minArea) continue;
 
             let peri = cv.arcLength(cnt, true);
             let approx = new cv.Mat();
-            cv.approxPolyDP(cnt, approx, 0.03 * peri, true);
+            // 0.03 ~ 0.04: 약간 둥글거나 구겨져도 사각형으로 인정
+            cv.approxPolyDP(cnt, approx, 0.04 * peri, true);
 
             if (approx.rows === 4 && cv.isContourConvex(approx)) {
                 if (area > maxArea) {
@@ -383,14 +383,50 @@
 
         dst.delete(); gray.delete(); blur.delete(); 
         edges.delete(); kernel.delete(); contours.delete(); hierarchy.delete();
+        
         return finalCorners;
     }
 
-    // 7. [개선됨] 컬러 스캔 변환 처리 (컬러 유지 + 스캔 효과)
+    captureBtn.addEventListener('click', () => {
+        if (!cvReady) { showToast("⏳ 로딩 중..."); return; }
+        if (!video.srcObject || video.readyState < 2) { showToast("📷 카메라 준비 중..."); return; }
+
+        try {
+            let src = captureFrameFromVideo(video);
+            if (!src) { showToast("⚠️ 캡처 실패"); return; }
+
+            // [수정] 촬영 시에는 '현재 안정화된 좌표'를 우선 사용
+            let corners = lastStableQuad;
+
+            // 안정화된 좌표가 없다면, 현재 프레임 정밀 분석 시도
+            if (!corners) {
+                corners = detectDocumentSensitive(src);
+            }
+
+            if (!corners) {
+                showToast("⚠️ 문서 테두리를 찾지 못했습니다.");
+                src.delete(); 
+                return;
+            }
+
+            showToast("✨ 스캔 완료");
+            processCropAndScanColor(src, corners);
+            src.delete();
+            
+            stopCamera();
+            document.getElementById('cameraSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'block';
+
+        } catch(e) {
+            console.error(e);
+            showToast("❌ 오류 발생");
+        }
+    });
+
+    // 컬러 유지 및 스캔 보정
     function processCropAndScanColor(srcMat, corners) {
         let sorted = sortCorners(corners);
         
-        // 크기 계산
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
         let widthBottom = Math.hypot(sorted[2].x - sorted[3].x, sorted[2].y - sorted[3].y);
         let maxWidth = Math.max(widthTop, widthBottom);
@@ -409,30 +445,21 @@
         let M = cv.getPerspectiveTransform(srcTri, dstTri);
         let dst = new cv.Mat();
         
-        // 1. 이미지 펴기 (Warp) - 여기서는 아직 컬러 유지됨
         cv.warpPerspective(srcMat, dst, M, new cv.Size(maxWidth, maxHeight), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
 
-        // [핵심 2] 스캔 효과 적용 (이진화 대신 밝기/대비 조절로 컬러 유지)
-        // 밝기(Beta)를 높여 회색 배경을 흰색으로 날리고, 대비(Alpha)를 높여 글자를 진하게 함
-        
-        // alpha: 대비 (1.0 이상이면 대비 증가) -> 1.2 정도면 적당
-        // beta: 밝기 (양수면 밝아짐) -> 30 정도면 배경 날리기 좋음
-        let alpha = 1.2; 
-        let beta = 30;
-        
-        // dst = dst * alpha + beta
-        dst.convertTo(dst, -1, alpha, beta);
+        // 컬러 스캔 효과 (대비 증가, 밝기 증가)
+        // Alpha(대비) 1.1, Beta(밝기) 20
+        dst.convertTo(dst, -1, 1.1, 20);
 
-        // 3. 선명하게 (Sharpening) - 글자 또렷하게
+        // 선명하게 (Sharpen)
         let kernel = cv.matFromArray(3, 3, cv.CV_32F, [
-            0, -1, 0,
-            -1, 5, -1,
-            0, -1, 0
+            0, -0.5, 0,
+            -0.5, 3, -0.5,
+            0, -0.5, 0
         ]);
         let anchor = new cv.Point(-1, -1);
         cv.filter2D(dst, dst, cv.CV_8U, kernel, anchor, 0, cv.BORDER_DEFAULT);
 
-        // 결과 출력
         cv.imshow('outputCanvas', dst);
 
         srcTri.delete(); dstTri.delete(); M.delete(); dst.delete(); kernel.delete();
@@ -447,21 +474,34 @@
         overlayCtx.lineTo(corners[3].x, corners[3].y);
         overlayCtx.closePath();
 
-        overlayCtx.fillStyle = "rgba(10, 132, 255, 0.2)";
+        overlayCtx.fillStyle = "rgba(50, 215, 75, 0.2)"; // 안정된 느낌의 녹색
         overlayCtx.fill();
-        overlayCtx.strokeStyle = "#0a84ff";
+        overlayCtx.strokeStyle = "#32d74b";
         overlayCtx.lineWidth = 4;
         overlayCtx.stroke();
+        
+        // 코너 포인트
+        overlayCtx.fillStyle = "#fff";
+        corners.forEach(p => {
+            overlayCtx.beginPath();
+            overlayCtx.arc(p.x, p.y, 6, 0, 2 * Math.PI);
+            overlayCtx.fill();
+        });
     }
 
     function sortCorners(points) {
-        points.sort((a, b) => a.y - b.y);
-        let top = points.slice(0, 2).sort((a, b) => a.x - b.x);
-        let bottom = points.slice(2, 4).sort((a, b) => a.x - b.x);
+        // Y축 정렬
+        let sortedY = points.slice().sort((a, b) => a.y - b.y);
+        
+        // 상단 2개, 하단 2개 분리
+        let top = sortedY.slice(0, 2).sort((a, b) => a.x - b.x);
+        let bottom = sortedY.slice(2, 4).sort((a, b) => a.x - b.x);
+        
+        // TL, TR, BR, BL 순서 반환
         return [top[0], top[1], bottom[1], bottom[0]];
     }
 
-    // 파일 업로드 처리
+    // 파일 업로드
     document.getElementById('fileInput').addEventListener('change', (e) => {
         let file = e.target.files[0];
         if(!file) return;
@@ -471,10 +511,10 @@
             let img = new Image();
             img.onload = () => {
                 let src = cv.imread(img);
-                let corners = detectDocumentAdvanced(src);
+                let corners = detectDocumentSensitive(src);
                 
                 if(!corners) {
-                    showToast("⚠️ 문서 인식 실패");
+                    showToast("⚠️ 문서를 찾기 어렵습니다.");
                     src.delete();
                     return;
                 }
@@ -505,7 +545,7 @@
     document.getElementById('retryBtn').addEventListener('click', () => location.reload());
     document.getElementById('downloadBtn').addEventListener('click', () => {
         let link = document.createElement('a');
-        link.download = 'scan_color.png';
+        link.download = 'scan_result.png';
         link.href = outputCanvas.toDataURL();
         link.click();
     });
