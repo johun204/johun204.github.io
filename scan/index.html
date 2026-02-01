@@ -4,18 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Document Scanner</title>
-<link rel="icon" type="image/png" sizes="16x16" href="/scan/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/scan/favicon-32x32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
-<link rel="manifest" href="/scan/site.webmanifest">
-<meta name="theme-color" content="#ffffff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="scan Meter">
-<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
-<meta name="theme-color" content="#ffffff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-
+	<link rel="icon" type="image/png" sizes="16x16" href="/scan/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/scan/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
+	<link rel="manifest" href="/scan/site.webmanifest">
+	<meta name="theme-color" content="#ffffff">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta name="apple-mobile-web-app-title" content="scan Meter">
+	<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
+	<meta name="theme-color" content="#ffffff">
+	<meta name="apple-mobile-web-app-capable" content="yes">
     <style>
         /* --- CSS Styles --- */
         body {
@@ -144,7 +143,7 @@
 <div id="toast">알림</div>
 
 <div class="container">
-    <h1>Web Document Scanner</h1>
+    <h1>Smart Doc Scanner (Color)</h1>
 
     <div id="cameraSection">
         <div class="camera-wrapper">
@@ -177,7 +176,7 @@
 <script>
     let cvReady = false;
     let videoStream = null;
-    let detectedQuad = null; // 실시간 감지된 좌표
+    let detectedQuad = null; // 감지된 좌표
 
     // DOM Elements
     const video = document.getElementById('videoInput');
@@ -214,7 +213,6 @@
             video.srcObject = videoStream;
             video.onloadedmetadata = () => {
                 video.play().then(() => {
-                    // 비디오 실제 크기에 맞춰 오버레이 캔버스 조정
                     overlayCanvas.width = video.videoWidth;
                     overlayCanvas.height = video.videoHeight;
                     requestAnimationFrame(processVideoFrame);
@@ -233,29 +231,18 @@
         }
     }
 
-    // 3. [핵심 수정] 안전한 프레임 읽기 함수 (Canvas 경유)
+    // 3. 안전한 프레임 캡처
     function captureFrameFromVideo(videoElement) {
-        // 비디오 크기 검증
-        if (!videoElement.videoWidth || !videoElement.videoHeight) {
-            return null;
-        }
-        
-        // 1. 임시 캔버스를 생성하거나 오버레이 캔버스 활용
-        // (여기서는 오버레이 캔버스에 이미 사이즈가 맞춰져 있으므로 활용 가능하지만,
-        //  순수 데이터 추출을 위해 별도 메모리 캔버스를 쓰는 게 가장 안전함)
+        if (!videoElement.videoWidth || !videoElement.videoHeight) return null;
         let capCanvas = document.createElement('canvas');
         capCanvas.width = videoElement.videoWidth;
         capCanvas.height = videoElement.videoHeight;
         let ctx = capCanvas.getContext('2d');
-        
-        // 2. 비디오 화면을 캔버스에 그림 (이 시점에 사이즈 불일치 문제 해결됨)
         ctx.drawImage(videoElement, 0, 0, capCanvas.width, capCanvas.height);
-        
-        // 3. 캔버스에서 OpenCV Mat 생성 (imread는 사이즈 오류가 없음)
         return cv.imread(capCanvas);
     }
 
-    // 4. 루프: 화면 인식
+    // 4. 감지 루프
     function processVideoFrame() {
         if (video.paused || video.ended || !video.srcObject) return;
         if (!cvReady) {
@@ -264,11 +251,10 @@
         }
 
         try {
-            // [수정됨] VideoCapture 대신 Canvas 경유 캡처
             let src = captureFrameFromVideo(video);
-            
             if (src) {
-                let resultCoords = detectDocumentLoose(src);
+                // CLAHE 적용된 감지 로직 호출
+                let resultCoords = detectDocumentAdvanced(src);
 
                 overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
                 
@@ -278,51 +264,36 @@
                 } else {
                     detectedQuad = null;
                 }
-                src.delete(); // 메모리 해제 필수
+                src.delete();
             }
         } catch (err) {
-            console.error("Frame process error:", err);
+            // console.error(err); 
         }
-        
         requestAnimationFrame(processVideoFrame);
     }
 
-    // 5. 버튼 클릭 핸들러
+    // 5. 버튼 핸들러
     captureBtn.addEventListener('click', () => {
-        if (!cvReady) {
-            showToast("⏳ 스캔 엔진 로딩 중...");
-            return;
-        }
-        if (!video.srcObject || video.readyState < 2) {
-            showToast("📷 카메라 로딩 중...");
-            return;
-        }
+        if (!cvReady) { showToast("⏳ 로딩 중..."); return; }
+        if (!video.srcObject || video.readyState < 2) { showToast("📷 카메라 준비 중..."); return; }
 
         try {
-            // [수정됨] 안전한 캡처 방식 사용
             let src = captureFrameFromVideo(video);
-            
-            if (!src) {
-                showToast("⚠️ 화면 정보를 읽을 수 없습니다.\n잠시 후 다시 시도해주세요.");
-                return;
-            }
+            if (!src) { showToast("⚠️ 캡처 실패. 다시 시도해주세요."); return; }
 
-            // 1. 실시간 감지 좌표 우선 사용
             let corners = detectedQuad;
-
-            // 2. 없으면 현재 프레임 정밀 분석
             if (!corners) {
-                corners = detectDocumentLoose(src);
+                corners = detectDocumentAdvanced(src); // 정밀 재검사
             }
 
             if (!corners) {
-                showToast("⚠️ 문서를 찾지 못했습니다.\n배경과 구분되게 놓아주세요.");
+                showToast("⚠️ 문서 테두리를 찾지 못했습니다.\n배경과 구분이 잘 되게 놓아주세요.");
                 src.delete(); 
                 return;
             }
 
-            showToast("✨ 스캔 완료!");
-            processCropAndScan(src, corners);
+            showToast("✨ 스캔 완료 (컬러 보정 중)");
+            processCropAndScanColor(src, corners); // 컬러 처리 함수 호출
             src.delete();
             
             stopCamera();
@@ -331,28 +302,43 @@
 
         } catch(e) {
             console.error(e);
-            showToast("❌ 오류 발생: " + e);
+            showToast("❌ 오류 발생");
         }
     });
 
-    // 6. 감지 알고리즘 (Loose Mode)
-    function detectDocumentLoose(src) {
+    // 6. [개선됨] 고급 문서 감지 (CLAHE 적용 - 흰 배경 인식 강화)
+    function detectDocumentAdvanced(src) {
         let dst = new cv.Mat();
         let gray = new cv.Mat();
         let blur = new cv.Mat();
         let edges = new cv.Mat();
         
+        // 리사이징
         let scale = 600 / src.cols;
         let dsize = new cv.Size(600, Math.round(src.rows * scale));
         cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
 
+        // 1. 그레이스케일 변환
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
-        cv.GaussianBlur(gray, blur, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-        cv.Canny(blur, edges, 30, 120); 
 
+        // [핵심 1] CLAHE 적용 (대비 극대화)
+        // 하얀 종이 위 하얀 배경의 미세한 그림자를 강조함
+        let tileGridSize = new cv.Size(8, 8);
+        let clahe = new cv.CLAHE(2.0, tileGridSize); // 2.0은 대비 제한값
+        clahe.apply(gray, gray);
+        clahe.delete();
+
+        // 2. 가우시안 블러
+        cv.GaussianBlur(gray, blur, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+        
+        // 3. 엣지 검출
+        cv.Canny(blur, edges, 50, 150); 
+
+        // 4. 모폴로지 (끊어진 선 연결)
         let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
         cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
 
+        // 5. 컨투어 찾기
         let contours = new cv.MatVector();
         let hierarchy = new cv.Mat();
         cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
@@ -400,24 +386,11 @@
         return finalCorners;
     }
 
-    function drawOverlay(corners) {
-        if (!corners) return;
-        overlayCtx.beginPath();
-        overlayCtx.moveTo(corners[0].x, corners[0].y);
-        overlayCtx.lineTo(corners[1].x, corners[1].y);
-        overlayCtx.lineTo(corners[2].x, corners[2].y);
-        overlayCtx.lineTo(corners[3].x, corners[3].y);
-        overlayCtx.closePath();
-
-        overlayCtx.fillStyle = "rgba(0, 255, 0, 0.2)";
-        overlayCtx.fill();
-        overlayCtx.strokeStyle = "#00ff00";
-        overlayCtx.lineWidth = 4;
-        overlayCtx.stroke();
-    }
-
-    function processCropAndScan(srcMat, corners) {
+    // 7. [개선됨] 컬러 스캔 변환 처리 (컬러 유지 + 스캔 효과)
+    function processCropAndScanColor(srcMat, corners) {
         let sorted = sortCorners(corners);
+        
+        // 크기 계산
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
         let widthBottom = Math.hypot(sorted[2].x - sorted[3].x, sorted[2].y - sorted[3].y);
         let maxWidth = Math.max(widthTop, widthBottom);
@@ -435,14 +408,50 @@
 
         let M = cv.getPerspectiveTransform(srcTri, dstTri);
         let dst = new cv.Mat();
+        
+        // 1. 이미지 펴기 (Warp) - 여기서는 아직 컬러 유지됨
         cv.warpPerspective(srcMat, dst, M, new cv.Size(maxWidth, maxHeight), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
 
-        cv.cvtColor(dst, dst, cv.COLOR_RGBA2GRAY, 0);
-        cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 15, 10);
+        // [핵심 2] 스캔 효과 적용 (이진화 대신 밝기/대비 조절로 컬러 유지)
+        // 밝기(Beta)를 높여 회색 배경을 흰색으로 날리고, 대비(Alpha)를 높여 글자를 진하게 함
+        
+        // alpha: 대비 (1.0 이상이면 대비 증가) -> 1.2 정도면 적당
+        // beta: 밝기 (양수면 밝아짐) -> 30 정도면 배경 날리기 좋음
+        let alpha = 1.2; 
+        let beta = 30;
+        
+        // dst = dst * alpha + beta
+        dst.convertTo(dst, -1, alpha, beta);
 
+        // 3. 선명하게 (Sharpening) - 글자 또렷하게
+        let kernel = cv.matFromArray(3, 3, cv.CV_32F, [
+            0, -1, 0,
+            -1, 5, -1,
+            0, -1, 0
+        ]);
+        let anchor = new cv.Point(-1, -1);
+        cv.filter2D(dst, dst, cv.CV_8U, kernel, anchor, 0, cv.BORDER_DEFAULT);
+
+        // 결과 출력
         cv.imshow('outputCanvas', dst);
 
-        srcTri.delete(); dstTri.delete(); M.delete(); dst.delete();
+        srcTri.delete(); dstTri.delete(); M.delete(); dst.delete(); kernel.delete();
+    }
+
+    function drawOverlay(corners) {
+        if (!corners) return;
+        overlayCtx.beginPath();
+        overlayCtx.moveTo(corners[0].x, corners[0].y);
+        overlayCtx.lineTo(corners[1].x, corners[1].y);
+        overlayCtx.lineTo(corners[2].x, corners[2].y);
+        overlayCtx.lineTo(corners[3].x, corners[3].y);
+        overlayCtx.closePath();
+
+        overlayCtx.fillStyle = "rgba(10, 132, 255, 0.2)";
+        overlayCtx.fill();
+        overlayCtx.strokeStyle = "#0a84ff";
+        overlayCtx.lineWidth = 4;
+        overlayCtx.stroke();
     }
 
     function sortCorners(points) {
@@ -452,7 +461,7 @@
         return [top[0], top[1], bottom[1], bottom[0]];
     }
 
-    // 파일 업로드
+    // 파일 업로드 처리
     document.getElementById('fileInput').addEventListener('change', (e) => {
         let file = e.target.files[0];
         if(!file) return;
@@ -462,19 +471,19 @@
             let img = new Image();
             img.onload = () => {
                 let src = cv.imread(img);
-                let corners = detectDocumentLoose(src);
+                let corners = detectDocumentAdvanced(src);
                 
                 if(!corners) {
-                    showToast("⚠️ 이미지에서 문서를 찾을 수 없습니다.");
+                    showToast("⚠️ 문서 인식 실패");
                     src.delete();
                     return;
                 }
 
-                showToast("✨ 이미지 로드 성공!");
+                showToast("✨ 이미지 로드 성공");
                 stopCamera();
                 document.getElementById('cameraSection').style.display = 'none';
                 document.getElementById('resultSection').style.display = 'block';
-                processCropAndScan(src, corners);
+                processCropAndScanColor(src, corners);
                 src.delete();
             };
             img.src = ev.target.result;
@@ -496,7 +505,7 @@
     document.getElementById('retryBtn').addEventListener('click', () => location.reload());
     document.getElementById('downloadBtn').addEventListener('click', () => {
         let link = document.createElement('a');
-        link.download = 'scan_result.png';
+        link.download = 'scan_color.png';
         link.href = outputCanvas.toDataURL();
         link.click();
     });
