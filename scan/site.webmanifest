@@ -1,0 +1,12 @@
+{
+  "name": "Document Scanner",
+  "short_name": "Document Scanner",
+  "start_url": "/scan",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/scan/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/scan/icon-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
