@@ -28,85 +28,93 @@
             color: #fff;
             margin: 0;
             padding: 0;
-            height: 100%; /* 전체 높이 사용 */
+            height: 100%; /* 전체 화면 높이 고정 */
+            display: flex;
+            flex-direction: column; /* 세로형 배치 (헤더-카메라-푸터) */
             overflow: hidden;
             -webkit-user-select: none;
             user-select: none;
-            -webkit-touch-callout: none;
         }
 
-        .container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background-color: #000;
-            position: relative;
-        }
-
-        /* 상단 타이틀 (앱바 느낌) */
+        /* 1. 상단 헤더 (영역 고정) */
         header {
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-            background: rgba(0,0,0,0.3);
-            position: absolute;
-            top: 0;
-            left: 0;
+            flex: 0 0 60px; /* 높이 60px 고정 */
+            background-color: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #222;
             z-index: 10;
         }
         h1 { 
             margin: 0; 
             font-size: 1.1rem; 
-            font-weight: 500; 
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            font-weight: 600; 
+            letter-spacing: 0.5px;
         }
 
-        /* 1. 카메라 섹션 (전체 화면 모드) */
-        #cameraSection {
-            flex: 1; /* 남은 공간 모두 차지 */
-            display: flex;
-            flex-direction: column;
+        /* 2. 메인 컨텐츠 (카메라/결과) - 남은 공간 모두 차지 */
+        main {
+            flex: 1; 
             position: relative;
+            background-color: #000;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        /* 카메라 뷰포트 */
+        .camera-view {
             width: 100%;
             height: 100%;
-        }
-
-        .camera-wrapper {
-            flex: 1; /* 높이를 꽉 채움 */
-            width: 100%;
             position: relative;
-            overflow: hidden;
-            background: #000;
         }
 
         video, canvas#overlayCanvas {
             position: absolute;
             top: 0; left: 0;
-            width: 100%; 
-            height: 100%;
-            object-fit: cover; /* 화면 꽉 채우기 (비율 유지하며 잘림) */
+            width: 100%; height: 100%;
+            object-fit: cover; /* 화면 꽉 채우기 */
         }
 
-        /* 컨트롤 패널 (하단 고정) */
-        .controls {
+        /* 결과 화면 (스크롤 가능) */
+        #resultSection {
+            display: none;
             width: 100%;
-            padding: 20px 20px 40px 20px; /* 하단 여백 넉넉히 (아이폰 홈바 대응) */
+            height: 100%;
+            background: #111;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
             box-sizing: border-box;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-            position: absolute;
-            bottom: 0;
-            left: 0;
+        }
+
+        canvas#outputCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid #333;
+        }
+
+        /* 3. 하단 컨트롤 (영역 고정) */
+        footer {
+            flex: 0 0 140px; /* 높이 140px 고정 */
+            background-color: #111;
+            border-top: 1px solid #222;
+            padding: 20px;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             gap: 12px;
-            z-index: 20;
+            z-index: 10;
         }
 
+        /* 버튼 스타일 */
         .btn {
-            padding: 18px;
-            border-radius: 16px;
-            font-size: 1.1rem;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
             border: none;
             cursor: pointer;
@@ -115,127 +123,84 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            backdrop-filter: blur(5px);
-            -webkit-tap-highlight-color: transparent;
+            transition: opacity 0.2s;
         }
-        .btn:active { transform: scale(0.96); opacity: 0.9; }
+        .btn:active { opacity: 0.7; }
         
         .btn-capture { 
             background-color: #ff3b30; 
-            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); 
-            height: 60px; /* 버튼 크기 키움 */
+            font-size: 1.1rem;
+            height: 55px;
         }
-        .btn-upload { 
-            background-color: rgba(255, 255, 255, 0.2); 
-            color: #eee; 
-            font-size: 0.95rem;
-            padding: 14px;
+        .btn-sub { 
+            background-color: #333; 
+            color: #ccc; 
+            height: 45px;
         }
+        .btn-save { background-color: #30d158; color: #000; }
+        .btn-retry { background-color: #444; }
 
-        /* 2. 결과 섹션 (스크롤 가능) */
-        #resultSection { 
-            display: none; 
-            width: 100%; 
-            height: 100%; 
-            background: #111;
-            flex-direction: column;
-        }
-        
-        #resultContent {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        canvas#outputCanvas {
-            width: 100%;
-            max-width: 800px; /* 너무 커지는 것 방지 */
-            height: auto;
-            border-radius: 8px;
-            border: 1px solid #333;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
-
-        .result-controls {
-            padding: 20px;
-            background: #222;
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-download { background-color: #30d158; color: #000; flex: 1; }
-        .btn-retry { background-color: #444; flex: 1; }
+        .btn-group { display: flex; gap: 10px; width: 100%; }
+        .btn-group .btn { flex: 1; }
 
         /* 토스트 알림 */
         #toast {
             visibility: hidden;
             min-width: 200px;
-            background-color: rgba(40, 40, 40, 0.95);
+            background-color: rgba(50, 50, 50, 0.95);
             color: #fff;
             text-align: center;
             border-radius: 50px;
             padding: 12px 24px;
             position: fixed;
-            z-index: 99999; 
+            z-index: 9999; 
             left: 50%;
-            top: 80px; /* 하단 버튼 가리지 않게 상단으로 이동 */
+            top: 80px; /* 헤더 아래쪽 */
             transform: translateX(-50%);
             font-size: 0.9rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             opacity: 0;
-            transition: opacity 0.3s, top 0.3s;
-            pointer-events: none;
-            border: 1px solid #555;
+            transition: opacity 0.3s;
+            border: 1px solid #666;
         }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            top: 90px;
-        }
+        #toast.show { visibility: visible; opacity: 1; }
 
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-<div id="toast">알림</div>
+<header>
+    <h1>Clear Scan Pro</h1>
+</header>
 
-<div class="container">
-    <header>
-        <h1 id="appTitle">Scanner Pro</h1>
-    </header>
-
-    <div id="cameraSection">
-        <div class="camera-wrapper">
-            <video id="videoInput" playsinline autoplay muted></video>
-            <canvas id="overlayCanvas"></canvas>
-        </div>
-
-        <div class="controls">
-            <button id="captureBtn" class="btn btn-capture">
-                📸 촬영하기
-            </button>
-            <label class="btn btn-upload">
-                📂 앨범에서 가져오기
-                <input type="file" id="fileInput" accept="image/*">
-            </label>
-        </div>
+<main>
+    <div id="cameraSection" class="camera-view">
+        <video id="videoInput" playsinline autoplay muted></video>
+        <canvas id="overlayCanvas"></canvas>
     </div>
 
     <div id="resultSection">
-        <div id="resultContent">
-            <canvas id="outputCanvas"></canvas>
-        </div>
-        <div class="result-controls">
-            <button id="retryBtn" class="btn btn-retry">🔄 재촬영</button>
-            <button id="downloadBtn" class="btn btn-download">⬇️ 저장</button>
-        </div>
+        <canvas id="outputCanvas"></canvas>
     </div>
-</div>
+</main>
+
+<footer id="footerControls">
+    <div id="cameraControls">
+        <button id="captureBtn" class="btn btn-capture">📸 문서 촬영</button>
+        <label class="btn btn-sub">
+            📂 앨범에서 불러오기
+            <input type="file" id="fileInput" accept="image/*">
+        </label>
+    </div>
+
+    <div id="resultControls" style="display:none;" class="btn-group">
+        <button id="retryBtn" class="btn btn-retry">🔄 재촬영</button>
+        <button id="downloadBtn" class="btn btn-save">⬇️ 갤러리 저장</button>
+    </div>
+</footer>
+
+<div id="toast">알림</div>
 
 <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
 
@@ -244,10 +209,8 @@
     let videoStream = null;
     let lastStableQuad = null; 
     let missingFrames = 0;
-    const MAX_MISSING_FRAMES = 12; 
-    const SMOOTHING_FACTOR = 0.3;
-
-    // 과부하 방지 타이머
+    
+    // 과부하 방지
     let lastProcessTime = 0;
     const PROCESS_INTERVAL = 60; 
 
@@ -256,17 +219,21 @@
     const overlayCanvas = document.getElementById('overlayCanvas');
     const overlayCtx = overlayCanvas.getContext('2d');
     const outputCanvas = document.getElementById('outputCanvas');
-    const captureBtn = document.getElementById('captureBtn');
     const toastEl = document.getElementById('toast');
+
+    // UI Groups
+    const cameraSection = document.getElementById('cameraSection');
+    const resultSection = document.getElementById('resultSection');
+    const cameraControls = document.getElementById('cameraControls');
+    const resultControls = document.getElementById('resultControls');
 
     function onOpenCvReady() {
         cvReady = true;
-        showToast("시스템 준비 완료.");
+        showToast("시스템 준비 완료");
         startCamera();
     }
 
     async function startCamera() {
-        // FHD (1920x1080) 설정 (안정성과 화질의 균형)
         const constraints = {
             video: {
                 facingMode: { exact: "environment" },
@@ -283,18 +250,16 @@
                     video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } 
                 });
             }
-
             video.srcObject = videoStream;
             video.onloadedmetadata = () => {
                 video.play().then(() => {
                     overlayCanvas.width = video.videoWidth;
                     overlayCanvas.height = video.videoHeight;
                     requestAnimationFrame(processVideoFrame);
-                }).catch(err => console.error(err));
+                }).catch(console.error);
             };
         } catch (err) {
-            console.error(err);
-            showToast("❌ 카메라 권한이 없습니다.");
+            showToast("❌ 카메라 권한 없음");
         }
     }
 
@@ -317,11 +282,8 @@
 
     function processVideoFrame(timestamp) {
         if (video.paused || video.ended || !video.srcObject) return;
-        if (!cvReady) {
-            requestAnimationFrame(processVideoFrame);
-            return;
-        }
-
+        if (!cvReady) { requestAnimationFrame(processVideoFrame); return; }
+        
         if (timestamp - lastProcessTime < PROCESS_INTERVAL) {
             requestAnimationFrame(processVideoFrame);
             return;
@@ -338,13 +300,13 @@
                     missingFrames = 0;
                     currQuad = sortCorners(currQuad);
                     if (lastStableQuad) {
-                        lastStableQuad = interpolateQuad(lastStableQuad, currQuad, SMOOTHING_FACTOR);
+                        lastStableQuad = interpolateQuad(lastStableQuad, currQuad, 0.3);
                     } else {
                         lastStableQuad = currQuad;
                     }
                 } else {
                     missingFrames++;
-                    if (missingFrames > MAX_MISSING_FRAMES) lastStableQuad = null; 
+                    if (missingFrames > 12) lastStableQuad = null; 
                 }
 
                 if (lastStableQuad) drawOverlay(lastStableQuad);
@@ -354,17 +316,7 @@
         requestAnimationFrame(processVideoFrame);
     }
 
-    function interpolateQuad(oldQuad, newQuad, factor) {
-        let result = [];
-        for (let i = 0; i < 4; i++) {
-            result.push({
-                x: oldQuad[i].x + (newQuad[i].x - oldQuad[i].x) * factor,
-                y: oldQuad[i].y + (newQuad[i].y - oldQuad[i].y) * factor
-            });
-        }
-        return result;
-    }
-
+    // --- 문서 감지 (안정성 강화) ---
     function detectDocumentRobust(src) {
         let dst = new cv.Mat();
         let gray = new cv.Mat();
@@ -430,49 +382,11 @@
         return finalCorners;
     }
 
-    captureBtn.addEventListener('click', () => {
-        if (!cvReady) { showToast("⏳ 로딩 중..."); return; }
-        if (!video.srcObject || video.readyState < 2) { showToast("📷 카메라 준비 중..."); return; }
-
-        try {
-            let src = captureFrameFromVideo(video);
-            if (!src) { showToast("⚠️ 캡처 실패"); return; }
-
-            let corners = lastStableQuad;
-            if (!corners) corners = detectDocumentRobust(src);
-
-            if (!corners) {
-                showToast("⚠️ 문서를 찾지 못했습니다.");
-                src.delete(); 
-                return;
-            }
-
-            showToast("✨ 변환 중...");
-            
-            setTimeout(() => {
-                try {
-                    processProScan(src, corners);
-                    src.delete();
-                    stopCamera();
-                    document.getElementById('cameraSection').style.display = 'none';
-                    document.getElementById('resultSection').style.display = 'flex'; // flex로 변경
-                    document.getElementById('appTitle').innerText = "스캔 결과";
-                } catch (err) {
-                    console.error(err);
-                    showToast("오류 발생");
-                    if(src && !src.isDeleted()) src.delete();
-                }
-            }, 100);
-
-        } catch(e) {
-            console.error(e);
-            showToast("❌ 오류 발생");
-        }
-    });
-
-    function processProScan(srcMat, corners) {
+    // --- [핵심] Pure White & Red Boost 알고리즘 ---
+    function processHybridScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         
+        // 1. 투시 변환 (원본 해상도)
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
         let widthBottom = Math.hypot(sorted[2].x - sorted[3].x, sorted[2].y - sorted[3].y);
         let maxWidth = Math.max(widthTop, widthBottom);
@@ -490,24 +404,77 @@
         ]);
 
         let M = cv.getPerspectiveTransform(srcTri, dstTri);
-        let dst = new cv.Mat();
+        let warped = new cv.Mat();
+        cv.warpPerspective(srcMat, warped, M, new cv.Size(maxWidth, maxHeight), cv.INTER_CUBIC, cv.BORDER_CONSTANT, new cv.Scalar());
+
+        // --- 이미지 처리 파이프라인 시작 ---
         
-        cv.warpPerspective(srcMat, dst, M, new cv.Size(maxWidth, maxHeight), cv.INTER_CUBIC, cv.BORDER_CONSTANT, new cv.Scalar());
+        // 2. 색상 증폭 (채도 높이기) - 빨간 도장 살리기용
+        let hsv = new cv.Mat();
+        cv.cvtColor(warped, hsv, cv.COLOR_RGBA2RGB);
+        cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
+        let hsvPlanes = new cv.MatVector();
+        cv.split(hsv, hsvPlanes);
+        // 채도(S) 채널에 1.5배 곱해서 붉은색을 더 진하게
+        let sChannel = hsvPlanes.get(1);
+        sChannel.convertTo(sChannel, -1, 1.5, 0); 
+        cv.merge(hsvPlanes, hsv);
+        let enhancedColor = new cv.Mat();
+        cv.cvtColor(hsv, enhancedColor, cv.COLOR_HSV2RGB); // RGB로 변환
 
-        let blurred = new cv.Mat();
-        let blurK = Math.max(3, Math.round(Math.min(maxWidth, maxHeight) / 200)) | 1; 
-        cv.GaussianBlur(dst, blurred, new cv.Size(blurK, blurK), 0, 0, cv.BORDER_DEFAULT);
-        cv.addWeighted(dst, 1.5, blurred, -0.5, 0, dst);
+        // 3. 텍스트 추출 (Adaptive Threshold) - 완벽한 흰색 배경/검은 글씨 생성
+        let gray = new cv.Mat();
+        cv.cvtColor(warped, gray, cv.COLOR_RGBA2GRAY, 0);
+        let textBinary = new cv.Mat();
+        // 주변 21픽셀을 보고, 상수 15만큼 빼서 이진화 -> 그림자/누런 배경 완벽 제거
+        cv.adaptiveThreshold(gray, textBinary, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 21, 15);
+        
+        // textBinary는 지금 [Text=Black, BG=White] 상태임.
+        // 이를 RGBA로 변환해서 베이스로 삼음
+        let finalResult = new cv.Mat();
+        cv.cvtColor(textBinary, finalResult, cv.COLOR_GRAY2RGBA);
 
-        // Tone Mapping
-        dst.convertTo(dst, -1, 1.2, 15);
+        // 4. 컬러 마스크 생성 (채도가 높은 부분만 추출)
+        // 기존 S채널(채도)을 이용하여, 채도가 일정 수준(예: 50) 이상인 부분만 마스킹
+        let colorMask = new cv.Mat();
+        cv.threshold(sChannel, colorMask, 50, 255, cv.THRESH_BINARY);
 
-        cv.imshow('outputCanvas', dst);
+        // 5. 합성 (Compositing)
+        // finalResult(흑백문서) 위에 enhancedColor(진한 원본)를 colorMask 모양대로 덮어씌움
+        // OpenCV.js에는 copyTo with mask가 까다로우므로 비트 연산 활용
+        
+        // (1) RGBA 변환
+        let enhancedColorRGBA = new cv.Mat();
+        cv.cvtColor(enhancedColor, enhancedColorRGBA, cv.COLOR_RGB2RGBA);
 
-        srcTri.delete(); dstTri.delete(); M.delete(); dst.delete(); 
-        blurred.delete();
+        // (2) 픽셀 순회하며 합성 (JS 루프는 느리지만, 마스킹된 부분만 처리하면 복잡)
+        // 가장 빠른 방법: data 배열 직접 조작
+        let resData = finalResult.data; // 흑백 베이스
+        let colorData = enhancedColorRGBA.data; // 컬러 원본
+        let maskData = colorMask.data; // 채도 마스크 (1채널)
+
+        for (let i = 0; i < maskData.length; i++) {
+            // 마스크가 흰색(255, 즉 유색)이면 컬러 원본을 덮어씀
+            if (maskData[i] === 255) {
+                let idx = i * 4;
+                resData[idx] = colorData[idx];     // R
+                resData[idx + 1] = colorData[idx + 1]; // G
+                resData[idx + 2] = colorData[idx + 2]; // B
+                // Alpha는 그대로
+            }
+        }
+
+        // 결과 출력
+        cv.imshow('outputCanvas', finalResult);
+
+        // 메모리 해제
+        srcTri.delete(); dstTri.delete(); M.delete(); warped.delete();
+        hsv.delete(); hsvPlanes.delete(); sChannel.delete(); enhancedColor.delete();
+        gray.delete(); textBinary.delete(); finalResult.delete(); 
+        colorMask.delete(); enhancedColorRGBA.delete();
     }
 
+    // --- 유틸리티 ---
     function drawOverlay(corners) {
         if (!corners) return;
         overlayCtx.beginPath();
@@ -516,7 +483,6 @@
         overlayCtx.lineTo(corners[2].x, corners[2].y);
         overlayCtx.lineTo(corners[3].x, corners[3].y);
         overlayCtx.closePath();
-
         overlayCtx.fillStyle = "rgba(50, 215, 75, 0.25)";
         overlayCtx.fill();
         overlayCtx.strokeStyle = "#32d74b";
@@ -531,56 +497,81 @@
         return [top[0], top[1], bottom[1], bottom[0]];
     }
 
+    function interpolateQuad(oldQuad, newQuad, factor) {
+        let result = [];
+        for (let i = 0; i < 4; i++) {
+            result.push({
+                x: oldQuad[i].x + (newQuad[i].x - oldQuad[i].x) * factor,
+                y: oldQuad[i].y + (newQuad[i].y - oldQuad[i].y) * factor
+            });
+        }
+        return result;
+    }
+
+    // --- 이벤트 핸들러 ---
+    document.getElementById('captureBtn').addEventListener('click', () => {
+        if (!cvReady || !video.srcObject) return;
+        
+        let src = captureFrameFromVideo(video);
+        if (!src) return;
+
+        let corners = lastStableQuad || detectDocumentRobust(src);
+        if (!corners) {
+            showToast("⚠️ 문서 테두리를 찾을 수 없습니다");
+            src.delete();
+            return;
+        }
+
+        showToast("✨ 스캔 변환 중...");
+        setTimeout(() => {
+            processHybridScan(src, corners); // 새로운 하이브리드 알고리즘 적용
+            src.delete();
+            stopCamera();
+            cameraSection.style.display = 'none';
+            resultSection.style.display = 'flex';
+            cameraControls.style.display = 'none';
+            resultControls.style.display = 'flex';
+        }, 50);
+    });
+
+    document.getElementById('retryBtn').addEventListener('click', () => location.reload());
+    
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+        let link = document.createElement('a');
+        link.download = 'scan.png';
+        link.href = outputCanvas.toDataURL('image/png', 1.0);
+        link.click();
+    });
+
     document.getElementById('fileInput').addEventListener('change', (e) => {
         let file = e.target.files[0];
         if(!file) return;
-
         let reader = new FileReader();
         reader.onload = (ev) => {
             let img = new Image();
             img.onload = () => {
                 let src = cv.imread(img);
                 let corners = detectDocumentRobust(src);
+                if(!corners) { showToast("문서 인식 실패"); src.delete(); return; }
                 
-                if(!corners) {
-                    showToast("⚠️ 문서를 찾기 어렵습니다.");
-                    src.delete();
-                    return;
-                }
-
-                showToast("✨ 처리 중...");
                 stopCamera();
-                document.getElementById('cameraSection').style.display = 'none';
-                document.getElementById('resultSection').style.display = 'flex';
-                
-                setTimeout(() => {
-                    processProScan(src, corners);
-                    src.delete();
-                }, 100);
+                cameraSection.style.display = 'none';
+                resultSection.style.display = 'flex';
+                cameraControls.style.display = 'none';
+                resultControls.style.display = 'flex';
+                setTimeout(() => { processHybridScan(src, corners); src.delete(); }, 50);
             };
             img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
-        e.target.value = ''; 
+        e.target.value = '';
     });
 
-    let toastTimeout;
-    function showToast(message) {
-        toastEl.innerHTML = message;
+    function showToast(msg) {
+        toastEl.innerText = msg;
         toastEl.className = "show";
-        if (toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => { 
-            toastEl.className = toastEl.className.replace("show", ""); 
-        }, 2500);
+        setTimeout(() => toastEl.className = "", 2500);
     }
-
-    document.getElementById('retryBtn').addEventListener('click', () => location.reload());
-    document.getElementById('downloadBtn').addEventListener('click', () => {
-        let link = document.createElement('a');
-        link.download = 'scan.png';
-        link.href = outputCanvas.toDataURL('image/png', 1.0); 
-        link.click();
-    });
 </script>
 </body>
 </html>
