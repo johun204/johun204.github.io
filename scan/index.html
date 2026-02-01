@@ -14,9 +14,14 @@
     <p id="status">OpenCV 로딩 중...</p>
 
     <div class="controls">
-        <label for="fileInput" class="btn upload-btn">
-            📷 카메라/사진 선택
-            <input type="file" id="fileInput" accept="image/*" capture="environment">
+        <label for="cameraInput" class="btn camera-btn">
+            📷 카메라 촬영
+            <input type="file" id="cameraInput" accept="image/*" capture="environment">
+        </label>
+
+        <label for="galleryInput" class="btn gallery-btn">
+            🖼️ 사진 불러오기
+            <input type="file" id="galleryInput" accept="image/*">
         </label>
     </div>
 
@@ -26,7 +31,7 @@
         <canvas id="outputCanvas"></canvas>
     </div>
 
-    <button id="downloadBtn" class="btn download-btn" style="display:none;">⬇️ 이미지 저장</button>
+    <button id="downloadBtn" class="btn download-btn" style="display:none;">⬇️ 스캔본 저장</button>
 </div>
 
 <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
