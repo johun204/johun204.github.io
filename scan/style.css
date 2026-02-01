@@ -1,0 +1,79 @@
+/* 기본 설정 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+h1 { margin-bottom: 20px; font-size: 1.5rem; color: #333; }
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: none;
+    color: white;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+.upload-btn { background-color: #007bff; }
+.upload-btn:hover { background-color: #0056b3; }
+
+.download-btn { background-color: #28a745; }
+.download-btn:hover { background-color: #218838; }
+
+/* 파일 인풋 숨기기 */
+input[type="file"] { display: none; }
+
+/* 이미지 및 캔버스 */
+img#imageSrc {
+    display: none; /* 처리는 하되 화면엔 안 보여줌 */
+    max-width: 100%;
+}
+
+.canvas-container {
+    margin-top: 20px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #eee;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+#status {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+}
