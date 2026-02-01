@@ -3,18 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Document Scanner</title>
-	<link rel="icon" type="image/png" sizes="16x16" href="/scan/favicon-16x16.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="/scan/favicon-32x32.png">
-	<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
-	<link rel="manifest" href="/scan/site.webmanifest">
-	<meta name="theme-color" content="#ffffff">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="default">
-	<meta name="apple-mobile-web-app-title" content="scan Meter">
-	<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
-	<meta name="theme-color" content="#ffffff">
-	<meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Scanner Pro: Fixed</title>
     <style>
         /* --- CSS Styles --- */
         body {
@@ -201,7 +190,7 @@
         const constraints = {
             video: {
                 facingMode: { exact: "environment" },
-                width: { ideal: 3840 }, // 4K 목표
+                width: { ideal: 3840 }, 
                 height: { ideal: 2160 }
             }
         };
@@ -306,7 +295,7 @@
 
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
         cv.GaussianBlur(gray, blur, new cv.Size(9, 9), 0, 0, cv.BORDER_DEFAULT);
-        cv.Canny(blur, edges, 10, 40);
+        cv.Canny(blur, edges, 10, 40); // 낮은 임계값
 
         let kernel = cv.Mat.ones(9, 9, cv.CV_8U);
         cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
@@ -364,6 +353,7 @@
         if (!video.srcObject || video.readyState < 2) { showToast("📷 카메라 준비 중..."); return; }
 
         try {
+            // 원본 해상도 캡처
             let src = captureFrameFromVideo(video);
             if (!src) { showToast("⚠️ 캡처 실패"); return; }
 
@@ -378,27 +368,33 @@
 
             showToast("✨ 고화질 스캔 변환 중...");
             
-            // 약간의 딜레이를 주어 UI 반응 확보
+            // [중요 수정] setTimeout을 사용하여 UI를 먼저 렌더링하고,
+            // 변환 로직 내부에서 src.delete()를 수행하도록 순서 변경
             setTimeout(() => {
-                processProScan(src, corners);
-                src.delete();
-                stopCamera();
-                document.getElementById('cameraSection').style.display = 'none';
-                document.getElementById('resultSection').style.display = 'block';
-            }, 50);
+                try {
+                    processProScan(src, corners); // 변환 수행
+                    src.delete(); // [중요] 사용 후 여기서 삭제해야 함
+                    
+                    stopCamera();
+                    document.getElementById('cameraSection').style.display = 'none';
+                    document.getElementById('resultSection').style.display = 'block';
+                } catch (err) {
+                    console.error("Scan Process Error:", err);
+                    showToast("❌ 변환 중 오류가 발생했습니다.");
+                    if(src && !src.isDeleted()) src.delete();
+                }
+            }, 100); // 100ms 딜레이로 토스트가 보일 시간 확보
 
         } catch(e) {
             console.error(e);
-			alert(e);
-            showToast("❌ 오류 발생");
+            showToast("❌ 캡처 오류 발생");
         }
     });
 
-    // --- [핵심] Pro Scan Logic (선명함 & 컬러 유지) ---
+    // --- [핵심] Pro Scan Logic (선명함 & 컬러 유지 - 안정화 버전) ---
     function processProScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         
-        // 원본 해상도를 유지한 크기 계산
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
         let widthBottom = Math.hypot(sorted[2].x - sorted[3].x, sorted[2].y - sorted[3].y);
         let maxWidth = Math.max(widthTop, widthBottom);
@@ -421,52 +417,23 @@
         // 1. 투시 변환 (원본 해상도 유지)
         cv.warpPerspective(srcMat, dst, M, new cv.Size(maxWidth, maxHeight), cv.INTER_CUBIC, cv.BORDER_CONSTANT, new cv.Scalar());
 
-        // 2. [선명도 강화] Unsharp Masking 기법 구현
-        // (원본) + (원본 - 블러) * 강도
+        // 2. [선명도 강화] Unsharp Masking
         let blurred = new cv.Mat();
-        // 해상도에 비례해서 블러 커널 크기 조절
         let blurK = Math.max(3, Math.round(Math.min(maxWidth, maxHeight) / 200)) | 1; 
         cv.GaussianBlur(dst, blurred, new cv.Size(blurK, blurK), 0, 0, cv.BORDER_DEFAULT);
-        
-        // addWeighted로 선명도 증가 (sharpness strength: 1.5)
         cv.addWeighted(dst, 1.5, blurred, -0.5, 0, dst);
 
-        // 3. [스캔 톤 매핑] 감마 보정 & 대비 증가
-        // 흰색은 날리고, 유색/검은색은 진하게 만드는 Look Up Table (LUT) 적용
-        let matLUT = new cv.Mat();
-        let lutData = new Uint8Array(256);
-        
-        // S-Curve 및 Gamma 보정 값 계산
-        // 감마 < 1.0: 중간톤이 밝아짐 (그림자 제거 효과)
-        let gamma = 0.7; 
-        for (let i = 0; i < 256; i++) {
-            // 정규화 (0~1)
-            let val = i / 255.0;
-            // 감마 적용
-            val = Math.pow(val, gamma);
-            // 대비 증가 (S-Curve 유사 효과)
-            val = (val - 0.5) * 1.2 + 0.5; 
-            // 클램핑 (0~1)
-            if (val < 0) val = 0;
-            if (val > 1) val = 1;
-            
-            lutData[i] = val * 255;
-        }
-        
-        // LUT 행렬 생성 (채널 1, 타입 8UC1)
-        matLUT.create(1, 256, cv.CV_8UC1);
-        matLUT.data.set(lutData);
-        
-        // 컬러 영상이므로 각 채널별로 LUT 적용 필요하지만,
-        // OpenCV.js의 LUT 함수는 멀티채널 지원
-        cv.LUT(dst, matLUT, dst);
+        // 3. [스캔 톤 매핑] convertTo 사용 (LUT 대체 - 호환성 해결)
+        // alpha(대비) = 1.2, beta(밝기) = 15
+        // 밝기를 올려 흰색을 날리고, 대비를 올려 글자를 진하게 함
+        dst.convertTo(dst, -1, 1.2, 15);
 
         // 결과 출력
         cv.imshow('outputCanvas', dst);
 
         // 메모리 해제
         srcTri.delete(); dstTri.delete(); M.delete(); dst.delete(); 
-        blurred.delete(); matLUT.delete();
+        blurred.delete();
     }
 
     function drawOverlay(corners) {
@@ -514,11 +481,11 @@
                 document.getElementById('cameraSection').style.display = 'none';
                 document.getElementById('resultSection').style.display = 'block';
                 
-                // 파일 업로드 시에도 Pro Scan 로직 적용
+                // 파일 업로드 시 딜레이 처리
                 setTimeout(() => {
                     processProScan(src, corners);
                     src.delete();
-                }, 50);
+                }, 100);
             };
             img.src = ev.target.result;
         };
@@ -540,7 +507,7 @@
     document.getElementById('downloadBtn').addEventListener('click', () => {
         let link = document.createElement('a');
         link.download = 'scan_highres.png';
-        link.href = outputCanvas.toDataURL('image/png', 1.0); // 최고 화질 저장
+        link.href = outputCanvas.toDataURL('image/png', 1.0); 
         link.click();
     });
 </script>
