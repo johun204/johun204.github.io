@@ -17,32 +17,36 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="/scan/apple-touch-icon.png">
 	<meta name="theme-color" content="#ffffff">
 	<meta name="apple-mobile-web-app-capable" content="yes">
+	
     <style>
         /* --- CSS Styles --- */
         html, body {
             overscroll-behavior-y: none;
-            touch-action: pan-x pan-y;
+            touch-action: none; /* 모든 제스처 차단 (스크롤, 줌 등) */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #000;
             color: #fff;
             margin: 0;
             padding: 0;
+            width: 100%;
             height: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* 세로 배치 */
             overflow: hidden;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        /* 1. 메인 영역 (카메라/결과) - 헤더 없이 전체 사용 */
+        /* 1. 메인 카메라 영역 (화면의 남은 공간 모두 차지) */
         main {
-            flex: 1; /* 화면 전체 차지 */
+            flex: 1; 
             position: relative;
             background-color: #000;
             overflow: hidden;
             width: 100%;
-            height: 100%; /* 명시적 높이 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .camera-view {
@@ -55,7 +59,7 @@
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            object-fit: cover; /* 꽉 찬 화면 */
+            object-fit: cover; /* 화면 꽉 채우기 */
         }
 
         /* 결과 화면 */
@@ -68,10 +72,9 @@
             justify-content: center;
             padding: 20px;
             box-sizing: border-box;
-            flex-direction: column;
+            z-index: 50;
         }
 
-        /* 결과 이미지는 화면 안에 들어오게 하되 비율 유지 */
         canvas#outputCanvas {
             max-width: 100%;
             max-height: 100%;
@@ -79,25 +82,21 @@
             border: 1px solid #333;
         }
 
-        /* 2. 푸터 (컨트롤) - 하단에 떠있는 느낌 */
+        /* 2. 하단 컨트롤 영역 (물리적으로 분리됨) */
         footer {
-            position: absolute; /* 카메라 위에 뜸 */
-            bottom: 0;
-            left: 0;
+            flex: 0 0 160px; /* 높이 160px 고정 (아이폰 홈바 포함 넉넉하게) */
             width: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 20%, transparent);
-            padding: 30px 20px 50px 20px; /* 아이폰 홈바 고려 */
+            background-color: #111; /* 완전 불투명 배경 */
+            border-top: 1px solid #222;
+            padding: 20px 20px 40px 20px; /* 하단 패딩 */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            justify-content: center;
             z-index: 20;
-            pointer-events: none; /* 배경 터치 통과 */
         }
 
-        /* 버튼은 터치 가능하게 */
-        .footer-content {
-            pointer-events: auto;
+        .btn-container {
             width: 100%;
             max-width: 500px;
             margin: 0 auto;
@@ -108,9 +107,9 @@
 
         .btn {
             width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            font-size: 1.05rem;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 1rem;
             font-weight: 600;
             border: none;
             cursor: pointer;
@@ -119,25 +118,23 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: transform 0.1s, opacity 0.2s;
-            backdrop-filter: blur(8px);
+            transition: opacity 0.2s;
             -webkit-tap-highlight-color: transparent;
         }
-        .btn:active { transform: scale(0.97); opacity: 0.8; }
+        .btn:active { opacity: 0.7; }
         
         .btn-capture { 
             background-color: #ff3b30; 
             font-size: 1.2rem;
-            height: 64px;
-            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+            height: 60px;
         }
         .btn-sub { 
-            background-color: rgba(255, 255, 255, 0.15); 
-            color: #eee; 
-            height: 50px;
+            background-color: #333; 
+            color: #ccc; 
+            height: 48px;
         }
-        .btn-save { background-color: #30d158; color: #000; }
-        .btn-retry { background-color: #444; }
+        .btn-save { background-color: #30d158; color: #000; height: 50px; }
+        .btn-retry { background-color: #444; height: 50px; }
 
         .btn-group { display: flex; gap: 12px; width: 100%; }
         .btn-group .btn { flex: 1; }
@@ -146,7 +143,7 @@
         #toast {
             visibility: hidden;
             min-width: 180px;
-            background-color: rgba(30, 30, 30, 0.9);
+            background-color: rgba(30, 30, 30, 0.95);
             color: #fff;
             text-align: center;
             border-radius: 50px;
@@ -154,13 +151,12 @@
             position: fixed;
             z-index: 9999; 
             left: 50%;
-            top: 60px; /* 상단 */
+            top: 40px; 
             transform: translateX(-50%);
             font-size: 0.9rem;
-            backdrop-filter: blur(5px);
             opacity: 0;
             transition: opacity 0.3s;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid #444;
         }
         #toast.show { visibility: visible; opacity: 1; }
 
@@ -180,12 +176,12 @@
     </div>
 </main>
 
-<footer id="footerControls">
-    <div class="footer-content">
+<footer>
+    <div class="btn-container">
         <div id="cameraControls">
-            <button id="captureBtn" class="btn btn-capture">📸 촬영</button>
+            <button id="captureBtn" class="btn btn-capture">📸 촬영하기</button>
             <label class="btn btn-sub">
-                📂 앨범
+                📂 앨범 선택
                 <input type="file" id="fileInput" accept="image/*">
             </label>
         </div>
@@ -206,8 +202,10 @@
     let videoStream = null;
     let lastStableQuad = null; 
     let missingFrames = 0;
+    
+    // [핵심] 메모리 튕김 방지용 변수
     let lastProcessTime = 0;
-    const PROCESS_INTERVAL = 60; // 초당 15프레임 제한
+    const PROCESS_INTERVAL = 200; // 0.2초마다 1번 감지 (5 FPS) -> 메모리 부하 대폭 감소
 
     const video = document.getElementById('videoInput');
     const overlayCanvas = document.getElementById('overlayCanvas');
@@ -227,12 +225,12 @@
     }
 
     async function startCamera() {
-        // 고해상도 요청 (4K 시도 -> FHD)
+        // [핵심] 4K 대신 FHD 사용 (안정성 최우선)
         const constraints = {
             video: {
                 facingMode: { exact: "environment" },
-                width: { ideal: 3840 }, 
-                height: { ideal: 2160 }
+                width: { ideal: 1920 }, 
+                height: { ideal: 1080 }
             }
         };
 
@@ -241,7 +239,7 @@
                 videoStream = await navigator.mediaDevices.getUserMedia(constraints);
             } catch (e) {
                 videoStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
+                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } 
                 });
             }
             video.srcObject = videoStream;
@@ -278,6 +276,7 @@
         if (video.paused || video.ended || !video.srcObject) return;
         if (!cvReady) { requestAnimationFrame(processVideoFrame); return; }
         
+        // [핵심] FPS 제한 로직
         if (timestamp - lastProcessTime < PROCESS_INTERVAL) {
             requestAnimationFrame(processVideoFrame);
             return;
@@ -294,19 +293,23 @@
                     missingFrames = 0;
                     currQuad = sortCorners(currQuad);
                     if (lastStableQuad) {
-                        lastStableQuad = interpolateQuad(lastStableQuad, currQuad, 0.3);
+                        lastStableQuad = interpolateQuad(lastStableQuad, currQuad, 0.4); // 0.4 정도로 부드럽게
                     } else {
                         lastStableQuad = currQuad;
                     }
                 } else {
                     missingFrames++;
-                    if (missingFrames > 12) lastStableQuad = null; 
+                    if (missingFrames > 10) lastStableQuad = null; // 10프레임(약 2초) 놓치면 초기화
                 }
 
                 if (lastStableQuad) drawOverlay(lastStableQuad);
-                src.delete();
+                
+                // [매우 중요] 반드시 메모리 해제
+                src.delete(); 
             }
-        } catch (err) {}
+        } catch (err) {
+            console.error("Frame Error:", err);
+        }
         requestAnimationFrame(processVideoFrame);
     }
 
@@ -316,16 +319,16 @@
         let blur = new cv.Mat();
         let edges = new cv.Mat();
         
-        // 탐색은 빠른 속도를 위해 축소 이미지 사용
-        let scale = 600 / src.cols;
-        let dsize = new cv.Size(600, Math.round(src.rows * scale));
+        // 탐지는 500px로 축소하여 수행 (메모리 절약 + 속도 향상)
+        let scale = 500 / src.cols;
+        let dsize = new cv.Size(500, Math.round(src.rows * scale));
         cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
 
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
-        cv.GaussianBlur(gray, blur, new cv.Size(9, 9), 0, 0, cv.BORDER_DEFAULT);
+        cv.GaussianBlur(gray, blur, new cv.Size(7, 7), 0, 0, cv.BORDER_DEFAULT);
         cv.Canny(blur, edges, 10, 40);
 
-        let kernel = cv.Mat.ones(9, 9, cv.CV_8U);
+        let kernel = cv.Mat.ones(7, 7, cv.CV_8U);
         cv.morphologyEx(edges, edges, cv.MORPH_CLOSE, kernel);
 
         let contours = new cv.MatVector();
@@ -376,11 +379,11 @@
         return finalCorners;
     }
 
-    // --- [핵심 개선] High-Quality Scan Logic ---
+    // --- High-Quality Scan Logic ---
     function processHighQualityScan(srcMat, corners) {
         let sorted = sortCorners(corners);
         
-        // 1. Warp (원본 해상도 유지)
+        // Warp
         let widthTop = Math.hypot(sorted[1].x - sorted[0].x, sorted[1].y - sorted[0].y);
         let widthBottom = Math.hypot(sorted[2].x - sorted[3].x, sorted[2].y - sorted[3].y);
         let maxWidth = Math.max(widthTop, widthBottom);
@@ -399,39 +402,26 @@
 
         let M = cv.getPerspectiveTransform(srcTri, dstTri);
         let warped = new cv.Mat();
-        // INTER_CUBIC으로 보간하여 화질 저하 최소화
         cv.warpPerspective(srcMat, warped, M, new cv.Size(maxWidth, maxHeight), cv.INTER_CUBIC, cv.BORDER_CONSTANT, new cv.Scalar());
 
-
-        // --- [개선된 로직] HSV 기반 스마트 레벨링 (이진화 X) ---
-        
-        // 1. HSV 변환
+        // HSV Transform
         let hsv = new cv.Mat();
         cv.cvtColor(warped, hsv, cv.COLOR_RGBA2RGB);
         cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
         let hsvPlanes = new cv.MatVector();
         cv.split(hsv, hsvPlanes);
         
-        let h = hsvPlanes.get(0);
         let s = hsvPlanes.get(1);
         let v = hsvPlanes.get(2);
 
-        // 2. V채널 (밝기) 조정: 배경을 하얗게, 글자를 진하게
-        // 이진화가 아닌 '대비 증가'를 사용하여 글자의 부드러움(Anti-aliasing) 유지
-        // alpha(대비) 1.5배, beta(밝기) +30 -> 밝은 회색은 255로 클리핑됨
-        v.convertTo(v, -1, 1.5, 30);
+        // Brightness & Contrast (V Channel)
+        v.convertTo(v, -1, 1.4, 30);
 
-        // 3. S채널 (채도) 조정: 누런끼 제거 + 도장 살리기
-        // S채널 전체에서 40을 뺍니다. (누런 종이의 낮은 채도는 0이 됨)
-        // 남은 값(도장의 높은 채도)에 2.0을 곱해 증폭시킵니다.
+        // Saturation Boost & Remove Yellow (S Channel)
         let sSub = new cv.Mat();
-        // 모든 픽셀에서 40 빼기
-        cv.subtract(s, new cv.Mat(s.rows, s.cols, s.type(), new cv.Scalar(40)), s);
-        // 2배 증폭
-        cv.multiply(s, new cv.Mat(s.rows, s.cols, s.type(), new cv.Scalar(2.0)), s);
+        cv.subtract(s, new cv.Mat(s.rows, s.cols, s.type(), new cv.Scalar(40)), s); // Remove weak colors (yellow)
+        cv.multiply(s, new cv.Mat(s.rows, s.cols, s.type(), new cv.Scalar(2.0)), s); // Boost strong colors (red)
 
-
-        // 4. 채널 병합 및 RGB 변환
         hsvPlanes.set(1, s);
         hsvPlanes.set(2, v);
         cv.merge(hsvPlanes, hsv);
@@ -439,25 +429,20 @@
         let resultRGB = new cv.Mat();
         cv.cvtColor(hsv, resultRGB, cv.COLOR_HSV2RGB);
 
-        // 5. 샤프닝 (Unsharp Masking) - 글자 또렷하게
+        // Sharpening
         let blurred = new cv.Mat();
-        // 해상도에 비례한 커널 크기 계산
         let kSize = Math.max(3, Math.round(Math.min(maxWidth, maxHeight) / 300) * 2 + 1);
         cv.GaussianBlur(resultRGB, blurred, new cv.Size(kSize, kSize), 0, 0, cv.BORDER_DEFAULT);
-        
-        // 원본 + (원본 - 블러) * 강도
         cv.addWeighted(resultRGB, 1.5, blurred, -0.5, 0, resultRGB);
 
-        // 결과 출력
         cv.imshow('outputCanvas', resultRGB);
 
-        // 메모리 해제
         srcTri.delete(); dstTri.delete(); M.delete(); warped.delete();
-        hsv.delete(); hsvPlanes.delete(); h.delete(); s.delete(); v.delete();
+        hsv.delete(); hsvPlanes.delete(); s.delete(); v.delete();
         resultRGB.delete(); sSub.delete(); blurred.delete();
     }
 
-    // --- 유틸리티 ---
+    // --- Utils ---
     function drawOverlay(corners) {
         if (!corners) return;
         overlayCtx.beginPath();
@@ -491,7 +476,7 @@
         return result;
     }
 
-    // --- 이벤트 핸들러 ---
+    // --- Events ---
     document.getElementById('captureBtn').addEventListener('click', () => {
         if (!cvReady || !video.srcObject) return;
         
@@ -500,14 +485,14 @@
 
         let corners = lastStableQuad || detectDocumentRobust(src);
         if (!corners) {
-            showToast("⚠️ 문서를 찾을 수 없습니다");
+            showToast("⚠️ 문서 테두리를 찾을 수 없습니다");
             src.delete();
             return;
         }
 
-        showToast("✨ 고화질 스캔 변환 중...");
+        showToast("✨ 변환 중...");
         setTimeout(() => {
-            processHighQualityScan(src, corners); // 개선된 알고리즘 적용
+            processHighQualityScan(src, corners); 
             src.delete();
             stopCamera();
             cameraSection.style.display = 'none';
