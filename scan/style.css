@@ -23,34 +23,41 @@ body {
 
 h1 { margin-bottom: 20px; font-size: 1.5rem; color: #333; }
 
-/* 버튼 스타일 */
+/* 버튼 공통 스타일 */
 .btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border-radius: 8px;
+    display: block; /* 모바일에서 누르기 좋게 블록 처리 */
+    padding: 14px 24px;
+    border-radius: 10px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.2s;
     border: none;
     color: white;
     width: 100%;
     box-sizing: border-box;
-    margin-top: 10px;
+    margin-bottom: 10px; /* 버튼 사이 간격 */
+    text-align: center;
 }
 
-.upload-btn { background-color: #007bff; }
-.upload-btn:hover { background-color: #0056b3; }
+/* 카메라 버튼 색상 */
+.camera-btn { background-color: #007bff; }
+.camera-btn:active { background-color: #0056b3; }
 
-.download-btn { background-color: #28a745; }
-.download-btn:hover { background-color: #218838; }
+/* 갤러리 버튼 색상 */
+.gallery-btn { background-color: #6c757d; }
+.gallery-btn:active { background-color: #545b62; }
+
+/* 다운로드 버튼 색상 */
+.download-btn { background-color: #28a745; margin-top: 10px;}
+.download-btn:active { background-color: #218838; }
 
 /* 파일 인풋 숨기기 */
 input[type="file"] { display: none; }
 
 /* 이미지 및 캔버스 */
 img#imageSrc {
-    display: none; /* 처리는 하되 화면엔 안 보여줌 */
+    display: none;
     max-width: 100%;
 }
 
@@ -75,5 +82,5 @@ canvas {
 #status {
     font-size: 0.9rem;
     color: #666;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
