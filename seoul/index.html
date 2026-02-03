@@ -192,7 +192,7 @@
 
             points.forEach(pt => {
                 // (1) 상호명 정규화: (주), 공백 제거 (예: '스타 벅스' == '스타벅스')
-                const cleanName = pt.name.replace(/\(주\)/g, '').replace(/\s+/g, '').trim();
+                const cleanName = pt.name.replace(/(\(주식회사\)|주식회사|\(주\)|㈜|-|\s)/g, '').trim();
                 
                 // (2) 좌표 정밀도 조정 (부동소수점 오차 방지위해 7째자리까지 끊음)
                 // 위도/경도가 같으면 같은 장소로 인식! (주소 텍스트는 무시)
