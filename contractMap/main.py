@@ -76,7 +76,6 @@ async def main():
 					place_name, lat, lng = await get_lat_lon(session, x["ADDRESS"])
 					if place_name and lat and lng:
 						data.append({"address": x["ADDRESS"], "place_name": place_name, "lat": lat, "lng": lng, "date": x["HNDL_YMD"]})
-						break
 
 		with open('contractMap/data.json', 'w', encoding='utf-8') as f:
 			json.dump(data, f, ensure_ascii=False, indent=2)
