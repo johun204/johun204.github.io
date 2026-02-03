@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>서울시 업무추진비 맛집 지도</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -10,71 +10,133 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
         #map { width: 100%; height: 100vh; z-index: 1; }
         
+        /* 상단 연도 선택 버튼 */
         .year-controls {
             position: absolute;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
-            background: white;
-            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px;
             border-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            white-space: nowrap;
         }
 
         .year-btn {
             border: none;
             background: #f0f0f0;
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             transition: 0.2s;
         }
 
         .year-btn:hover { background: #e0e0e0; }
         .year-btn.active { background: #007bff; color: white; }
+
+        /* 우측 하단 내 위치 버튼 */
+        .gps-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .gps-btn:hover { background: #f8f9fa; color: #007bff; }
+        .gps-btn:active { transform: scale(0.95); }
+
     </style>
 </head>
 <body>
 
     <div class="year-controls">
-        <button class="year-btn active" onclick="showYear('all', this)">전체(합계)</button>
-        <button class="year-btn" onclick="showYear('2025', this)">2025년</button>
-        <button class="year-btn" onclick="showYear('2024', this)">2024년</button>
-        <button class="year-btn" onclick="showYear('2023', this)">2023년</button>
+        <button class="year-btn active" onclick="showYear('all', this)">전체</button>
+        <button class="year-btn" onclick="showYear('2025', this)">2025</button>
+        <button class="year-btn" onclick="showYear('2024', this)">2024</button>
+        <button class="year-btn" onclick="showYear('2023', this)">2023</button>
     </div>
+
+    <button class="gps-btn" onclick="moveToCurrentLocation()" title="현위치로 이동">
+        <i class="fa-solid fa-location-crosshairs"></i>
+    </button>
 
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
-        var map = L.map('map').setView([37.5665, 126.9780], 11); // 줌 레벨을 조금 낮춤(넓게 보기)
+        // 1. 지도 초기화 (기본: 서울시청)
+        var map = L.map('map').setView([37.5665, 126.9780], 15);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
         }).addTo(map);
 
-        // 3. 일반 LayerGroup 대신 MarkerClusterGroup 사용
-        // chunkedLoading: true 옵션이 중요합니다 (데이터 처리 시 브라우저 멈춤 방지)
+        // 2. 클러스터 그룹 설정 (요청하신 대로 덜 뭉치게 설정)
         var markersLayer = L.markerClusterGroup({
-            chunkedLoading: true
+            chunkedLoading: true,        // 버벅임 방지
+            maxClusterRadius: 35,        // 숫자가 작을수록 덜 뭉침 (기본값 80)
+            disableClusteringAtZoom: 16, // 16레벨 이상 확대하면 클러스터 해제 (핀 다 보여줌)
+            spiderfyOnMaxZoom: true      // 같은 위치 핀은 클릭 시 퍼지게
         });
         
         map.addLayer(markersLayer);
         
         var mapData = { '2023': [], '2024': [], '2025': [] };
 
+        // 3. 시작하자마자 내 위치 찾기 시도
+        map.locate({setView: true, maxZoom: 15});
+        
+        // 위치 찾기 성공 시
+        map.on('locationfound', function(e) {
+            // 파란색 원으로 내 위치 표시
+            L.circle(e.latlng, {
+                radius: e.accuracy / 2,
+                color: '#4285F4',
+                fillColor: '#4285F4',
+                fillOpacity: 0.2
+            }).addTo(map);
+            L.circleMarker(e.latlng, {
+                radius: 8,
+                color: '#fff',
+                fillColor: '#4285F4',
+                fillOpacity: 1
+            }).addTo(map);
+        });
+
+        // 위치 찾기 실패 시 (권한 거부 등) - 그냥 서울시청 유지
+        map.on('locationerror', function(e) {
+            console.log("위치 권한이 없거나 실패했습니다.");
+        });
+
+
+        // 4. 데이터 로드
         Promise.all([
             fetch('./map_data_2023.json').then(res => res.ok ? res.json() : []),
             fetch('./map_data_2024.json').then(res => res.ok ? res.json() : []),
@@ -83,42 +145,42 @@
             mapData['2023'] = results[0];
             mapData['2024'] = results[1];
             mapData['2025'] = results[2];
-            console.log("데이터 로드 완료");
             showYear('all', document.querySelector('.year-btn.active'));
-        }).catch(err => {
-            console.error(err);
-            alert("데이터 로딩 실패");
-        });
+        }).catch(err => alert("데이터 로딩 실패"));
 
+
+        // 5. 지도 렌더링 함수
         function renderMap(dataList) {
-            markersLayer.clearLayers(); // 기존 마커 삭제
-
-            // 마커 배열 생성 (한 번에 추가하기 위해)
+            markersLayer.clearLayers();
             var newMarkers = [];
 
             dataList.forEach(item => {
-                // 좌표값이 유효한 경우만 처리
                 if (item.lat && item.lng) {
                     var marker = L.marker([item.lat, item.lng]);
                     
+                    // 회당 평균 금액 계산
+                    var avgPrice = Math.round(item.total_amount / item.visit_count);
+
                     var popupContent = `
-                        <div style="text-align:center; min-width:150px;">
-                            <h3 style="margin:0 0 5px; color:#007bff;">${item.name}</h3>
-                            <p style="margin:0; font-size:12px; color:gray;">${item.address}</p>
-                            <hr style="margin:8px 0; border:0; border-top:1px solid #eee;">
-                            <p style="margin:5px 0;"><b>💰 총 금액:</b> ${item.total_amount.toLocaleString()}원</p>
-                            <p style="margin:5px 0;"><b>🚩 방문 횟수:</b> ${item.visit_count}회</p>
+                        <div style="text-align:center; min-width:160px; font-size:13px;">
+                            <h3 style="margin:0 0 5px; color:#007bff; font-size:15px;">${item.name}</h3>
+                            <p style="margin:0 0 8px; color:#666; font-size:11px;">${item.address}</p>
+                            <div style="background:#f8f9fa; padding:8px; border-radius:5px; text-align:left;">
+                                <p style="margin:3px 0;">💰 <b>총 집행금액:</b> ${item.total_amount.toLocaleString()}원</p>
+                                <p style="margin:3px 0;">🚩 <b>총 방문횟수:</b> ${item.visit_count}회</p>
+                                <hr style="border:0; border-top:1px dashed #ccc; margin:5px 0;">
+                                <p style="margin:3px 0; color:#d63384;">💳 <b>1회 평균:</b> ${avgPrice.toLocaleString()}원</p>
+                            </div>
                         </div>
                     `;
                     marker.bindPopup(popupContent);
                     newMarkers.push(marker);
                 }
             });
-
-            // 클러스터 그룹에 마커 리스트를 한 번에 추가
             markersLayer.addLayers(newMarkers);
         }
 
+        // 6. 연도 필터링
         function showYear(year, btnElement) {
             document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
@@ -140,6 +202,11 @@
             } else {
                 renderMap(mapData[year]);
             }
+        }
+
+        // 7. 현위치 버튼 기능
+        function moveToCurrentLocation() {
+            map.locate({setView: true, maxZoom: 16});
         }
     </script>
 </body>
