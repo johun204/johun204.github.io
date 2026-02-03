@@ -23,24 +23,45 @@
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
         #map { width: 100%; height: 100vh; z-index: 1; background: #f0f0f0; }
         
-        /* 커스텀 클러스터 아이콘 */
-        .custom-cluster-icon {
-            background: rgba(46, 204, 113, 0.9);
-            color: white;
-            border: 2px solid white;
-            border-radius: 50%;
-            text-align: center;
-            font-weight: bold;
-            line-height: 40px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
-        }
-        .custom-cluster-icon.medium { background: #f1c40f; color: #333; }
-        .custom-cluster-icon.large { background: #e74c3c; color: white; }
-        
-        /* 컨트롤 패널 */
-        .filter-controls {
+        /* 1. 검색창 스타일 (상단) */
+        .search-container {
             position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; width: 90%; max-width: 400px;
+        }
+        .search-box {
+            position: relative; width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex; align-items: center;
+        }
+        .search-input {
+            width: 100%; border: none; background: transparent;
+            padding: 12px 20px; font-size: 15px; outline: none;
+            border-radius: 25px;
+        }
+        .search-icon { padding-right: 15px; color: #888; }
+        
+        /* 검색 결과 리스트 */
+        .search-results {
+            position: absolute; top: 50px; left: 0; width: 100%;
+            background: white; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            max-height: 300px; overflow-y: auto; display: none;
+        }
+        .search-item {
+            padding: 12px 15px; border-bottom: 1px solid #eee;
+            cursor: pointer; font-size: 14px;
+        }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover { background: #f8f9fa; }
+        .item-name { font-weight: bold; color: #333; display: block; margin-bottom: 2px;}
+        .item-addr { font-size: 12px; color: #888; }
+
+
+        /* 2. 필터 버튼 (하단으로 이동) */
+        .filter-controls {
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
             z-index: 1000; background: rgba(255, 255, 255, 0.95);
             padding: 6px; border-radius: 30px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
@@ -54,9 +75,9 @@
         .filter-btn:hover { background: #f1f1f1; }
         .filter-btn.active { background: #2c3e50; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* 현위치 버튼 (업데이트 날짜 위로 배치) */
+        /* 현위치 버튼 */
         .gps-btn {
-            position: absolute; bottom: 40px; right: 15px; z-index: 1000;
+            position: absolute; bottom: 35px; right: 15px; z-index: 1000;
             background: white; width: 45px; height: 45px; border-radius: 50%;
             border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             cursor: pointer; font-size: 20px; color: #333;
@@ -72,6 +93,21 @@
             backdrop-filter: blur(2px);
             pointer-events: none;
         }
+
+        /* 커스텀 클러스터 아이콘 */
+        .custom-cluster-icon {
+            background: rgba(46, 204, 113, 0.9);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            text-align: center;
+            font-weight: bold;
+            line-height: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .custom-cluster-icon.medium { background: #f1c40f; color: #333; }
+        .custom-cluster-icon.large { background: #e74c3c; color: white; }
 
         #loading {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -97,6 +133,14 @@
 
     <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> 데이터 불러오는 중...</div>
     
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="아파트명 또는 주소 검색...">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+    </div>
+
     <div class="filter-controls">
         <button class="filter-btn active" onclick="setPeriod('60', this)">최근 60일</button>
         <button class="filter-btn" onclick="setPeriod('30', this)">최근 30일</button>
@@ -129,32 +173,40 @@
 
         const gpsLayer = L.layerGroup().addTo(map);
 
-        // 2. 클러스터링 설정
-        const markersLayer = L.markerClusterGroup({
-            chunkedLoading: true,
-            maxClusterRadius: 60,
-            iconCreateFunction: function(cluster) {
-                const children = cluster.getAllChildMarkers();
-                let totalPermits = 0;
-                children.forEach(marker => {
-                    totalPermits += (marker.options.permit_count || 0);
-                });
+        // 구(Gu)별 클러스터 레이어를 저장할 객체
+        // 예: { "종로구": L.markerClusterGroup(...), "강남구": ... }
+        let guClusterLayers = {};
 
-                let c = 'custom-cluster-icon';
-                let size = 40;
-                if (totalPermits >= 50) { c += ' large'; size = 60; }
-                else if (totalPermits >= 10) { c += ' medium'; size = 50; }
-                
-                return new L.DivIcon({
-                    html: `<div>${totalPermits}</div>`,
-                    className: c,
-                    iconSize: [size, size]
-                });
-            }
-        });
-        map.addLayer(markersLayer);
+        // 클러스터 옵션 생성 함수 (모든 구에 동일하게 적용)
+        function createClusterGroup() {
+            return L.markerClusterGroup({
+                chunkedLoading: true,
+                maxClusterRadius: 60,
+                // 구역 분리가 목적이므로, 멀리서 볼 때 너무 많이 뭉치는 것 방지 (선택사항)
+                disableClusteringAtZoom: 18, 
+                iconCreateFunction: function(cluster) {
+                    const children = cluster.getAllChildMarkers();
+                    let totalPermits = 0;
+                    children.forEach(marker => {
+                        totalPermits += (marker.options.permit_count || 0);
+                    });
+
+                    let c = 'custom-cluster-icon';
+                    let size = 40;
+                    if (totalPermits >= 50) { c += ' large'; size = 60; }
+                    else if (totalPermits >= 10) { c += ' medium'; size = 50; }
+                    
+                    return new L.DivIcon({
+                        html: `<div>${totalPermits}</div>`,
+                        className: c,
+                        iconSize: [size, size]
+                    });
+                }
+            });
+        }
 
         let allData = [];
+        let currentFilteredData = []; // 검색 기능을 위해 현재 필터링된 데이터 저장
         let lastUpdatedDate = new Date();
 
         // 3. 데이터 로드
@@ -167,7 +219,6 @@
                 if (!res.ok) throw new Error('데이터 파일을 찾을 수 없습니다.');
                 const json = await res.json();
                 
-                // 업데이트 날짜 표시 (우측 하단)
                 if (json.last_updated) {
                     lastUpdatedDate = new Date(json.last_updated.replace(' ', 'T'));
                     document.getElementById('last-updated').innerText = '업데이트: ' + json.last_updated;
@@ -178,7 +229,7 @@
                     dateObj: parseDateString(item.date)
                 }));
 
-                // 초기 렌더링: '최근 60일'을 기본값으로 설정
+                // 초기 설정: 최근 60일
                 setPeriod('60', document.querySelector('.filter-btn.active'));
 
             } catch (err) {
@@ -189,36 +240,23 @@
             }
         }
 
-        // 유틸 함수들
-        function parseDateString(dateStr) {
-            if (!dateStr || dateStr.length !== 8) return null;
-            const y = parseInt(dateStr.substring(0, 4));
-            const m = parseInt(dateStr.substring(4, 6)) - 1;
-            const d = parseInt(dateStr.substring(6, 8));
-            return new Date(y, m, d);
-        }
-
-        function getDaysDiff(d1, d2) {
-            const t1 = d1.getTime();
-            const t2 = d2.getTime();
-            return Math.floor((t1 - t2) / (24 * 60 * 60 * 1000));
-        }
-
-        // 4. 필터링 로직 수정 (7일, 30일, 60일)
+        // 4. 필터링 로직
         function setPeriod(period, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
 
-            let filteredData = [];
-            
             const daysLimit = parseInt(period);
-            filteredData = allData.filter(item => {
+            currentFilteredData = allData.filter(item => {
                 if (!item.dateObj) return false;
                 const diff = getDaysDiff(lastUpdatedDate, item.dateObj);
                 return diff >= 0 && diff <= daysLimit;
             });
 
-            const aggregated = aggregateData(filteredData);
+            // 검색창 초기화
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').style.display = 'none';
+
+            const aggregated = aggregateData(currentFilteredData);
             renderMarkers(aggregated);
         }
 
@@ -250,12 +288,23 @@
             return Object.values(mapData);
         }
 
-        // 6. 마커 렌더링
+        // 6. 마커 렌더링 (구별 클러스터링 적용)
         function renderMarkers(points) {
-            markersLayer.clearLayers();
-            const markers = [];
+            // 기존 레이어 모두 제거
+            Object.values(guClusterLayers).forEach(layer => map.removeLayer(layer));
+            guClusterLayers = {}; // 초기화
 
             points.forEach(pt => {
+                // 주소에서 '구' 이름 추출 (예: "종로구 숭인동..." -> "종로구")
+                // 주소가 없는 경우 '기타'로 처리
+                const guName = pt.address ? pt.address.split(' ')[0] : '기타';
+
+                // 해당 구의 클러스터 그룹이 없으면 생성
+                if (!guClusterLayers[guName]) {
+                    guClusterLayers[guName] = createClusterGroup();
+                    map.addLayer(guClusterLayers[guName]);
+                }
+
                 const marker = L.marker([pt.lat, pt.lng], {
                     permit_count: pt.permit_count 
                 });
@@ -282,9 +331,77 @@
                 `;
 
                 marker.bindPopup(popupContent);
-                markers.push(marker);
+                // 해당 구 클러스터에 마커 추가
+                guClusterLayers[guName].addLayer(marker);
             });
-            markersLayer.addLayers(markers);
+        }
+
+        // 7. 검색 기능 구현
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            // 전체 데이터 중 현재 기간에 해당하는 것만 검색 (또는 전체 검색 원하면 allData 사용)
+            // 여기서는 '전체 데이터'인 allData를 대상으로 검색하여 기간 외 데이터도 찾을 수 있게 할지, 
+            // 아니면 현재 보이는 데이터에서만 찾을지 결정해야 함. 
+            // -> 보통 검색은 "전체 기간"에서 찾는 것이 유용하므로 allData 사용
+            const matched = allData.filter(d => 
+                (d.place_name && d.place_name.includes(query)) || 
+                (d.address && d.address.includes(query))
+            ).slice(0, 10); // 최대 10개만 표시
+
+            if (matched.length > 0) {
+                let html = '';
+                matched.forEach(item => {
+                    html += `
+                        <div class="search-item" onclick="moveToPoint(${item.lat}, ${item.lng}, '${item.place_name}', '${item.date}')">
+                            <span class="item-name">${item.place_name}</span>
+                            <span class="item-addr">${item.address} (${formatDate(item.date)})</span>
+                        </div>
+                    `;
+                });
+                searchResults.innerHTML = html;
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // 검색 결과 클릭 시 이동
+        window.moveToPoint = function(lat, lng, name, date) {
+            // 1. 지도 이동
+            map.flyTo([lat, lng], 17, { duration: 1.5 });
+            
+            // 2. 검색창 닫기
+            searchResults.style.display = 'none';
+            searchInput.value = name;
+
+            // 3. (선택사항) 해당 날짜가 포함된 기간으로 필터 변경이 필요할 수 있음
+            // 하지만 현재는 좌표 이동만 수행합니다. 
+            // 만약 필터링된 기간 밖에 있는 데이터라면 마커가 안 보일 수 있습니다.
+            // 이를 방지하기 위해 '전체'로 바꾸거나, 사용자에게 알림을 줄 수 있습니다.
+            // 여기서는 사용자 편의를 위해 마커가 보이도록 기간 필터를 '60일'에 해당하지 않으면 자동으로 확장하는 로직은 생략했습니다.
+        };
+
+        // 유틸 함수들
+        function parseDateString(dateStr) {
+            if (!dateStr || dateStr.length !== 8) return null;
+            const y = parseInt(dateStr.substring(0, 4));
+            const m = parseInt(dateStr.substring(4, 6)) - 1;
+            const d = parseInt(dateStr.substring(6, 8));
+            return new Date(y, m, d);
+        }
+
+        function getDaysDiff(d1, d2) {
+            const t1 = d1.getTime();
+            const t2 = d2.getTime();
+            return Math.floor((t1 - t2) / (24 * 60 * 60 * 1000));
         }
 
         function formatDate(str) {
