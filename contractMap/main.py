@@ -110,7 +110,7 @@ async def main():
 
 		# 폴더 생성 및 저장 로직 유지
 		os.makedirs('contractMap', exist_ok=True)
-		output = {"last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "data": data}
+		output = {"last_updated": (datetime.now() + timedelta(hours=9)).strftime("%Y-%m-%d %H:%M:%S"), "data": data}
 		with open('contractMap/data.json', 'w', encoding='utf-8') as f:
 			json.dump(output, f, ensure_ascii=False, indent=2)
 
