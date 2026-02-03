@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>서울시 업무추진비 맛집 지도 (Spiderfy)</title>
+    <title>서울시 업무추진비 맛집 지도 (좌표 기준 통합)</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
@@ -14,7 +14,7 @@
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
         #map { width: 100%; height: 100vh; z-index: 1; background: #f0f0f0; }
         
-        /* 커스텀 클러스터 아이콘 스타일 */
+        /* 커스텀 클러스터 아이콘 */
         .custom-cluster-icon {
             background: rgba(66, 133, 244, 0.9);
             color: white;
@@ -22,13 +22,13 @@
             border-radius: 50%;
             text-align: center;
             font-weight: bold;
-            line-height: 40px; /* 높이와 맞춰야 수직정렬 됨 */
+            line-height: 40px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        .custom-cluster-icon.medium { background: #fb8c00; } /* 50개 이상 */
-        .custom-cluster-icon.large { background: #e53935; }  /* 100개 이상 */
+        .custom-cluster-icon.medium { background: #fb8c00; }
+        .custom-cluster-icon.large { background: #e53935; }
 
-        /* 컨트롤 패널들 */
+        /* 컨트롤 패널 */
         .year-controls {
             position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             z-index: 1000; background: rgba(255, 255, 255, 0.95);
@@ -93,7 +93,7 @@
 
     <script>
         // 1. 설정
-        localforage.config({ name: 'SeoulFoodMap', storeName: 'map_data_v5' });
+        localforage.config({ name: 'SeoulFoodMap', storeName: 'map_data_v6' });
         
         const map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 14);
         L.control.zoom({ position: 'bottomleft' }).addTo(map);
@@ -104,24 +104,17 @@
 
         const gpsLayer = L.layerGroup().addTo(map);
 
-        // ============================================================
-        // 🚀 MarkerClusterGroup 설정 (펼치기 기능 부활의 핵심)
-        // ============================================================
         const markersLayer = L.markerClusterGroup({
-            chunkedLoading: true,        // 대량 데이터 버벅임 방지
-            spiderfyOnMaxZoom: true,     // ⭐ 핵심: 겹친 마커 클릭 시 펼쳐지기
-            showCoverageOnHover: false,  // 마우스 올렸을 때 범위 폴리곤 끄기 (깔끔하게)
-            maxClusterRadius: 50,        // 클러스터 뭉치는 반경 (적당히)
-            
-            // 클러스터 아이콘 커스텀 (색상/크기)
+            chunkedLoading: true,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            maxClusterRadius: 50,
             iconCreateFunction: function(cluster) {
                 const count = cluster.getChildCount();
                 let c = ' custom-cluster-icon';
                 let size = 40;
-
                 if (count > 100) { c += ' large'; size = 55; }
                 else if (count > 50) { c += ' medium'; size = 45; }
-
                 return new L.DivIcon({
                     html: `<div>${shortenNum(count)}</div>`,
                     className: c,
@@ -131,24 +124,21 @@
         });
         map.addLayer(markersLayer);
 
-
         let mapDataMap = {};
 
         // 2. 데이터 로드 및 캐싱
         async function loadDataWithCache(year) {
             const cacheKey = `geo_data_${year}_v2`; 
             const loadingEl = document.getElementById('loading');
-            
             try {
                 const cached = await localforage.getItem(cacheKey);
                 if (cached) return cached;
-
+                
                 loadingEl.style.display = 'block';
                 const res = await fetch(`./map_data_${year}.json`);
                 if (!res.ok) throw new Error('File not found');
                 const json = await res.json();
 
-                // GeoJSON 변환
                 const geoJsonPoints = json
                     .filter(item => item.lat && item.lng)
                     .map(item => ({
@@ -162,7 +152,6 @@
 
                 await localforage.setItem(cacheKey, geoJsonPoints);
                 return geoJsonPoints;
-
             } catch (err) {
                 console.error(err);
                 return [];
@@ -184,18 +173,30 @@
         })();
 
 
-        // 3. 데이터 병합 (Aggregation)
+        // 3. 데이터 병합 (좌표 기준 Aggregation) - 핵심 수정 부분 ⭐
         function aggregateData(points) {
             const mergedMap = {};
 
             points.forEach(pt => {
-                // 이름 정규화
-                const cleanName = pt.name.replace(/\(주\)/g, '').trim(); 
-                const key = `${cleanName}|${pt.address}`; 
+                // (1) 상호명 정규화: (주), 공백 제거 (예: '스타 벅스' == '스타벅스')
+                const cleanName = pt.name.replace(/\(주\)/g, '').replace(/\s+/g, '').trim();
+                
+                // (2) 좌표 정밀도 조정 (부동소수점 오차 방지위해 7째자리까지 끊음)
+                // 위도/경도가 같으면 같은 장소로 인식! (주소 텍스트는 무시)
+                const latKey = parseFloat(pt.lat).toFixed(7);
+                const lngKey = parseFloat(pt.lng).toFixed(7);
+
+                // 고유 키 생성: 이름 + 좌표
+                const key = `${cleanName}|${latKey}|${lngKey}`; 
 
                 if (!mergedMap[key]) {
-                    mergedMap[key] = { ...pt, name: cleanName }; // 복사
+                    // 최초 등록 시
+                    mergedMap[key] = { 
+                        ...pt, 
+                        name: pt.name // 화면에는 원본 상호명 표시
+                    }; 
                 } else {
+                    // 중복 시 금액/횟수 누적
                     mergedMap[key].total_amount += pt.total_amount;
                     mergedMap[key].visit_count += pt.visit_count;
                 }
@@ -204,7 +205,8 @@
             return Object.values(mergedMap);
         }
 
-        // 4. 지도 그리기
+
+        // 4. 렌더링
         function setYear(year, btn) {
             document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -216,15 +218,12 @@
                 rawPoints = mapDataMap[year] || [];
             }
 
-            // 병합 실행 (식당 단위로 변환)
             const aggregatedPoints = aggregateData(rawPoints);
-            
-            // 마커 생성 및 클러스터 추가
             renderMarkers(aggregatedPoints);
         }
 
         function renderMarkers(points) {
-            markersLayer.clearLayers(); // 기존 마커 삭제
+            markersLayer.clearLayers();
             const markers = [];
 
             points.forEach(pt => {
@@ -255,8 +254,6 @@
                 marker.bindPopup(popupContent);
                 markers.push(marker);
             });
-
-            // 한 번에 추가 (성능 향상)
             markersLayer.addLayers(markers);
         }
 
