@@ -15,8 +15,7 @@ async def fetch_post(session, url, data=None, json_body=None, headers=None):
 		kwargs = {"timeout": 10}
 		if headers:
 			kwargs["headers"] = headers
-		
-		# [변경] 인자 이름을 json -> json_body로 변경 (라이브러리 이름 충돌 방지)
+
 		if json_body is not None:
 			kwargs["json"] = json_body
 		elif data is not None:
@@ -38,8 +37,6 @@ async def get_lat_lon(session, address):
 		result = await fetch_post(session, url, data={'query': query}, headers=headers)
 		data = json.loads(result)
 		if data['documents']:
-			
-			
 			documents = [x for x in data['documents'] if '아파트' in x['category_name']]
 			if len(documents) == 0:
 				documents = [x for x in data['documents'] if '부동산' in x['category_name']]
@@ -77,8 +74,9 @@ async def main():
 					if place_name and lat and lng:
 						data.append({"address": x["ADDRESS"], "place_name": place_name, "lat": lat, "lng": lng, "date": x["HNDL_YMD"]})
 
+		output = {"last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "data": data}
 		with open('contractMap/data.json', 'w', encoding='utf-8') as f:
-			json.dump(data, f, ensure_ascii=False, indent=2)
+			json.dump(output, f, ensure_ascii=False, indent=2)
 
 # -------------------- 실행 -------------------- #
 if __name__ == "__main__":
