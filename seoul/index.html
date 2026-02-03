@@ -3,232 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>서울시 업무추진비 지도</title>
-
-	<link rel="icon" type="image/png" sizes="16x16" href="/seoul/favicon-16x16.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="/seoul/favicon-32x32.png">
-	<link rel="apple-touch-icon" sizes="180x180" href="/seoul/apple-touch-icon.png">
-	<link rel="manifest" href="/seoul/site.webmanifest">
-	<meta name="theme-color" content="#ffffff">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="default">
-	<meta name="apple-mobile-web-app-title" content="seoul Meter">
-	<link rel="apple-touch-icon" sizes="180x180" href="/seoul/apple-touch-icon.png">
-	<meta name="theme-color" content="#ffffff">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-
+    <title>서울시 업무추진비 맛집 지도 (Final)</title>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
-        #map { width: 100%; height: 100vh; z-index: 1; }
+        /* 기본 설정 */
+        body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
+        #map { width: 100%; height: 100vh; z-index: 1; background: #f0f0f0; }
         
+        /* 1. 클러스터 아이콘 디자인 (크기별 색상 변화) */
+        .cluster-marker {
+            background-color: rgba(0, 123, 255, 0.9);
+            border: 2px solid white;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cluster-marker.medium { background-color: #fd7e14; } /* 100개 이상 주황색 */
+        .cluster-marker.large { background-color: #dc3545; }  /* 1000개 이상 빨간색 */
+
+        /* 2. 상단 연도 컨트롤 */
         .year-controls {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             z-index: 1000; background: rgba(255, 255, 255, 0.95);
-            padding: 8px; border-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex; gap: 8px; white-space: nowrap;
+            padding: 6px; border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex; gap: 5px; white-space: nowrap;
         }
         .year-btn {
-            border: none; background: #f0f0f0; padding: 8px 14px;
-            border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px;
+            border: none; background: transparent; padding: 8px 16px;
+            border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px;
+            color: #555; transition: 0.2s;
         }
-        .year-btn.active { background: #007bff; color: white; }
+        .year-btn:hover { background: #f1f1f1; }
+        .year-btn.active { background: #212529; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
+        /* 3. 우측 하단 현위치 버튼 */
         .gps-btn {
             position: absolute; bottom: 30px; right: 20px; z-index: 1000;
-            background: white; width: 45px; height: 45px; border-radius: 50%;
-            border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer; font-size: 20px; color: #333;
+            background: white; width: 50px; height: 50px; border-radius: 50%;
+            border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer; font-size: 22px; color: #333;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.1s;
         }
-        
+        .gps-btn:active { transform: scale(0.9); }
+
+        /* 4. 우측 상단 리셋 버튼 */
         .reset-btn {
-            position: absolute; top: 10px; right: 10px; z-index: 1000;
-            background: rgba(255,255,255,0.8); border: 1px solid #ccc;
-            padding: 5px 8px; font-size: 10px; border-radius: 5px; cursor: pointer;
-			display: none;
+            position: absolute; top: 15px; right: 15px; z-index: 1000;
+            background: white; border: 1px solid #ddd;
+            padding: 6px 10px; font-size: 11px; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #666;
         }
-        
-        /* 로딩 인디케이터 */
+
+        /* 5. 로딩 오버레이 */
         #loading {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 2000; background: rgba(0,0,0,0.7); color: white;
-            padding: 15px 25px; border-radius: 10px; font-size: 14px; display: none;
+            z-index: 2000; background: rgba(0,0,0,0.8); color: white;
+            padding: 20px 30px; border-radius: 12px; font-size: 15px; display: none;
+            backdrop-filter: blur(2px);
         }
+
+        /* 팝업 스타일 커스텀 */
+        .leaflet-popup-content-wrapper { border-radius: 12px; }
+        .leaflet-popup-content { margin: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="loading">데이터 불러오는 중...</div>
-
-    <button class="reset-btn" onclick="clearCache()">🔄 데이터 갱신</button>
+    <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> 데이터 처리 중...</div>
+    
+    <button class="reset-btn" onclick="clearCache()">
+        <i class="fa-solid fa-rotate-right"></i> 데이터 갱신
+    </button>
 
     <div class="year-controls">
-        <button class="year-btn active" onclick="showYear('all', this)">전체</button>
-        <button class="year-btn" onclick="showYear('2025', this)">2025</button>
-        <button class="year-btn" onclick="showYear('2024', this)">2024</button>
-        <button class="year-btn" onclick="showYear('2023', this)">2023</button>
+        <button class="year-btn active" onclick="setYear('all', this)">전체</button>
+        <button class="year-btn" onclick="setYear('2025', this)">2025</button>
+        <button class="year-btn" onclick="setYear('2024', this)">2024</button>
+        <button class="year-btn" onclick="setYear('2023', this)">2023</button>
     </div>
 
-    <button class="gps-btn" onclick="moveToCurrentLocation()"><i class="fa-solid fa-location-crosshairs"></i></button>
+    <button class="gps-btn" onclick="moveToCurrentLocation()">
+        <i class="fa-solid fa-location-crosshairs"></i>
+    </button>
 
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="https://unpkg.com/supercluster@7.1.5/dist/supercluster.min.js"></script>
 
     <script>
-        // 0. LocalForage 설정 (IndexedDB 사용)
-        localforage.config({
-            name: 'SeoulFoodMap',
-            storeName: 'map_data_store'
-        });
-
-        var map = L.map('map').setView([37.5665, 126.9780], 15);
+        // ============================================================
+        // 1. 초기 설정 (지도, 저장소)
+        // ============================================================
+        localforage.config({ name: 'SeoulFoodMap', storeName: 'map_data_v3' });
         
+        const map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 14);
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap', maxZoom: 19
         }).addTo(map);
 
-        var markersLayer = L.markerClusterGroup({
-            chunkedLoading: true, maxClusterRadius: 80,
-            disableClusteringAtZoom: 16, spiderfyOnMaxZoom: true
-        });
-        map.addLayer(markersLayer);
+        // 현위치 마커용 레이어
+        const gpsLayer = L.layerGroup().addTo(map);
 
-        map.locate({setView: true, maxZoom: 15});
-        map.on('locationfound', function(e) {
-            L.circleMarker(e.latlng, { radius: 8, color: '#fff', fillColor: '#4285F4', fillOpacity: 1 }).addTo(map);
+        // 🚀 Supercluster 엔진 설정 (대용량 처리의 핵심)
+        const index = new Supercluster({
+            radius: 60,   // 클러스터링 반경 (px)
+            maxZoom: 18   // 이 레벨 이상 확대하면 클러스터링 중단 (단, 겹친 건 유지)
         });
 
-        // ==========================================
-        // 🚀 대용량 처리: IndexedDB 활용 함수
-        // ==========================================
+        let markersLayer = L.layerGroup().addTo(map); // 실제 마커가 그려질 레이어
+        let mapDataMap = {}; // 연도별 데이터 저장소
+
+        // ============================================================
+        // 2. 데이터 로드 및 캐싱 (IndexedDB)
+        // ============================================================
         async function loadDataWithCache(year) {
-            const cacheKey = `map_data_${year}`;
+            const cacheKey = `geo_data_${year}`;
             const loadingEl = document.getElementById('loading');
             
             try {
-                // 1. 저장소(IndexedDB) 확인
-                // getItem은 비동기이므로 await 필수
-                const cachedData = await localforage.getItem(cacheKey);
-                
-                if (cachedData) {
-                    console.log(`[Cache Hit] ${year}년 데이터 (IndexedDB)`);
-                    return cachedData; // 이미 객체이므로 파싱 불필요
-                }
+                // 1) 캐시 확인
+                const cached = await localforage.getItem(cacheKey);
+                if (cached) return cached;
 
-                // 2. 없으면 다운로드
-                console.log(`[Network] ${year}년 데이터 다운로드...`);
-                loadingEl.style.display = 'block'; // 로딩 표시
-                
-                const response = await fetch(`./map_data_${year}.json`);
-                if (!response.ok) throw new Error('Network response was not ok');
-                
-                const json = await response.json();
+                // 2) 다운로드
+                loadingEl.style.display = 'block';
+                const res = await fetch(`./map_data_${year}.json`);
+                if (!res.ok) throw new Error('File not found');
+                const json = await res.json();
 
-                // 3. IndexedDB에 저장 (용량 제한 거의 없음)
-                await localforage.setItem(cacheKey, json);
-                
-                return json;
+                // 3) GeoJSON 변환 (미리 변환해서 저장)
+                const geoJsonPoints = json
+                    .filter(item => item.lat && item.lng)
+                    .map(item => ({
+                        type: 'Feature',
+                        properties: {
+                            name: item.name,
+                            address: item.address,
+                            total_amount: item.total_amount,
+                            visit_count: item.visit_count
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [item.lng, item.lat]
+                        }
+                    }));
+
+                // 4) 저장
+                await localforage.setItem(cacheKey, geoJsonPoints);
+                return geoJsonPoints;
+
             } catch (err) {
-                console.error("데이터 로드 실패:", err);
+                console.error(`Error loading ${year}:`, err);
                 return [];
             } finally {
                 loadingEl.style.display = 'none';
             }
         }
 
-        // ==========================================
-        
-        var mapData = { '2023': [], '2024': [], '2025': [] };
-
-        // 데이터 병렬 로드 시작
+        // 초기 데이터 로딩 실행
         (async function init() {
             const results = await Promise.all([
                 loadDataWithCache('2023'),
                 loadDataWithCache('2024'),
                 loadDataWithCache('2025')
             ]);
+            mapDataMap['2023'] = results[0];
+            mapDataMap['2024'] = results[1];
+            mapDataMap['2025'] = results[2];
             
-            mapData['2023'] = results[0];
-            mapData['2024'] = results[1];
-            mapData['2025'] = results[2];
-            
-            showYear('all', document.querySelector('.year-btn.active'));
+            // 데이터 로드 완료 후 전체 보기 실행
+            setYear('all', document.querySelector('.year-btn.active'));
         })();
 
-        function renderMap(dataList) {
-            markersLayer.clearLayers();
-            var newMarkers = [];
-            dataList.forEach(item => {
-                if (item.lat && item.lng) {
-                    var avgPrice = item.visit_count > 0 ? Math.round(item.total_amount / item.visit_count) : 0;
-                    var marker = L.marker([item.lat, item.lng]);
-                    var popupContent = `
-                        <div style="text-align:center; min-width:160px; font-size:13px;">
-                            <h3 style="margin:0 0 5px; color:#007bff; font-size:15px;">${item.name}</h3>
-                            <p style="margin:0 0 8px; color:#666; font-size:11px;">${item.address}</p>
-                            <div style="background:#f8f9fa; padding:8px; border-radius:5px; text-align:left;">
-                                <p style="margin:3px 0;">💰 <b>총 집행금액:</b> ${item.total_amount.toLocaleString()}원</p>
-                                <p style="margin:3px 0;">🚩 <b>총 방문횟수:</b> ${item.visit_count}회</p>
-                                <hr style="border:0; border-top:1px dashed #ccc; margin:5px 0;">
-                                <p style="margin:3px 0; color:#d63384;">💳 <b>1회 평균:</b> ${avgPrice.toLocaleString()}원</p>
-                            </div>
-                        </div>`;
-                    marker.bindPopup(popupContent);
-                    newMarkers.push(marker);
+
+        // ============================================================
+        // 3. 데이터 병합 (Aggregation) - 핵심 로직 ⭐
+        // ============================================================
+        // 같은 식당(이름+주소)이면 금액과 횟수를 합칩니다.
+        function aggregateData(geoJsonPoints) {
+            const mergedMap = {};
+
+            geoJsonPoints.forEach(pt => {
+                const props = pt.properties;
+                const key = `${props.name}|${props.address}`; // 고유 키 생성
+
+                if (!mergedMap[key]) {
+                    // 신규 등록: 원본 보호를 위해 복사해서 저장
+                    mergedMap[key] = {
+                        type: 'Feature',
+                        properties: { ...props }, 
+                        geometry: { ...pt.geometry }
+                    };
+                } else {
+                    // 중복 발견: 금액과 횟수 누적
+                    mergedMap[key].properties.total_amount += props.total_amount;
+                    mergedMap[key].properties.visit_count += props.visit_count;
                 }
             });
-            markersLayer.addLayers(newMarkers);
+
+            return Object.values(mergedMap);
         }
 
-        function showYear(year, btnElement) {
+        function setYear(year, btn) {
+            // 버튼 스타일
             document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
+            btn.classList.add('active');
+
+            let rawPoints = [];
 
             if (year === 'all') {
-                var mergedData = {};
-                ['2023', '2024', '2025'].forEach(y => {
-                    if(mapData[y]) {
-                        mapData[y].forEach(item => {
-                            var key = item.name + "|" + item.address;
-                            if (!mergedData[key]) {
-                                mergedData[key] = { ...item }; 
-                            } else {
-                                mergedData[key].total_amount += item.total_amount;
-                                mergedData[key].visit_count += item.visit_count;
-                            }
-                        });
-                    }
-                });
-                renderMap(Object.values(mergedData));
+                // 모든 연도 데이터를 하나의 배열로 합침
+                rawPoints = [
+                    ...mapDataMap['2023'], 
+                    ...mapDataMap['2024'], 
+                    ...mapDataMap['2025']
+                ];
             } else {
-                renderMap(mapData[year] || []);
+                rawPoints = mapDataMap[year] || [];
             }
+
+            // ⭐ 병합 실행 (여기서 중복이 제거되고 통계가 합쳐짐)
+            const aggregatedPoints = aggregateData(rawPoints);
+            
+            // Supercluster에 데이터 입력
+            index.load(aggregatedPoints);
+            
+            updateMap();
         }
 
+
+        // ============================================================
+        // 4. 지도 렌더링 (Supercluster)
+        // ============================================================
+        function updateMap() {
+            const bounds = map.getBounds();
+            const bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+            const zoom = map.getZoom();
+
+            // 현재 화면에 보이는 데이터만 계산해서 가져옴
+            const clusters = index.getClusters(bbox, zoom);
+            markersLayer.clearLayers();
+
+            clusters.forEach(feature => {
+                const [lng, lat] = feature.geometry.coordinates;
+                const isCluster = feature.properties.cluster;
+
+                if (isCluster) {
+                    // [클러스터 마커]
+                    const count = feature.properties.point_count;
+                    let sizeClass = count > 1000 ? 'large' : (count > 100 ? 'medium' : '');
+                    let size = count > 1000 ? 55 : (count > 100 ? 45 : 35);
+
+                    const icon = L.divIcon({
+                        html: `<div class="cluster-marker ${sizeClass}" style="width:${size}px; height:${size}px;">${shortenNum(count)}</div>`,
+                        className: 'custom-cluster-icon',
+                        iconSize: [size, size]
+                    });
+
+                    const marker = L.marker([lat, lng], { icon: icon });
+
+                    // 클러스터 클릭 시 동작
+                    marker.on('click', () => {
+                        const expansionZoom = index.getClusterExpansionZoom(feature.properties.cluster_id);
+                        
+                        // 더 이상 줌할 수 없으면 요약 팝업 표시
+                        if (expansionZoom > 19 || zoom >= 18) {
+                            showClusterPopup(feature, lat, lng);
+                        } else {
+                            map.setView([lat, lng], expansionZoom);
+                        }
+                    });
+                    markersLayer.addLayer(marker);
+
+                } else {
+                    // [개별 식당 마커]
+                    const props = feature.properties;
+                    const marker = L.marker([lat, lng]);
+                    const avgPrice = Math.round(props.total_amount / props.visit_count);
+
+                    const popupContent = `
+                        <div style="text-align:center; min-width:180px;">
+                            <h3 style="margin:0 0 5px; color:#212529; font-size:16px;">${props.name}</h3>
+                            <p style="margin:0 0 10px; color:#868e96; font-size:12px;">${props.address}</p>
+                            <div style="background:#f8f9fa; padding:10px; border-radius:8px; text-align:left;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                    <span style="color:#495057;">💰 총 사용액</span>
+                                    <span style="font-weight:bold; color:#212529;">${props.total_amount.toLocaleString()}원</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span style="color:#495057;">🚩 방문횟수</span>
+                                    <span style="font-weight:bold; color:#212529;">${props.visit_count}회</span>
+                                </div>
+                                <hr style="margin:8px 0; border-top:1px dashed #ced4da;">
+                                <div style="text-align:right; font-size:12px; color:#fa5252;">
+                                    1회 평균: <b>${avgPrice.toLocaleString()}원</b>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    markersLayer.addLayer(marker);
+                }
+            });
+        }
+
+        // 지도 이동 시마다 업데이트
+        map.on('moveend', updateMap);
+
+
+        // ============================================================
+        // 5. 유틸리티 (현위치, 숫자축약, 팝업, 리셋)
+        // ============================================================
+        
         function moveToCurrentLocation() {
             map.locate({setView: true, maxZoom: 16});
         }
 
-        // 캐시 삭제 (IndexedDB 비우기)
+        map.on('locationfound', e => {
+            gpsLayer.clearLayers();
+            L.circle(e.latlng, { radius: e.accuracy / 2, color: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.1 }).addTo(gpsLayer);
+            L.circleMarker(e.latlng, { radius: 8, color: '#fff', fillColor: '#4285F4', fillOpacity: 1 }).addTo(gpsLayer);
+        });
+
+        // 1200 -> 1.2k 변환
+        function shortenNum(num) {
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+            return num;
+        }
+
+        // 겹친 마커 요약 팝업
+        function showClusterPopup(clusterFeature, lat, lng) {
+            const leaves = index.getLeaves(clusterFeature.properties.cluster_id, Infinity);
+            
+            let totalMoney = 0;
+            let totalCount = 0;
+            let names = {};
+
+            leaves.forEach(leaf => {
+                totalMoney += leaf.properties.total_amount;
+                totalCount += leaf.properties.visit_count;
+                const n = leaf.properties.name;
+                names[n] = (names[n] || 0) + 1;
+            });
+
+            // 많이 간 순서로 정렬해서 상위 3개만 표시
+            const topList = Object.entries(names)
+                .sort((a,b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([name, cnt]) => `<li style="margin-bottom:3px;">${name} <span style="color:gray; font-size:11px;">(${cnt}건)</span></li>`)
+                .join('');
+
+            const content = `
+                <div style="min-width:200px;">
+                    <h3 style="margin:0 0 10px; font-size:15px;">🏢 밀집 지역 정보</h3>
+                    <div style="background:#e9ecef; padding:10px; border-radius:8px; margin-bottom:10px;">
+                        <b>총 금액:</b> ${totalMoney.toLocaleString()}원<br>
+                        <b>총 횟수:</b> ${totalCount.toLocaleString()}건
+                    </div>
+                    <p style="margin:5px 0; font-weight:bold; font-size:12px;">🔥 주요 식당:</p>
+                    <ul style="padding-left:20px; margin:0; font-size:12px;">${topList}</ul>
+                    ${Object.keys(names).length > 3 ? `<p style="font-size:11px; color:#868e96; margin-top:5px;">외 ${Object.keys(names).length - 3}곳</p>` : ''}
+                </div>
+            `;
+
+            L.popup().setLatLng([lat, lng]).setContent(content).openOn(map);
+        }
+
         async function clearCache() {
-            if(confirm('저장된 데이터를 삭제하고 서버에서 새로 받아오시겠습니까?')) {
-                try {
-                    await localforage.clear(); // 모든 키 삭제
-                    alert('데이터가 삭제되었습니다. 페이지를 새로고침합니다.');
-                    location.reload();
-                } catch (err) {
-                    console.error(err);
-                    alert('삭제 실패');
-                }
+            if(confirm('새로운 데이터를 받아오시겠습니까?')) {
+                await localforage.clear();
+                location.reload();
             }
         }
     </script>
