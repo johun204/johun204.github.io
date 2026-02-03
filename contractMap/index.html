@@ -23,7 +23,7 @@
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
         #map { width: 100%; height: 100vh; z-index: 1; background: #f0f0f0; }
         
-        /* 1. 검색창 스타일 (상단) */
+        /* 1. 검색창 스타일 */
         .search-container {
             position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             z-index: 1000; width: 90%; max-width: 400px;
@@ -58,8 +58,7 @@
         .item-name { font-weight: bold; color: #333; display: block; margin-bottom: 2px;}
         .item-addr { font-size: 12px; color: #888; }
 
-
-        /* 2. 필터 버튼 (하단으로 이동) */
+        /* 2. 필터 버튼 (하단) */
         .filter-controls {
             position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
             z-index: 1000; background: rgba(255, 255, 255, 0.95);
@@ -84,13 +83,14 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 업데이트 날짜 (우측 하단) */
+        /* 3. 업데이트 날짜 (좌측 하단으로 이동) */
         .last-updated {
-            position: absolute; bottom: 5px; right: 10px; z-index: 1000;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 4px 8px; border-radius: 6px;
-            font-size: 11px; color: #666; font-weight: 500;
+            position: absolute; bottom: 20px; left: 20px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 6px 12px; border-radius: 20px;
+            font-size: 12px; color: #555; font-weight: 600;
             backdrop-filter: blur(2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             pointer-events: none;
         }
 
@@ -116,7 +116,6 @@
             backdrop-filter: blur(2px);
         }
         
-        /* 팝업 스타일 */
         .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .leaflet-popup-content { margin: 0; width: 280px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 15px; }
@@ -165,7 +164,8 @@
             attributionControl: false 
         }).setView([37.5665, 126.9780], 11);
         
-        L.control.zoom({ position: 'bottomleft' }).addTo(map);
+        // 줌 컨트롤을 우측 상단으로 이동 (좌측 하단 날짜와 겹침 방지)
+        L.control.zoom({ position: 'topright' }).addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
@@ -173,16 +173,14 @@
 
         const gpsLayer = L.layerGroup().addTo(map);
 
-        // 구(Gu)별 클러스터 레이어를 저장할 객체
-        // 예: { "종로구": L.markerClusterGroup(...), "강남구": ... }
+        // 구(Gu)별 클러스터 레이어 저장소
         let guClusterLayers = {};
 
-        // 클러스터 옵션 생성 함수 (모든 구에 동일하게 적용)
         function createClusterGroup() {
             return L.markerClusterGroup({
                 chunkedLoading: true,
                 maxClusterRadius: 60,
-                // 구역 분리가 목적이므로, 멀리서 볼 때 너무 많이 뭉치는 것 방지 (선택사항)
+                // 구별 격리 유지
                 disableClusteringAtZoom: 18, 
                 iconCreateFunction: function(cluster) {
                     const children = cluster.getAllChildMarkers();
@@ -206,10 +204,9 @@
         }
 
         let allData = [];
-        let currentFilteredData = []; // 검색 기능을 위해 현재 필터링된 데이터 저장
         let lastUpdatedDate = new Date();
 
-        // 3. 데이터 로드
+        // 2. 데이터 로드
         async function loadData() {
             const loadingEl = document.getElementById('loading');
             loadingEl.style.display = 'block';
@@ -221,7 +218,7 @@
                 
                 if (json.last_updated) {
                     lastUpdatedDate = new Date(json.last_updated.replace(' ', 'T'));
-                    document.getElementById('last-updated').innerText = '업데이트: ' + json.last_updated;
+                    document.getElementById('last-updated').innerText = 'Data: ' + json.last_updated.substring(0, 10);
                 }
 
                 allData = json.data.map(item => ({
@@ -240,27 +237,37 @@
             }
         }
 
-        // 4. 필터링 로직
+        // 3. 필터링 및 렌더링
         function setPeriod(period, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
+            // 버튼 상태 변경
+            if (btn) {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            } else if (period === 'all') {
+                // 검색 결과 클릭 등으로 'all' 모드가 될 때 버튼 스타일 모두 해제
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            }
 
-            const daysLimit = parseInt(period);
-            currentFilteredData = allData.filter(item => {
-                if (!item.dateObj) return false;
-                const diff = getDaysDiff(lastUpdatedDate, item.dateObj);
-                return diff >= 0 && diff <= daysLimit;
-            });
+            let filteredData = [];
+            if (period === 'all') {
+                filteredData = allData;
+            } else {
+                const daysLimit = parseInt(period);
+                filteredData = allData.filter(item => {
+                    if (!item.dateObj) return false;
+                    const diff = getDaysDiff(lastUpdatedDate, item.dateObj);
+                    return diff >= 0 && diff <= daysLimit;
+                });
+            }
 
-            // 검색창 초기화
-            document.getElementById('searchInput').value = '';
+            // 검색창 닫기
             document.getElementById('searchResults').style.display = 'none';
 
-            const aggregated = aggregateData(currentFilteredData);
+            const aggregated = aggregateData(filteredData);
             renderMarkers(aggregated);
         }
 
-        // 5. 데이터 병합
+        // 4. 데이터 병합 (동일 위치)
         function aggregateData(points) {
             const mapData = {};
 
@@ -288,27 +295,20 @@
             return Object.values(mapData);
         }
 
-        // 6. 마커 렌더링 (구별 클러스터링 적용)
+        // 5. 마커 렌더링 (구별 클러스터)
         function renderMarkers(points) {
-            // 기존 레이어 모두 제거
             Object.values(guClusterLayers).forEach(layer => map.removeLayer(layer));
-            guClusterLayers = {}; // 초기화
+            guClusterLayers = {};
 
             points.forEach(pt => {
-                // 주소에서 '구' 이름 추출 (예: "종로구 숭인동..." -> "종로구")
-                // 주소가 없는 경우 '기타'로 처리
                 const guName = pt.address ? pt.address.split(' ')[0] : '기타';
 
-                // 해당 구의 클러스터 그룹이 없으면 생성
                 if (!guClusterLayers[guName]) {
                     guClusterLayers[guName] = createClusterGroup();
                     map.addLayer(guClusterLayers[guName]);
                 }
 
-                const marker = L.marker([pt.lat, pt.lng], {
-                    permit_count: pt.permit_count 
-                });
-
+                const marker = L.marker([pt.lat, pt.lng], { permit_count: pt.permit_count });
                 const historyHtml = pt.history.map(h => `
                     <li class="permit-item">
                         <span>${h.name}</span>
@@ -329,14 +329,12 @@
                         <ul class="permit-list">${historyHtml}</ul>
                     </div>
                 `;
-
                 marker.bindPopup(popupContent);
-                // 해당 구 클러스터에 마커 추가
                 guClusterLayers[guName].addLayer(marker);
             });
         }
 
-        // 7. 검색 기능 구현
+        // 6. 검색 기능 (전체 기간 + 주소 중복 제거)
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
 
@@ -347,22 +345,38 @@
                 return;
             }
 
-            // 전체 데이터 중 현재 기간에 해당하는 것만 검색 (또는 전체 검색 원하면 allData 사용)
-            // 여기서는 '전체 데이터'인 allData를 대상으로 검색하여 기간 외 데이터도 찾을 수 있게 할지, 
-            // 아니면 현재 보이는 데이터에서만 찾을지 결정해야 함. 
-            // -> 보통 검색은 "전체 기간"에서 찾는 것이 유용하므로 allData 사용
-            const matched = allData.filter(d => 
+            // 1) 전체 데이터(allData)에서 검색
+            const rawMatches = allData.filter(d => 
                 (d.place_name && d.place_name.includes(query)) || 
                 (d.address && d.address.includes(query))
-            ).slice(0, 10); // 최대 10개만 표시
+            );
 
-            if (matched.length > 0) {
+            // 2) 주소 기준 중복 제거
+            const seenAddresses = new Set();
+            const uniqueMatches = [];
+
+            rawMatches.forEach(item => {
+                // 주소와 상호명을 합쳐서 키로 사용하거나, 주소만 사용할 수 있음. 
+                // "동일 주소 데이터는 한번만" 요청에 따라 주소 기준 중복 제거
+                // (같은 아파트 단지 내 여러 건 거래 시 하나만 표시)
+                const uniqueKey = item.address; 
+                
+                if (!seenAddresses.has(uniqueKey)) {
+                    seenAddresses.add(uniqueKey);
+                    uniqueMatches.push(item);
+                }
+            });
+
+            // 3) 결과 표시 (최대 15개)
+            const finalResults = uniqueMatches.slice(0, 15);
+
+            if (finalResults.length > 0) {
                 let html = '';
-                matched.forEach(item => {
+                finalResults.forEach(item => {
                     html += `
-                        <div class="search-item" onclick="moveToPoint(${item.lat}, ${item.lng}, '${item.place_name}', '${item.date}')">
+                        <div class="search-item" onclick="moveToPoint(${item.lat}, ${item.lng}, '${item.place_name}')">
                             <span class="item-name">${item.place_name}</span>
-                            <span class="item-addr">${item.address} (${formatDate(item.date)})</span>
+                            <span class="item-addr">${item.address}</span>
                         </div>
                     `;
                 });
@@ -373,20 +387,18 @@
             }
         });
 
-        // 검색 결과 클릭 시 이동
-        window.moveToPoint = function(lat, lng, name, date) {
-            // 1. 지도 이동
+        // 검색 결과 클릭 이벤트
+        window.moveToPoint = function(lat, lng, name) {
+            // 검색된 데이터가 현재 필터(예: 최근 60일)에 없을 수 있으므로
+            // 마커를 보여주기 위해 필터를 '전체(all)'로 변경합니다.
+            setPeriod('all', null); 
+
+            // 지도 이동
             map.flyTo([lat, lng], 17, { duration: 1.5 });
             
-            // 2. 검색창 닫기
+            // 검색창 정리
             searchResults.style.display = 'none';
             searchInput.value = name;
-
-            // 3. (선택사항) 해당 날짜가 포함된 기간으로 필터 변경이 필요할 수 있음
-            // 하지만 현재는 좌표 이동만 수행합니다. 
-            // 만약 필터링된 기간 밖에 있는 데이터라면 마커가 안 보일 수 있습니다.
-            // 이를 방지하기 위해 '전체'로 바꾸거나, 사용자에게 알림을 줄 수 있습니다.
-            // 여기서는 사용자 편의를 위해 마커가 보이도록 기간 필터를 '60일'에 해당하지 않으면 자동으로 확장하는 로직은 생략했습니다.
         };
 
         // 유틸 함수들
