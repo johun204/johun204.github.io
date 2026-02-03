@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>서울시 토지허가 지도</title>
 
-	<link rel="icon" type="image/png" sizes="16x16" href="/contractMap/favicon-16x16.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="/contractMap/favicon-32x32.png">
-	<link rel="apple-touch-icon" sizes="180x180" href="/contractMap/apple-touch-icon.png">
-	<link rel="manifest" href="/contractMap/site.webmanifest">
-	<meta name="theme-color" content="#ffffff">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="default">
-	<meta name="apple-mobile-web-app-title" content="contractMap Meter">
-	<link rel="apple-touch-icon" sizes="180x180" href="/contractMap/apple-touch-icon.png">
-	<meta name="theme-color" content="#ffffff">
-	<meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/png" sizes="16x16" href="/contractMap/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/contractMap/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/contractMap/apple-touch-icon.png">
+    <link rel="manifest" href="/contractMap/site.webmanifest">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="contractMap Meter">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
@@ -36,6 +33,7 @@
             font-weight: bold;
             line-height: 40px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
         }
         .custom-cluster-icon.medium { background: #f1c40f; color: #333; }
         .custom-cluster-icon.large { background: #e74c3c; color: white; }
@@ -56,7 +54,7 @@
         .filter-btn:hover { background: #f1f1f1; }
         .filter-btn.active { background: #2c3e50; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* GPS 버튼 위치 수정 (업데이트 날짜와 겹치지 않게 살짝 위로) */
+        /* 현위치 버튼 (업데이트 날짜 위로 배치) */
         .gps-btn {
             position: absolute; bottom: 40px; right: 15px; z-index: 1000;
             background: white; width: 45px; height: 45px; border-radius: 50%;
@@ -65,14 +63,14 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 업데이트 날짜 표시 스타일 */
+        /* 업데이트 날짜 (우측 하단) */
         .last-updated {
             position: absolute; bottom: 5px; right: 10px; z-index: 1000;
             background: rgba(255, 255, 255, 0.7);
             padding: 4px 8px; border-radius: 6px;
             font-size: 11px; color: #666; font-weight: 500;
             backdrop-filter: blur(2px);
-            pointer-events: none; /* 지도 조작 방해 금지 */
+            pointer-events: none;
         }
 
         #loading {
@@ -82,6 +80,7 @@
             backdrop-filter: blur(2px);
         }
         
+        /* 팝업 스타일 */
         .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .leaflet-popup-content { margin: 0; width: 280px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 15px; }
@@ -99,9 +98,9 @@
     <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> 데이터 불러오는 중...</div>
     
     <div class="filter-controls">
-        <button class="filter-btn active" onclick="setPeriod('all', this)">전체</button>
-        <button class="filter-btn" onclick="setPeriod('60', this)">최근 60일</button>
+        <button class="filter-btn active" onclick="setPeriod('60', this)">최근 60일</button>
         <button class="filter-btn" onclick="setPeriod('30', this)">최근 30일</button>
+        <button class="filter-btn" onclick="setPeriod('7', this)">최근 7일</button>
     </div>
 
     <div id="last-updated" class="last-updated"></div>
@@ -116,10 +115,10 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // 1. 지도 초기화 (attributionControl: false 적용)
+        // 1. 지도 초기화
         const map = L.map('map', { 
             zoomControl: false, 
-            attributionControl: false // 저작권 표시 숨김
+            attributionControl: false 
         }).setView([37.5665, 126.9780], 11);
         
         L.control.zoom({ position: 'bottomleft' }).addTo(map);
@@ -168,10 +167,9 @@
                 if (!res.ok) throw new Error('데이터 파일을 찾을 수 없습니다.');
                 const json = await res.json();
                 
-                // 업데이트 날짜 파싱 및 UI 표시
+                // 업데이트 날짜 표시 (우측 하단)
                 if (json.last_updated) {
                     lastUpdatedDate = new Date(json.last_updated.replace(' ', 'T'));
-                    // 화면 우측 하단에 표시
                     document.getElementById('last-updated').innerText = '업데이트: ' + json.last_updated;
                 }
 
@@ -180,16 +178,18 @@
                     dateObj: parseDateString(item.date)
                 }));
 
-                setPeriod('all', document.querySelector('.filter-btn.active'));
+                // 초기 렌더링: '최근 60일'을 기본값으로 설정
+                setPeriod('60', document.querySelector('.filter-btn.active'));
 
             } catch (err) {
                 console.error(err);
-                alert('오류 발생: ' + err.message);
+                alert('데이터 로드 실패: ' + err.message);
             } finally {
                 loadingEl.style.display = 'none';
             }
         }
 
+        // 유틸 함수들
         function parseDateString(dateStr) {
             if (!dateStr || dateStr.length !== 8) return null;
             const y = parseInt(dateStr.substring(0, 4));
@@ -204,22 +204,20 @@
             return Math.floor((t1 - t2) / (24 * 60 * 60 * 1000));
         }
 
-        // 4. 필터링 및 렌더링
+        // 4. 필터링 로직 수정 (7일, 30일, 60일)
         function setPeriod(period, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
 
             let filteredData = [];
-            if (period === 'all') {
-                filteredData = allData;
-            } else {
-                const daysLimit = parseInt(period);
-                filteredData = allData.filter(item => {
-                    if (!item.dateObj) return false;
-                    const diff = getDaysDiff(lastUpdatedDate, item.dateObj);
-                    return diff >= 0 && diff <= daysLimit;
-                });
-            }
+            
+            const daysLimit = parseInt(period);
+            filteredData = allData.filter(item => {
+                if (!item.dateObj) return false;
+                const diff = getDaysDiff(lastUpdatedDate, item.dateObj);
+                return diff >= 0 && diff <= daysLimit;
+            });
+
             const aggregated = aggregateData(filteredData);
             renderMarkers(aggregated);
         }
@@ -227,6 +225,7 @@
         // 5. 데이터 병합
         function aggregateData(points) {
             const mapData = {};
+
             points.forEach(pt => {
                 if (!pt.lat || !pt.lng) return;
                 const latKey = parseFloat(pt.lat).toFixed(6);
@@ -243,10 +242,11 @@
                 mapData[key].permit_count += 1;
                 mapData[key].history.push({ date: pt.date, name: pt.place_name });
             });
-            
+
             Object.values(mapData).forEach(item => {
                 item.history.sort((a, b) => b.date.localeCompare(a.date));
             });
+
             return Object.values(mapData);
         }
 
@@ -256,7 +256,10 @@
             const markers = [];
 
             points.forEach(pt => {
-                const marker = L.marker([pt.lat, pt.lng], { permit_count: pt.permit_count });
+                const marker = L.marker([pt.lat, pt.lng], {
+                    permit_count: pt.permit_count 
+                });
+
                 const historyHtml = pt.history.map(h => `
                     <li class="permit-item">
                         <span>${h.name}</span>
@@ -277,6 +280,7 @@
                         <ul class="permit-list">${historyHtml}</ul>
                     </div>
                 `;
+
                 marker.bindPopup(popupContent);
                 markers.push(marker);
             });
