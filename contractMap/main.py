@@ -9,6 +9,9 @@ from datetime import date, timedelta, datetime
 # 1. 설정
 KAKAO_API_KEY = os.getenv('KAKAO_API_KEY')
 
+# [NEW] 전역 캐시 저장소 (주소: (장소명, 위도, 경도))
+ADDRESS_CACHE = {}
+
 # -------------------- HTTP 요청 -------------------- #
 async def fetch_post(session, url, data=None, json_body=None, headers=None):
 	try:
@@ -27,8 +30,14 @@ async def fetch_post(session, url, data=None, json_body=None, headers=None):
 		return f"ERROR:{str(e)}"
 
 
-# 2. 카카오 좌표 변환 함수
+# 2. 카카오 좌표 변환 함수 (캐시 적용)
 async def get_lat_lon(session, address):
+	# [NEW] 1. 캐시에 있는지 먼저 확인 (메모리 조회)
+	if address in ADDRESS_CACHE:
+		# print(f"Cache hit! {address}") # 디버깅용
+		return ADDRESS_CACHE[address]
+
+	# 캐시에 없으면 API 호출 진행
 	url = 'https://dapi.kakao.com/v2/local/search/keyword.json'
 	headers = {'Authorization': f'KakaoAK {KAKAO_API_KEY}'}
 
@@ -36,6 +45,7 @@ async def get_lat_lon(session, address):
 		query = f"서울시 {address}"
 		result = await fetch_post(session, url, data={'query': query}, headers=headers)
 		data = json.loads(result)
+		
 		if data['documents']:
 			documents = [x for x in data['documents'] if '아파트' in x['category_name']]
 			if len(documents) == 0:
@@ -45,9 +55,19 @@ async def get_lat_lon(session, address):
 				documents = data['documents']
 
 			if len(documents) > 0:
-				return documents[0]['place_name'] if 'place_name' in documents[0] else None, documents[0]['y'], documents[0]['x']
+				doc = documents[0]
+				place_name = doc['place_name'] if 'place_name' in doc else None
+				lat = doc['y']
+				lng = doc['x']
+				
+				# [NEW] 2. 결과가 유효하면 캐시에 저장
+				result_tuple = (place_name, lat, lng)
+				ADDRESS_CACHE[address] = result_tuple
+				
+				return result_tuple
 	except:
 		pass
+	
 	return None, None, None
 
 async def main():
@@ -61,6 +81,11 @@ async def main():
 		before_60_days_str = before_60_days.strftime("%Y%m%d")
 		
 		data = []
+		
+		# [Tip] 캐시 효율 확인용 카운터
+		api_call_count = 0
+		cache_hit_count = 0
+
 		for sggCd in seoul:
 			data_payload = {"sggCd": sggCd["code"], "beginDate": before_60_days_str, "endDate": today_str}
 			result = await fetch_post(session, url, data=data_payload)
@@ -68,12 +93,23 @@ async def main():
 			content = json.loads(result) if result else None
 			if content and "result" in content:
 				for x in content["result"]:
+					# 주거용 필터링
 					if x["USE_PURP"] != "주거용": continue
+
+					# 주소가 캐시에 있는지 미리 확인해서 로그만 찍어볼 수 있음 (선택사항)
+					if x["ADDRESS"] in ADDRESS_CACHE:
+						cache_hit_count += 1
+					else:
+						api_call_count += 1
 
 					place_name, lat, lng = await get_lat_lon(session, x["ADDRESS"])
 					if place_name and lat and lng:
 						data.append({"address": x["ADDRESS"], "place_name": place_name, "lat": lat, "lng": lng, "date": x["HNDL_YMD"]})
 
+		print(f"작업 완료: API 호출 {api_call_count}회, 캐시 사용 {cache_hit_count}회")
+
+		# 폴더 생성 및 저장 로직 유지
+		os.makedirs('contractMap', exist_ok=True)
 		output = {"last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "data": data}
 		with open('contractMap/data.json', 'w', encoding='utf-8') as f:
 			json.dump(output, f, ensure_ascii=False, indent=2)
