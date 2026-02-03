@@ -23,28 +23,58 @@
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
         #map { width: 100%; height: 100vh; z-index: 1; background: #f0f0f0; }
         
-        /* 1. 검색창 스타일 */
-        .search-container {
+        /* --- 1. 상단 컨트롤 컨테이너 --- */
+        .top-container {
             position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             z-index: 1000; width: 90%; max-width: 400px;
+            height: 44px; /* 높이 고정으로 레이아웃 흔들림 방지 */
         }
-        .search-box {
-            position: relative; width: 100%;
+
+        /* 모드 1: 필터 버튼 그룹 */
+        .filter-group {
+            display: flex; gap: 5px; justify-content: center;
+            width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 4px; border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+        }
+        .filter-btn {
+            border: none; background: transparent; padding: 0 12px;
+            border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px;
+            color: #555; transition: 0.2s; white-space: nowrap; flex: 1;
+        }
+        .filter-btn:hover { background: #f1f1f1; }
+        .filter-btn.active { background: #2c3e50; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .search-trigger-btn {
+            width: 36px; height: 36px; border-radius: 50%; border: none;
+            background: #fff; color: #333; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* 모드 2: 검색 입력창 그룹 (초기 숨김) */
+        .search-group {
+            display: none; /* JS로 토글 */
+            width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; align-items: center;
+            align-items: center; padding: 0 5px;
+            box-sizing: border-box;
         }
         .search-input {
-            width: 100%; border: none; background: transparent;
-            padding: 12px 20px; font-size: 15px; outline: none;
-            border-radius: 25px;
+            flex: 1; border: none; background: transparent;
+            padding: 0 15px; font-size: 15px; outline: none; height: 100%;
         }
-        .search-icon { padding-right: 15px; color: #888; }
-        
+        .close-search-btn {
+            width: 36px; height: 36px; border: none; background: transparent;
+            font-size: 18px; color: #888; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
         /* 검색 결과 리스트 */
         .search-results {
-            position: absolute; top: 50px; left: 0; width: 100%;
+            position: absolute; top: 55px; left: 0; width: 100%;
             background: white; border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             max-height: 300px; overflow-y: auto; display: none;
@@ -53,58 +83,45 @@
             padding: 12px 15px; border-bottom: 1px solid #eee;
             cursor: pointer; font-size: 14px;
         }
-        .search-item:last-child { border-bottom: none; }
         .search-item:hover { background: #f8f9fa; }
         .item-name { font-weight: bold; color: #333; display: block; margin-bottom: 2px;}
         .item-addr { font-size: 12px; color: #888; }
 
-        /* 2. 필터 버튼 (하단) */
-        .filter-controls {
-            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; background: rgba(255, 255, 255, 0.95);
-            padding: 6px; border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex; gap: 5px; white-space: nowrap;
-        }
-        .filter-btn {
-            border: none; background: transparent; padding: 8px 16px;
-            border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px;
-            color: #555; transition: 0.2s;
-        }
-        .filter-btn:hover { background: #f1f1f1; }
-        .filter-btn.active { background: #2c3e50; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* 현위치 버튼 */
+        /* --- 2. 줌 컨트롤 위치 조정 (좌측 중상단) --- */
+        .leaflet-top.leaflet-left {
+            margin-top: 70px; /* 상단 버튼 아래로 내림 */
+        }
+
+
+        /* --- 3. 하단 요소 (동일 높이 배치) --- */
+        /* 업데이트 날짜 (좌측 하단) */
+        .last-updated {
+            position: absolute; bottom: 30px; left: 20px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 6px 12px; border-radius: 20px;
+            font-size: 12px; color: #555; font-weight: 600;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            pointer-events: none; /* 지도 조작 방해 금지 */
+        }
+
+        /* 현위치 버튼 (우측 하단) */
         .gps-btn {
-            position: absolute; bottom: 35px; right: 15px; z-index: 1000;
+            position: absolute; bottom: 25px; right: 20px; z-index: 1000;
             background: white; width: 45px; height: 45px; border-radius: 50%;
             border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             cursor: pointer; font-size: 20px; color: #333;
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 3. 업데이트 날짜 (좌측 하단으로 이동) */
-        .last-updated {
-            position: absolute; bottom: 20px; left: 20px; z-index: 1000;
-            background: rgba(255, 255, 255, 0.85);
-            padding: 6px 12px; border-radius: 20px;
-            font-size: 12px; color: #555; font-weight: 600;
-            backdrop-filter: blur(2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            pointer-events: none;
-        }
 
-        /* 커스텀 클러스터 아이콘 */
+        /* --- 기타 스타일 --- */
         .custom-cluster-icon {
             background: rgba(46, 204, 113, 0.9);
-            color: white;
-            border: 2px solid white;
-            border-radius: 50%;
-            text-align: center;
-            font-weight: bold;
-            line-height: 40px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
+            color: white; border: 2px solid white; border-radius: 50%;
+            text-align: center; font-weight: bold; line-height: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s;
         }
         .custom-cluster-icon.medium { background: #f1c40f; color: #333; }
         .custom-cluster-icon.large { background: #e74c3c; color: white; }
@@ -132,18 +149,24 @@
 
     <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> 데이터 불러오는 중...</div>
     
-    <div class="search-container">
-        <div class="search-box">
-            <input type="text" class="search-input" id="searchInput" placeholder="아파트명 또는 주소 검색...">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <div class="top-container">
+        <div class="filter-group" id="filterGroup">
+            <button class="filter-btn active" onclick="setPeriod('60', this)">최근 60일</button>
+            <button class="filter-btn" onclick="setPeriod('30', this)">최근 30일</button>
+            <button class="filter-btn" onclick="setPeriod('7', this)">최근 7일</button>
+            <button class="search-trigger-btn" onclick="toggleSearchMode(true)">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
         </div>
-        <div class="search-results" id="searchResults"></div>
-    </div>
 
-    <div class="filter-controls">
-        <button class="filter-btn active" onclick="setPeriod('60', this)">최근 60일</button>
-        <button class="filter-btn" onclick="setPeriod('30', this)">최근 30일</button>
-        <button class="filter-btn" onclick="setPeriod('7', this)">최근 7일</button>
+        <div class="search-group" id="searchGroup">
+            <input type="text" class="search-input" id="searchInput" placeholder="아파트명 또는 주소 입력...">
+            <button class="close-search-btn" onclick="toggleSearchMode(false)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="search-results" id="searchResults"></div>
     </div>
 
     <div id="last-updated" class="last-updated"></div>
@@ -164,8 +187,8 @@
             attributionControl: false 
         }).setView([37.5665, 126.9780], 11);
         
-        // 줌 컨트롤을 우측 상단으로 이동 (좌측 하단 날짜와 겹침 방지)
-        L.control.zoom({ position: 'topright' }).addTo(map);
+        // 줌 컨트롤 추가 (CSS로 위치 조정됨: 좌측 중상단)
+        L.control.zoom({ position: 'topleft' }).addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
@@ -173,14 +196,13 @@
 
         const gpsLayer = L.layerGroup().addTo(map);
 
-        // 구(Gu)별 클러스터 레이어 저장소
+        // 구(Gu)별 클러스터 레이어 관리
         let guClusterLayers = {};
 
         function createClusterGroup() {
             return L.markerClusterGroup({
                 chunkedLoading: true,
                 maxClusterRadius: 60,
-                // 구별 격리 유지
                 disableClusteringAtZoom: 18, 
                 iconCreateFunction: function(cluster) {
                     const children = cluster.getAllChildMarkers();
@@ -216,9 +238,11 @@
                 if (!res.ok) throw new Error('데이터 파일을 찾을 수 없습니다.');
                 const json = await res.json();
                 
+                // 업데이트 날짜 전체 표시 (년월일시분초)
                 if (json.last_updated) {
                     lastUpdatedDate = new Date(json.last_updated.replace(' ', 'T'));
-                    document.getElementById('last-updated').innerText = 'Data: ' + json.last_updated.substring(0, 10);
+                    // DB 포맷 그대로 표시 (예: 2026-02-04 00:46:36)
+                    document.getElementById('last-updated').innerText = '업데이트: ' + json.last_updated;
                 }
 
                 allData = json.data.map(item => ({
@@ -237,14 +261,34 @@
             }
         }
 
-        // 3. 필터링 및 렌더링
+        // 3. UI 토글 함수 (필터 <-> 검색)
+        function toggleSearchMode(isSearch) {
+            const filterGroup = document.getElementById('filterGroup');
+            const searchGroup = document.getElementById('searchGroup');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+
+            if (isSearch) {
+                // 검색 모드 켜기
+                filterGroup.style.display = 'none';
+                searchGroup.style.display = 'flex';
+                searchInput.focus();
+            } else {
+                // 검색 모드 끄기
+                searchGroup.style.display = 'none';
+                filterGroup.style.display = 'flex';
+                searchResults.style.display = 'none';
+                searchInput.value = ''; // 입력 초기화
+            }
+        }
+
+        // 4. 필터링 및 렌더링
         function setPeriod(period, btn) {
-            // 버튼 상태 변경
             if (btn) {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             } else if (period === 'all') {
-                // 검색 결과 클릭 등으로 'all' 모드가 될 때 버튼 스타일 모두 해제
+                // 'all'로 강제 전환 시 버튼 활성화 해제 (전체 보기 상태임)
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             }
 
@@ -260,14 +304,11 @@
                 });
             }
 
-            // 검색창 닫기
-            document.getElementById('searchResults').style.display = 'none';
-
             const aggregated = aggregateData(filteredData);
             renderMarkers(aggregated);
         }
 
-        // 4. 데이터 병합 (동일 위치)
+        // 5. 데이터 병합
         function aggregateData(points) {
             const mapData = {};
 
@@ -291,11 +332,10 @@
             Object.values(mapData).forEach(item => {
                 item.history.sort((a, b) => b.date.localeCompare(a.date));
             });
-
             return Object.values(mapData);
         }
 
-        // 5. 마커 렌더링 (구별 클러스터)
+        // 6. 마커 렌더링 (구별 분리)
         function renderMarkers(points) {
             Object.values(guClusterLayers).forEach(layer => map.removeLayer(layer));
             guClusterLayers = {};
@@ -334,7 +374,7 @@
             });
         }
 
-        // 6. 검색 기능 (전체 기간 + 주소 중복 제거)
+        // 7. 검색 기능 (전체 기간 + 주소 중복 제거)
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
 
@@ -345,29 +385,22 @@
                 return;
             }
 
-            // 1) 전체 데이터(allData)에서 검색
             const rawMatches = allData.filter(d => 
                 (d.place_name && d.place_name.includes(query)) || 
                 (d.address && d.address.includes(query))
             );
 
-            // 2) 주소 기준 중복 제거
+            // 주소 기준 중복 제거
             const seenAddresses = new Set();
             const uniqueMatches = [];
-
             rawMatches.forEach(item => {
-                // 주소와 상호명을 합쳐서 키로 사용하거나, 주소만 사용할 수 있음. 
-                // "동일 주소 데이터는 한번만" 요청에 따라 주소 기준 중복 제거
-                // (같은 아파트 단지 내 여러 건 거래 시 하나만 표시)
                 const uniqueKey = item.address; 
-                
                 if (!seenAddresses.has(uniqueKey)) {
                     seenAddresses.add(uniqueKey);
                     uniqueMatches.push(item);
                 }
             });
 
-            // 3) 결과 표시 (최대 15개)
             const finalResults = uniqueMatches.slice(0, 15);
 
             if (finalResults.length > 0) {
@@ -387,21 +420,18 @@
             }
         });
 
-        // 검색 결과 클릭 이벤트
+        // 이동 함수 (글로벌 스코프)
         window.moveToPoint = function(lat, lng, name) {
-            // 검색된 데이터가 현재 필터(예: 최근 60일)에 없을 수 있으므로
-            // 마커를 보여주기 위해 필터를 '전체(all)'로 변경합니다.
-            setPeriod('all', null); 
-
-            // 지도 이동
+            // 필터를 전체로 변경하여 숨겨진 마커 표시
+            setPeriod('all', null);
+            
             map.flyTo([lat, lng], 17, { duration: 1.5 });
             
-            // 검색창 정리
-            searchResults.style.display = 'none';
-            searchInput.value = name;
+            // 검색창 닫기 및 초기 상태 복구
+            toggleSearchMode(false); 
         };
 
-        // 유틸 함수들
+        // 유틸 함수
         function parseDateString(dateStr) {
             if (!dateStr || dateStr.length !== 8) return null;
             const y = parseInt(dateStr.substring(0, 4));
