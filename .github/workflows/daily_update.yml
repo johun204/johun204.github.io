@@ -1,0 +1,48 @@
+name: Seoul Land Contract Update
+
+on:
+  schedule:
+    # GitHub Actions는 UTC 기준이므로 한국 시간(KST)에서 9시간을 뺍니다.
+    # 한국 09:00 -> UTC 00:00
+    # 한국 12:00 -> UTC 03:00
+    # 한국 15:00 -> UTC 06:00
+    # 한국 18:00 -> UTC 09:00
+    - cron: '0 0,3,6,9 * * *'
+  workflow_dispatch: # 테스트를 위해 수동 실행 버튼 활성화
+
+jobs:
+  update_data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 저장소에 파일을 커밋하기 위한 권한
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install aiohttp requests; fi
+
+      - name: Run Geocoding Script
+        env:
+          # Settings > Secrets > Actions에 등록한 키를 가져옵니다.
+          KAKAO_API_KEY: ${{ secrets.KAKAO_API_KEY }}
+        run: python contractMap.py 
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 폴더가 생성되었는지 확인 후 해당 경로의 파일만 추가
+          git add contractMap/data.json
+          
+          # 변경사항이 있는 경우에만 커밋 및 푸시 (에러 방지)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update contract data: $(date +'%Y-%m-%d %H:%M:%S')" && git push)
