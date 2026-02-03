@@ -78,7 +78,7 @@ async def main():
 						data.append({"address": x["ADDRESS"], "place_name": place_name, "lat": lat, "lng": lng, "date": x["HNDL_YMD"]})
 						break
 
-		with open('data.json', 'w', encoding='utf-8') as f:
+		with open('contractMap/data.json', 'w', encoding='utf-8') as f:
 			json.dump(data, f, ensure_ascii=False, indent=2)
 
 # -------------------- 실행 -------------------- #
