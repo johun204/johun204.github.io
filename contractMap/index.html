@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>서울시 토지허가 지도</title>
+
+	<link rel="icon" type="image/png" sizes="16x16" href="/contractMap/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/contractMap/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/contractMap/apple-touch-icon.png">
+	<link rel="manifest" href="/contractMap/site.webmanifest">
+	<meta name="theme-color" content="#ffffff">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta name="apple-mobile-web-app-title" content="contractMap Meter">
+	<link rel="apple-touch-icon" sizes="180x180" href="/contractMap/apple-touch-icon.png">
+	<meta name="theme-color" content="#ffffff">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
+        #map { width: 100%; height: 100vh; z-index: 1; background: #f0f0f0; }
+        
+        /* 커스텀 클러스터 아이콘 (허가 건수 기준) */
+        .custom-cluster-icon {
+            background: rgba(46, 204, 113, 0.9); /* 녹색 계열 */
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            text-align: center;
+            font-weight: bold;
+            line-height: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .custom-cluster-icon.medium { background: #f1c40f; color: #333; } /* 노랑 */
+        .custom-cluster-icon.large { background: #e74c3c; color: white; } /* 빨강 */
+        
+        /* 컨트롤 패널 */
+        .filter-controls {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(255, 255, 255, 0.95);
+            padding: 6px; border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex; gap: 5px; white-space: nowrap;
+        }
+        .filter-btn {
+            border: none; background: transparent; padding: 8px 16px;
+            border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px;
+            color: #555; transition: 0.2s;
+        }
+        .filter-btn:hover { background: #f1f1f1; }
+        .filter-btn.active { background: #2c3e50; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        .gps-btn {
+            position: absolute; bottom: 30px; right: 20px; z-index: 1000;
+            background: white; width: 50px; height: 50px; border-radius: 50%;
+            border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer; font-size: 22px; color: #333;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        #loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2000; background: rgba(0,0,0,0.8); color: white;
+            padding: 20px 30px; border-radius: 12px; font-size: 15px; display: none;
+            backdrop-filter: blur(2px);
+        }
+        
+        /* 팝업 스타일 */
+        .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
+        .leaflet-popup-content { margin: 0; width: 280px !important; }
+        .popup-header {
+            background: #2c3e50; color: white; padding: 15px;
+        }
+        .popup-header h3 { margin: 0; font-size: 16px; font-weight: 700; }
+        .popup-header p { margin: 5px 0 0; font-size: 12px; opacity: 0.8; }
+        .popup-body { padding: 15px; max-height: 200px; overflow-y: auto; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .permit-list { list-style: none; padding: 0; margin: 10px 0 0; border-top: 1px dashed #ddd; }
+        .permit-item { padding: 8px 0; border-bottom: 1px solid #f1f1f1; font-size: 13px; display: flex; justify-content: space-between; color: #555; }
+        .permit-date { color: #888; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> 데이터 불러오는 중...</div>
+    
+    <div class="filter-controls">
+        <button class="filter-btn active" onclick="setPeriod('all', this)">전체</button>
+        <button class="filter-btn" onclick="setPeriod('60', this)">최근 60일</button>
+        <button class="filter-btn" onclick="setPeriod('30', this)">최근 30일</button>
+    </div>
+
+    <button class="gps-btn" onclick="moveToCurrentLocation()">
+        <i class="fa-solid fa-location-crosshairs"></i>
+    </button>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+    <script>
+        // 1. 지도 초기화
+        const map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 11);
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap', maxZoom: 19
+        }).addTo(map);
+
+        const gpsLayer = L.layerGroup().addTo(map);
+
+        // 2. 클러스터링 설정 (핵심: 자식 마커의 permit_count 합계 계산)
+        const markersLayer = L.markerClusterGroup({
+            chunkedLoading: true,
+            maxClusterRadius: 60,
+            iconCreateFunction: function(cluster) {
+                const children = cluster.getAllChildMarkers();
+                
+                // [수정된 부분] 단순히 개수가 아니라, 각 마커의 'permit_count'를 모두 더함
+                let totalPermits = 0;
+                children.forEach(marker => {
+                    totalPermits += (marker.options.permit_count || 0);
+                });
+
+                let c = 'custom-cluster-icon';
+                let size = 40;
+                
+                // 건수에 따라 색상 및 크기 변경
+                if (totalPermits >= 50) { c += ' large'; size = 60; }
+                else if (totalPermits >= 10) { c += ' medium'; size = 50; }
+                
+                return new L.DivIcon({
+                    html: `<div>${totalPermits}</div>`,
+                    className: c,
+                    iconSize: [size, size]
+                });
+            }
+        });
+        map.addLayer(markersLayer);
+
+        let allData = [];
+        let lastUpdatedDate = new Date();
+
+        // 3. 데이터 로드
+        async function loadData() {
+            const loadingEl = document.getElementById('loading');
+            loadingEl.style.display = 'block';
+            
+            try {
+                // 실제 파일 경로로 변경 필요. 여기서는 같은 폴더의 data.json을 가정
+                const res = await fetch('./data.json');
+                if (!res.ok) throw new Error('데이터 파일을 찾을 수 없습니다.');
+                const json = await res.json();
+                
+                // 기준 날짜 파싱 (last_updated)
+                if (json.last_updated) {
+                    lastUpdatedDate = new Date(json.last_updated.replace(' ', 'T'));
+                }
+
+                allData = json.data.map(item => ({
+                    ...item,
+                    // 날짜 문자열(YYYYMMDD)을 Date 객체로 변환 (비교용)
+                    dateObj: parseDateString(item.date)
+                }));
+
+                // 초기 렌더링 (전체)
+                setPeriod('all', document.querySelector('.filter-btn.active'));
+
+            } catch (err) {
+                console.error(err);
+                alert('데이터 로드 실패: ' + err.message);
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        // 유틸: YYYYMMDD -> Date 객체
+        function parseDateString(dateStr) {
+            if (!dateStr || dateStr.length !== 8) return null;
+            const y = parseInt(dateStr.substring(0, 4));
+            const m = parseInt(dateStr.substring(4, 6)) - 1;
+            const d = parseInt(dateStr.substring(6, 8));
+            return new Date(y, m, d);
+        }
+
+        // 유틸: 날짜 차이(일수) 계산
+        function getDaysDiff(d1, d2) {
+            const t1 = d1.getTime();
+            const t2 = d2.getTime();
+            return Math.floor((t1 - t2) / (24 * 60 * 60 * 1000));
+        }
+
+        // 4. 데이터 필터링 및 렌더링
+        function setPeriod(period, btn) {
+            // 버튼 활성화 스타일 처리
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            let filteredData = [];
+
+            if (period === 'all') {
+                filteredData = allData;
+            } else {
+                const daysLimit = parseInt(period);
+                filteredData = allData.filter(item => {
+                    if (!item.dateObj) return false;
+                    const diff = getDaysDiff(lastUpdatedDate, item.dateObj);
+                    return diff >= 0 && diff <= daysLimit; // 미래 데이터 제외, 범위 내 포함
+                });
+            }
+
+            const aggregated = aggregateData(filteredData);
+            renderMarkers(aggregated);
+        }
+
+        // 5. 데이터 병합 (동일 위치 기준)
+        function aggregateData(points) {
+            const mapData = {};
+
+            points.forEach(pt => {
+                if (!pt.lat || !pt.lng) return;
+
+                // 좌표 정밀도 조정하여 키 생성
+                const latKey = parseFloat(pt.lat).toFixed(6);
+                const lngKey = parseFloat(pt.lng).toFixed(6);
+                const key = `${latKey}|${lngKey}`;
+
+                if (!mapData[key]) {
+                    mapData[key] = {
+                        lat: pt.lat,
+                        lng: pt.lng,
+                        address: pt.address,
+                        place_name: pt.place_name,
+                        permit_count: 0,
+                        history: [] // 상세 내역 저장 리스트
+                    };
+                }
+
+                // 데이터 누적
+                mapData[key].permit_count += 1;
+                mapData[key].history.push({
+                    date: pt.date,
+                    name: pt.place_name
+                });
+            });
+
+            // 내역을 날짜 최신순 정렬
+            Object.values(mapData).forEach(item => {
+                item.history.sort((a, b) => b.date.localeCompare(a.date));
+            });
+
+            return Object.values(mapData);
+        }
+
+        // 6. 마커 렌더링
+        function renderMarkers(points) {
+            markersLayer.clearLayers();
+            const markers = [];
+
+            points.forEach(pt => {
+                // marker 생성 시 option에 permit_count를 심어둠 -> 클러스터링 계산용
+                const marker = L.marker([pt.lat, pt.lng], {
+                    permit_count: pt.permit_count 
+                });
+
+                // 팝업 내용 구성
+                const historyHtml = pt.history.map(h => `
+                    <li class="permit-item">
+                        <span>${h.name}</span>
+                        <span class="permit-date">${formatDate(h.date)}</span>
+                    </li>
+                `).join('');
+
+                const popupContent = `
+                    <div class="popup-header">
+                        <h3>${pt.place_name} ${pt.permit_count > 1 ? '외' : ''}</h3>
+                        <p>${pt.address}</p>
+                    </div>
+                    <div class="popup-body">
+                        <div class="stat-row">
+                            <span>📅 총 허가 건수</span>
+                            <strong style="color:#2c3e50;">${pt.permit_count}건</strong>
+                        </div>
+                        <ul class="permit-list">
+                            ${historyHtml}
+                        </ul>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent);
+                markers.push(marker);
+            });
+
+            markersLayer.addLayers(markers);
+        }
+
+        function formatDate(str) {
+            if(!str || str.length !== 8) return str;
+            return `${str.substring(0,4)}.${str.substring(4,6)}.${str.substring(6,8)}`;
+        }
+
+        function moveToCurrentLocation() {
+            map.locate({setView: true, maxZoom: 14});
+        }
+        
+        map.on('locationfound', e => {
+            gpsLayer.clearLayers();
+            L.circle(e.latlng, { radius: e.accuracy / 2, color: '#2ecc71', fillColor: '#2ecc71', fillOpacity: 0.1 }).addTo(gpsLayer);
+            L.circleMarker(e.latlng, { radius: 8, color: '#fff', fillColor: '#2ecc71', fillOpacity: 1 }).addTo(gpsLayer);
+        });
+
+        // 실행
+        loadData();
+    </script>
+</body>
+</html>
