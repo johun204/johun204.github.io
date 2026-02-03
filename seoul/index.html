@@ -16,7 +16,7 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="/seoul/apple-touch-icon.png">
 	<meta name="theme-color" content="#ffffff">
 	<meta name="apple-mobile-web-app-capable" content="yes">
-    
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
@@ -46,16 +46,24 @@
             cursor: pointer; font-size: 20px; color: #333;
         }
         
-        /* 데이터 리셋 버튼 (우측 상단 작게) */
         .reset-btn {
             position: absolute; top: 10px; right: 10px; z-index: 1000;
             background: rgba(255,255,255,0.8); border: 1px solid #ccc;
             padding: 5px 8px; font-size: 10px; border-radius: 5px; cursor: pointer;
-            display: none;
+			display: none;
+        }
+        
+        /* 로딩 인디케이터 */
+        #loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2000; background: rgba(0,0,0,0.7); color: white;
+            padding: 15px 25px; border-radius: 10px; font-size: 14px; display: none;
         }
     </style>
 </head>
 <body>
+
+    <div id="loading">데이터 불러오는 중...</div>
 
     <button class="reset-btn" onclick="clearCache()">🔄 데이터 갱신</button>
 
@@ -72,8 +80,16 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 
     <script>
+        // 0. LocalForage 설정 (IndexedDB 사용)
+        localforage.config({
+            name: 'SeoulFoodMap',
+            storeName: 'map_data_store'
+        });
+
         var map = L.map('map').setView([37.5665, 126.9780], 15);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -86,45 +102,46 @@
         });
         map.addLayer(markersLayer);
 
-        // 현위치 기능
         map.locate({setView: true, maxZoom: 15});
         map.on('locationfound', function(e) {
             L.circleMarker(e.latlng, { radius: 8, color: '#fff', fillColor: '#4285F4', fillOpacity: 1 }).addTo(map);
         });
 
         // ==========================================
-        // 🚀 핵심: 스마트 캐싱 로딩 함수
+        // 🚀 대용량 처리: IndexedDB 활용 함수
         // ==========================================
         async function loadDataWithCache(year) {
-            const cacheKey = `cached_map_data_${year}`;
+            const cacheKey = `map_data_${year}`;
+            const loadingEl = document.getElementById('loading');
             
-            // 1. 로컬 저장소 확인
-            const cachedData = localStorage.getItem(cacheKey);
-            
-            if (cachedData) {
-                console.log(`[Cache Hit] ${year}년 데이터 폰에서 로드됨`);
-                return JSON.parse(cachedData); // 다운로드 없이 바로 반환
-            }
-
-            // 2. 없으면 다운로드 수행
-            console.log(`[Network] ${year}년 데이터 다운로드 중...`);
             try {
+                // 1. 저장소(IndexedDB) 확인
+                // getItem은 비동기이므로 await 필수
+                const cachedData = await localforage.getItem(cacheKey);
+                
+                if (cachedData) {
+                    console.log(`[Cache Hit] ${year}년 데이터 (IndexedDB)`);
+                    return cachedData; // 이미 객체이므로 파싱 불필요
+                }
+
+                // 2. 없으면 다운로드
+                console.log(`[Network] ${year}년 데이터 다운로드...`);
+                loadingEl.style.display = 'block'; // 로딩 표시
+                
                 const response = await fetch(`./map_data_${year}.json`);
-                if (!response.ok) return []; // 파일 없으면 빈 배열
+                if (!response.ok) throw new Error('Network response was not ok');
                 
                 const json = await response.json();
 
-                // 3. 다운받은 데이터를 폰에 저장 (문자열로 변환)
-                try {
-                    localStorage.setItem(cacheKey, JSON.stringify(json));
-                } catch (e) {
-                    console.warn("저장 용량 부족으로 캐싱 실패 (기능엔 문제없음)");
-                }
-
+                // 3. IndexedDB에 저장 (용량 제한 거의 없음)
+                await localforage.setItem(cacheKey, json);
+                
                 return json;
             } catch (err) {
                 console.error("데이터 로드 실패:", err);
                 return [];
+            } finally {
+                loadingEl.style.display = 'none';
             }
         }
 
@@ -132,17 +149,20 @@
         
         var mapData = { '2023': [], '2024': [], '2025': [] };
 
-        // Promise.all로 병렬 로딩하되, 위에서 만든 스마트 함수 사용
-        Promise.all([
-            loadDataWithCache('2023'),
-            loadDataWithCache('2024'),
-            loadDataWithCache('2025')
-        ]).then(results => {
+        // 데이터 병렬 로드 시작
+        (async function init() {
+            const results = await Promise.all([
+                loadDataWithCache('2023'),
+                loadDataWithCache('2024'),
+                loadDataWithCache('2025')
+            ]);
+            
             mapData['2023'] = results[0];
             mapData['2024'] = results[1];
             mapData['2025'] = results[2];
+            
             showYear('all', document.querySelector('.year-btn.active'));
-        });
+        })();
 
         function renderMap(dataList) {
             markersLayer.clearLayers();
@@ -176,19 +196,21 @@
             if (year === 'all') {
                 var mergedData = {};
                 ['2023', '2024', '2025'].forEach(y => {
-                    mapData[y].forEach(item => {
-                        var key = item.name + "|" + item.address;
-                        if (!mergedData[key]) {
-                            mergedData[key] = { ...item }; 
-                        } else {
-                            mergedData[key].total_amount += item.total_amount;
-                            mergedData[key].visit_count += item.visit_count;
-                        }
-                    });
+                    if(mapData[y]) {
+                        mapData[y].forEach(item => {
+                            var key = item.name + "|" + item.address;
+                            if (!mergedData[key]) {
+                                mergedData[key] = { ...item }; 
+                            } else {
+                                mergedData[key].total_amount += item.total_amount;
+                                mergedData[key].visit_count += item.visit_count;
+                            }
+                        });
+                    }
                 });
                 renderMap(Object.values(mergedData));
             } else {
-                renderMap(mapData[year]);
+                renderMap(mapData[year] || []);
             }
         }
 
@@ -196,13 +218,17 @@
             map.locate({setView: true, maxZoom: 16});
         }
 
-        // 데이터 갱신 (캐시 삭제 후 새로고침)
-        function clearCache() {
-            if(confirm('저장된 데이터를 삭제하고 새로 받아오시겠습니까?')) {
-                localStorage.removeItem('cached_map_data_2023');
-                localStorage.removeItem('cached_map_data_2024');
-                localStorage.removeItem('cached_map_data_2025');
-                location.reload();
+        // 캐시 삭제 (IndexedDB 비우기)
+        async function clearCache() {
+            if(confirm('저장된 데이터를 삭제하고 서버에서 새로 받아오시겠습니까?')) {
+                try {
+                    await localforage.clear(); // 모든 키 삭제
+                    alert('데이터가 삭제되었습니다. 페이지를 새로고침합니다.');
+                    location.reload();
+                } catch (err) {
+                    console.error(err);
+                    alert('삭제 실패');
+                }
             }
         }
     </script>
