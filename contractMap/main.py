@@ -71,13 +71,14 @@ async def main():
 			content = json.loads(result) if result else None
 			if content and "result" in content:
 				for x in content["result"]:
+					if x["USE_PURP"] != "주거용": continue
+
 					place_name, lat, lng = await get_lat_lon(session, x["ADDRESS"])
-
 					if place_name and lat and lng:
-						data.append({"address": x["ADDRESS"], "place_name": place_name, "lat": lat, "lng": lng})
+						data.append({"address": x["ADDRESS"], "place_name": place_name, "lat": lat, "lng": lng, "date": x["HNDL_YMD"]})
+						break
 
-		os.makedirs('contractMap', exist_ok=True)
-		with open('contractMap/data.json', 'w', encoding='utf-8') as f:
+		with open('data.json', 'w', encoding='utf-8') as f:
 			json.dump(data, f, ensure_ascii=False, indent=2)
 
 # -------------------- 실행 -------------------- #
