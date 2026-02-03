@@ -34,7 +34,7 @@ jobs:
         env:
           # Settings > Secrets > Actions에 등록한 키를 가져옵니다.
           KAKAO_API_KEY: ${{ secrets.KAKAO_API_KEY }}
-        run: python contractMap.py 
+        run: python contractMap/main.py 
 
       - name: Commit and Push changes
         run: |
