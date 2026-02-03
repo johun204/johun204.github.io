@@ -6,72 +6,45 @@
     <title>서울시 업무추진비 맛집 지도</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
         #map { width: 100%; height: 100vh; z-index: 1; }
         
-        /* 상단 연도 선택 버튼 */
         .year-controls {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px;
-            border-radius: 30px;
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(255, 255, 255, 0.95);
+            padding: 8px; border-radius: 30px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex;
-            gap: 8px;
-            white-space: nowrap;
+            display: flex; gap: 8px; white-space: nowrap;
         }
-
         .year-btn {
-            border: none;
-            background: #f0f0f0;
-            padding: 8px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-            transition: 0.2s;
+            border: none; background: #f0f0f0; padding: 8px 14px;
+            border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px;
         }
-
-        .year-btn:hover { background: #e0e0e0; }
         .year-btn.active { background: #007bff; color: white; }
 
-        /* 우측 하단 내 위치 버튼 */
         .gps-btn {
-            position: absolute;
-            bottom: 30px;
-            right: 20px;
-            z-index: 1000;
-            background: white;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            font-size: 20px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
+            position: absolute; bottom: 30px; right: 20px; z-index: 1000;
+            background: white; width: 45px; height: 45px; border-radius: 50%;
+            border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer; font-size: 20px; color: #333;
         }
-        .gps-btn:hover { background: #f8f9fa; color: #007bff; }
-        .gps-btn:active { transform: scale(0.95); }
-
+        
+        /* 데이터 리셋 버튼 (우측 상단 작게) */
+        .reset-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 1000;
+            background: rgba(255,255,255,0.8); border: 1px solid #ccc;
+            padding: 5px 8px; font-size: 10px; border-radius: 5px; cursor: pointer;
+        }
     </style>
 </head>
 <body>
+
+    <button class="reset-btn" onclick="clearCache()">🔄 데이터 갱신</button>
 
     <div class="year-controls">
         <button class="year-btn active" onclick="showYear('all', this)">전체</button>
@@ -80,9 +53,7 @@
         <button class="year-btn" onclick="showYear('2023', this)">2023</button>
     </div>
 
-    <button class="gps-btn" onclick="moveToCurrentLocation()" title="현위치로 이동">
-        <i class="fa-solid fa-location-crosshairs"></i>
-    </button>
+    <button class="gps-btn" onclick="moveToCurrentLocation()"><i class="fa-solid fa-location-crosshairs"></i></button>
 
     <div id="map"></div>
 
@@ -90,77 +61,83 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // 1. 지도 초기화 (기본: 서울시청)
         var map = L.map('map').setView([37.5665, 126.9780], 15);
-
+        
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors',
-            maxZoom: 19
+            attribution: '&copy; OpenStreetMap', maxZoom: 19
         }).addTo(map);
 
-        // 2. 클러스터 그룹 설정 (요청하신 대로 덜 뭉치게 설정)
         var markersLayer = L.markerClusterGroup({
-            chunkedLoading: true,        // 버벅임 방지
-            maxClusterRadius: 35,        // 숫자가 작을수록 덜 뭉침 (기본값 80)
-            disableClusteringAtZoom: 16, // 16레벨 이상 확대하면 클러스터 해제 (핀 다 보여줌)
-            spiderfyOnMaxZoom: true      // 같은 위치 핀은 클릭 시 퍼지게
+            chunkedLoading: true, maxClusterRadius: 35,
+            disableClusteringAtZoom: 16, spiderfyOnMaxZoom: true
         });
-        
         map.addLayer(markersLayer);
+
+        // 현위치 기능
+        map.locate({setView: true, maxZoom: 15});
+        map.on('locationfound', function(e) {
+            L.circleMarker(e.latlng, { radius: 8, color: '#fff', fillColor: '#4285F4', fillOpacity: 1 }).addTo(map);
+        });
+
+        // ==========================================
+        // 🚀 핵심: 스마트 캐싱 로딩 함수
+        // ==========================================
+        async function loadDataWithCache(year) {
+            const cacheKey = `cached_map_data_${year}`;
+            
+            // 1. 로컬 저장소 확인
+            const cachedData = localStorage.getItem(cacheKey);
+            
+            if (cachedData) {
+                console.log(`[Cache Hit] ${year}년 데이터 폰에서 로드됨`);
+                return JSON.parse(cachedData); // 다운로드 없이 바로 반환
+            }
+
+            // 2. 없으면 다운로드 수행
+            console.log(`[Network] ${year}년 데이터 다운로드 중...`);
+            try {
+                const response = await fetch(`./map_data_${year}.json`);
+                if (!response.ok) return []; // 파일 없으면 빈 배열
+                
+                const json = await response.json();
+
+                // 3. 다운받은 데이터를 폰에 저장 (문자열로 변환)
+                try {
+                    localStorage.setItem(cacheKey, JSON.stringify(json));
+                } catch (e) {
+                    console.warn("저장 용량 부족으로 캐싱 실패 (기능엔 문제없음)");
+                }
+
+                return json;
+            } catch (err) {
+                console.error("데이터 로드 실패:", err);
+                return [];
+            }
+        }
+
+        // ==========================================
         
         var mapData = { '2023': [], '2024': [], '2025': [] };
 
-        // 3. 시작하자마자 내 위치 찾기 시도
-        map.locate({setView: true, maxZoom: 15});
-        
-        // 위치 찾기 성공 시
-        map.on('locationfound', function(e) {
-            // 파란색 원으로 내 위치 표시
-            L.circle(e.latlng, {
-                radius: e.accuracy / 2,
-                color: '#4285F4',
-                fillColor: '#4285F4',
-                fillOpacity: 0.2
-            }).addTo(map);
-            L.circleMarker(e.latlng, {
-                radius: 8,
-                color: '#fff',
-                fillColor: '#4285F4',
-                fillOpacity: 1
-            }).addTo(map);
-        });
-
-        // 위치 찾기 실패 시 (권한 거부 등) - 그냥 서울시청 유지
-        map.on('locationerror', function(e) {
-            console.log("위치 권한이 없거나 실패했습니다.");
-        });
-
-
-        // 4. 데이터 로드
+        // Promise.all로 병렬 로딩하되, 위에서 만든 스마트 함수 사용
         Promise.all([
-            fetch('./map_data_2023.json').then(res => res.ok ? res.json() : []),
-            fetch('./map_data_2024.json').then(res => res.ok ? res.json() : []),
-            fetch('./map_data_2025.json').then(res => res.ok ? res.json() : [])
+            loadDataWithCache('2023'),
+            loadDataWithCache('2024'),
+            loadDataWithCache('2025')
         ]).then(results => {
             mapData['2023'] = results[0];
             mapData['2024'] = results[1];
             mapData['2025'] = results[2];
             showYear('all', document.querySelector('.year-btn.active'));
-        }).catch(err => alert("데이터 로딩 실패"));
+        });
 
-
-        // 5. 지도 렌더링 함수
         function renderMap(dataList) {
             markersLayer.clearLayers();
             var newMarkers = [];
-
             dataList.forEach(item => {
                 if (item.lat && item.lng) {
+                    var avgPrice = item.visit_count > 0 ? Math.round(item.total_amount / item.visit_count) : 0;
                     var marker = L.marker([item.lat, item.lng]);
-                    
-                    // 회당 평균 금액 계산
-                    var avgPrice = Math.round(item.total_amount / item.visit_count);
-
                     var popupContent = `
                         <div style="text-align:center; min-width:160px; font-size:13px;">
                             <h3 style="margin:0 0 5px; color:#007bff; font-size:15px;">${item.name}</h3>
@@ -171,8 +148,7 @@
                                 <hr style="border:0; border-top:1px dashed #ccc; margin:5px 0;">
                                 <p style="margin:3px 0; color:#d63384;">💳 <b>1회 평균:</b> ${avgPrice.toLocaleString()}원</p>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                     marker.bindPopup(popupContent);
                     newMarkers.push(marker);
                 }
@@ -180,7 +156,6 @@
             markersLayer.addLayers(newMarkers);
         }
 
-        // 6. 연도 필터링
         function showYear(year, btnElement) {
             document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
@@ -204,9 +179,18 @@
             }
         }
 
-        // 7. 현위치 버튼 기능
         function moveToCurrentLocation() {
             map.locate({setView: true, maxZoom: 16});
+        }
+
+        // 데이터 갱신 (캐시 삭제 후 새로고침)
+        function clearCache() {
+            if(confirm('저장된 데이터를 삭제하고 새로 받아오시겠습니까?')) {
+                localStorage.removeItem('cached_map_data_2023');
+                localStorage.removeItem('cached_map_data_2024');
+                localStorage.removeItem('cached_map_data_2025');
+                location.reload();
+            }
         }
     </script>
 </body>
