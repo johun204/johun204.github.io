@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>서울시 업무추진비 맛집 지도 (연도별)</title>
+    <title>서울시 업무추진비 맛집 지도</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <style>
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
         #map { width: 100%; height: 100vh; z-index: 1; }
         
-        /* 버튼 컨트롤 패널 스타일 */
         .year-controls {
             position: absolute;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 1000; /* 지도 위에 떠있어야 함 */
+            z-index: 1000;
             background: white;
             padding: 10px;
             border-radius: 30px;
@@ -37,15 +39,8 @@
             transition: 0.2s;
         }
 
-        .year-btn:hover {
-            background: #e0e0e0;
-        }
-
-        /* 선택된 버튼 스타일 */
-        .year-btn.active {
-            background: #007bff;
-            color: white;
-        }
+        .year-btn:hover { background: #e0e0e0; }
+        .year-btn.active { background: #007bff; color: white; }
     </style>
 </head>
 <body>
@@ -60,24 +55,26 @@
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // 1. 지도 초기화
-        var map = L.map('map').setView([37.5665, 126.9780], 13);
+        var map = L.map('map').setView([37.5665, 126.9780], 11); // 줌 레벨을 조금 낮춤(넓게 보기)
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        var markersLayer = L.layerGroup().addTo(map); // 마커들을 담을 그룹
+        // 3. 일반 LayerGroup 대신 MarkerClusterGroup 사용
+        // chunkedLoading: true 옵션이 중요합니다 (데이터 처리 시 브라우저 멈춤 방지)
+        var markersLayer = L.markerClusterGroup({
+            chunkedLoading: true
+        });
         
-        // 전역 변수에 데이터를 저장해둠
-        var mapData = {
-            '2023': [],
-            '2024': [],
-            '2025': []
-        };
+        map.addLayer(markersLayer);
+        
+        var mapData = { '2023': [], '2024': [], '2025': [] };
 
-        // 2. 모든 JSON 파일 한 번에 로드하기
         Promise.all([
             fetch('./map_data_2023.json').then(res => res.ok ? res.json() : []),
             fetch('./map_data_2024.json').then(res => res.ok ? res.json() : []),
@@ -86,71 +83,61 @@
             mapData['2023'] = results[0];
             mapData['2024'] = results[1];
             mapData['2025'] = results[2];
-
-            console.log("데이터 로드 완료:", mapData);
-            
-            // 처음에는 '전체' 데이터를 보여줌
+            console.log("데이터 로드 완료");
             showYear('all', document.querySelector('.year-btn.active'));
         }).catch(err => {
-            console.error("데이터 로딩 실패:", err);
-            alert("JSON 파일을 불러오는데 실패했습니다. 파일명이 정확한지 확인해주세요.");
+            console.error(err);
+            alert("데이터 로딩 실패");
         });
 
-
-        // 3. 지도에 마커 찍는 함수 (데이터가 들어오면 실행)
         function renderMap(dataList) {
-            markersLayer.clearLayers(); // 기존 마커 지우기
+            markersLayer.clearLayers(); // 기존 마커 삭제
+
+            // 마커 배열 생성 (한 번에 추가하기 위해)
+            var newMarkers = [];
 
             dataList.forEach(item => {
-                var marker = L.marker([item.lat, item.lng]);
-                
-                var popupContent = `
-                    <div style="text-align:center; min-width:150px;">
-                        <h3 style="margin:0 0 5px; color:#007bff;">${item.name}</h3>
-                        <p style="margin:0; font-size:12px; color:gray;">${item.address}</p>
-                        <hr style="margin:8px 0; border:0; border-top:1px solid #eee;">
-                        <p style="margin:5px 0;"><b>💰 총 금액:</b> ${item.total_amount.toLocaleString()}원</p>
-                        <p style="margin:5px 0;"><b>🚩 방문 횟수:</b> ${item.visit_count}회</p>
-                    </div>
-                `;
-                
-                marker.bindPopup(popupContent);
-                markersLayer.addLayer(marker);
+                // 좌표값이 유효한 경우만 처리
+                if (item.lat && item.lng) {
+                    var marker = L.marker([item.lat, item.lng]);
+                    
+                    var popupContent = `
+                        <div style="text-align:center; min-width:150px;">
+                            <h3 style="margin:0 0 5px; color:#007bff;">${item.name}</h3>
+                            <p style="margin:0; font-size:12px; color:gray;">${item.address}</p>
+                            <hr style="margin:8px 0; border:0; border-top:1px solid #eee;">
+                            <p style="margin:5px 0;"><b>💰 총 금액:</b> ${item.total_amount.toLocaleString()}원</p>
+                            <p style="margin:5px 0;"><b>🚩 방문 횟수:</b> ${item.visit_count}회</p>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    newMarkers.push(marker);
+                }
             });
+
+            // 클러스터 그룹에 마커 리스트를 한 번에 추가
+            markersLayer.addLayers(newMarkers);
         }
 
-
-        // 4. 연도 변경 버튼 클릭 시 실행되는 함수
         function showYear(year, btnElement) {
-            // 버튼 스타일 변경
             document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
 
             if (year === 'all') {
-                // [전체 보기 로직] : 2023, 2024, 2025 데이터를 모두 합침 (Aggregation)
                 var mergedData = {};
-
                 ['2023', '2024', '2025'].forEach(y => {
                     mapData[y].forEach(item => {
-                        // 식당 이름과 주소를 키(Key)로 사용하여 중복 확인
                         var key = item.name + "|" + item.address;
-
                         if (!mergedData[key]) {
-                            // 처음 발견된 식당이면 복사해서 등록
                             mergedData[key] = { ...item }; 
                         } else {
-                            // 이미 있는 식당이면 금액과 횟수만 더함
                             mergedData[key].total_amount += item.total_amount;
                             mergedData[key].visit_count += item.visit_count;
                         }
                     });
                 });
-                
-                // 합쳐진 객체(Dictionary)를 다시 리스트(Array)로 변환
                 renderMap(Object.values(mergedData));
-
             } else {
-                // [특정 연도 보기 로직]
                 renderMap(mapData[year]);
             }
         }
