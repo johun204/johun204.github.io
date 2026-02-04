@@ -23,21 +23,17 @@
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
         #map { width: 100%; height: 100vh; z-index: 1; background: #f0f0f0; }
         
-        /* --- 1. 상단 컨트롤 컨테이너 --- */
+        /* --- 1. 상단 UI --- */
         .top-container {
             position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; width: 90%; max-width: 400px;
-            height: 44px; /* 높이 고정으로 레이아웃 흔들림 방지 */
+            z-index: 1000; width: 90%; max-width: 400px; height: 44px;
         }
-
-        /* 모드 1: 필터 버튼 그룹 */
         .filter-group {
             display: flex; gap: 5px; justify-content: center;
             width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.95);
             padding: 4px; border-radius: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); box-sizing: border-box;
         }
         .filter-btn {
             border: none; background: transparent; padding: 0 12px;
@@ -51,15 +47,10 @@
             background: #fff; color: #333; font-size: 16px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-
-        /* 모드 2: 검색 입력창 그룹 (초기 숨김) */
         .search-group {
-            display: none; /* JS로 토글 */
-            width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            align-items: center; padding: 0 5px;
+            display: none; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95); border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); align-items: center; padding: 0 5px;
             box-sizing: border-box;
         }
         .search-input {
@@ -71,8 +62,6 @@
             font-size: 18px; color: #888; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-
-        /* 검색 결과 리스트 */
         .search-results {
             position: absolute; top: 55px; left: 0; width: 100%;
             background: white; border-radius: 12px;
@@ -87,26 +76,16 @@
         .item-name { font-weight: bold; color: #333; display: block; margin-bottom: 2px;}
         .item-addr { font-size: 12px; color: #888; }
 
+        .leaflet-top.leaflet-left { margin-top: 70px; }
 
-        /* --- 2. 줌 컨트롤 위치 조정 (좌측 중상단) --- */
-        .leaflet-top.leaflet-left {
-            margin-top: 70px; /* 상단 버튼 아래로 내림 */
-        }
-
-
-        /* --- 3. 하단 요소 (동일 높이 배치) --- */
-        /* 업데이트 날짜 (좌측 하단) */
         .last-updated {
             position: absolute; bottom: 30px; left: 20px; z-index: 1000;
             background: rgba(255, 255, 255, 0.85);
             padding: 6px 12px; border-radius: 20px;
             font-size: 12px; color: #555; font-weight: 600;
             backdrop-filter: blur(2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            pointer-events: none; /* 지도 조작 방해 금지 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); pointer-events: none;
         }
-
-        /* 현위치 버튼 (우측 하단) */
         .gps-btn {
             position: absolute; bottom: 25px; right: 20px; z-index: 1000;
             background: white; width: 45px; height: 45px; border-radius: 50%;
@@ -115,8 +94,20 @@
             display: flex; align-items: center; justify-content: center;
         }
 
+        /* --- [NEW] 개별 장소 마커 스타일 (숫자 핀) --- */
+        .single-location-icon {
+            background: #3498db; /* 파란색 */
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            line-height: 30px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
 
-        /* --- 기타 스타일 --- */
+        /* --- 기존 클러스터 아이콘 (그룹) --- */
         .custom-cluster-icon {
             background: rgba(46, 204, 113, 0.9);
             color: white; border: 2px solid white; border-radius: 50%;
@@ -133,6 +124,7 @@
             backdrop-filter: blur(2px);
         }
         
+        /* 팝업 스타일 */
         .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .leaflet-popup-content { margin: 0; width: 280px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 15px; }
@@ -158,14 +150,12 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </div>
-
         <div class="search-group" id="searchGroup">
             <input type="text" class="search-input" id="searchInput" placeholder="아파트명 또는 주소 입력...">
             <button class="close-search-btn" onclick="toggleSearchMode(false)">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-
         <div class="search-results" id="searchResults"></div>
     </div>
 
@@ -181,13 +171,11 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // 1. 지도 초기화
         const map = L.map('map', { 
             zoomControl: false, 
             attributionControl: false 
         }).setView([37.5665, 126.9780], 11);
         
-        // 줌 컨트롤 추가 (CSS로 위치 조정됨: 좌측 중상단)
         L.control.zoom({ position: 'topleft' }).addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -196,7 +184,6 @@
 
         const gpsLayer = L.layerGroup().addTo(map);
 
-        // 구(Gu)별 클러스터 레이어 관리
         let guClusterLayers = {};
 
         function createClusterGroup() {
@@ -211,6 +198,7 @@
                         totalPermits += (marker.options.permit_count || 0);
                     });
 
+                    // 주변이 뭉쳤을 때의 클러스터 아이콘 (기존 유지)
                     let c = 'custom-cluster-icon';
                     let size = 40;
                     if (totalPermits >= 50) { c += ' large'; size = 60; }
@@ -228,7 +216,6 @@
         let allData = [];
         let lastUpdatedDate = new Date();
 
-        // 2. 데이터 로드
         async function loadData() {
             const loadingEl = document.getElementById('loading');
             loadingEl.style.display = 'block';
@@ -238,10 +225,8 @@
                 if (!res.ok) throw new Error('데이터 파일을 찾을 수 없습니다.');
                 const json = await res.json();
                 
-                // 업데이트 날짜 전체 표시 (년월일시분초)
                 if (json.last_updated) {
                     lastUpdatedDate = new Date(json.last_updated.replace(' ', 'T'));
-                    // DB 포맷 그대로 표시 (예: 2026-02-04 00:46:36)
                     document.getElementById('last-updated').innerText = '업데이트: ' + json.last_updated;
                 }
 
@@ -250,7 +235,6 @@
                     dateObj: parseDateString(item.date)
                 }));
 
-                // 초기 설정: 최근 60일
                 setPeriod('60', document.querySelector('.filter-btn.active'));
 
             } catch (err) {
@@ -261,7 +245,6 @@
             }
         }
 
-        // 3. UI 토글 함수 (필터 <-> 검색)
         function toggleSearchMode(isSearch) {
             const filterGroup = document.getElementById('filterGroup');
             const searchGroup = document.getElementById('searchGroup');
@@ -269,26 +252,22 @@
             const searchResults = document.getElementById('searchResults');
 
             if (isSearch) {
-                // 검색 모드 켜기
                 filterGroup.style.display = 'none';
                 searchGroup.style.display = 'flex';
                 searchInput.focus();
             } else {
-                // 검색 모드 끄기
                 searchGroup.style.display = 'none';
                 filterGroup.style.display = 'flex';
                 searchResults.style.display = 'none';
-                searchInput.value = ''; // 입력 초기화
+                searchInput.value = '';
             }
         }
 
-        // 4. 필터링 및 렌더링
         function setPeriod(period, btn) {
             if (btn) {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             } else if (period === 'all') {
-                // 'all'로 강제 전환 시 버튼 활성화 해제 (전체 보기 상태임)
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             }
 
@@ -308,7 +287,6 @@
             renderMarkers(aggregated);
         }
 
-        // 5. 데이터 병합
         function aggregateData(points) {
             const mapData = {};
 
@@ -329,13 +307,13 @@
                 mapData[key].history.push({ date: pt.date, name: pt.place_name });
             });
 
+            // 날짜 최신순 정렬
             Object.values(mapData).forEach(item => {
                 item.history.sort((a, b) => b.date.localeCompare(a.date));
             });
             return Object.values(mapData);
         }
 
-        // 6. 마커 렌더링 (구별 분리)
         function renderMarkers(points) {
             Object.values(guClusterLayers).forEach(layer => map.removeLayer(layer));
             guClusterLayers = {};
@@ -348,7 +326,20 @@
                     map.addLayer(guClusterLayers[guName]);
                 }
 
-                const marker = L.marker([pt.lat, pt.lng], { permit_count: pt.permit_count });
+                // [수정됨] 일반 핀 대신 숫자(DivIcon) 사용
+                const icon = L.divIcon({
+                    html: `<div>${pt.permit_count}</div>`,
+                    className: 'single-location-icon', // 새로 정의한 스타일
+                    iconSize: [30, 30]
+                });
+
+                // 마커 생성
+                const marker = L.marker([pt.lat, pt.lng], { 
+                    icon: icon,
+                    permit_count: pt.permit_count 
+                });
+
+                // 상세 리스트 HTML 생성
                 const historyHtml = pt.history.map(h => `
                     <li class="permit-item">
                         <span>${h.name}</span>
@@ -358,7 +349,7 @@
 
                 const popupContent = `
                     <div class="popup-header">
-                        <h3>${pt.place_name}</h3>
+                        <h3>${pt.place_name} ${pt.permit_count > 1 ? '외' : ''}</h3>
                         <p>${pt.address}</p>
                     </div>
                     <div class="popup-body">
@@ -374,7 +365,6 @@
             });
         }
 
-        // 7. 검색 기능 (전체 기간 + 주소 중복 제거)
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
 
@@ -390,7 +380,6 @@
                 (d.address && d.address.includes(query))
             );
 
-            // 주소 기준 중복 제거
             const seenAddresses = new Set();
             const uniqueMatches = [];
             rawMatches.forEach(item => {
@@ -420,18 +409,12 @@
             }
         });
 
-        // 이동 함수 (글로벌 스코프)
         window.moveToPoint = function(lat, lng, name) {
-            // 필터를 전체로 변경하여 숨겨진 마커 표시
             setPeriod('all', null);
-            
             map.flyTo([lat, lng], 17, { duration: 1.5 });
-            
-            // 검색창 닫기 및 초기 상태 복구
             toggleSearchMode(false); 
         };
 
-        // 유틸 함수
         function parseDateString(dateStr) {
             if (!dateStr || dateStr.length !== 8) return null;
             const y = parseInt(dateStr.substring(0, 4));
