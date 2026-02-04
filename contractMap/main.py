@@ -45,6 +45,7 @@ async def get_lat_lon(session, address):
         query = f"서울시 {address}"
         result = await fetch_post(session, url, data={'query': query}, headers=headers)
         data = json.loads(result)
+        place_name, lat, lng = None, None, None
         
         if data['documents']:
             documents = [x for x in data['documents'] if '아파트' in x['category_name']]
