@@ -10,6 +10,9 @@ on:
 concurrency:
   group: crawling-group
   cancel-in-progress: true
+  
+permissions:
+  contents: write
 
 jobs:
   update_data:
