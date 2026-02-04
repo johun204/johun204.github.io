@@ -63,11 +63,11 @@ async def get_lat_lon(session, address):
                 lat = doc['y']
                 lng = doc['x']
                 
-            # 2. 캐시에 저장
-            result_tuple = (place_name, lat, lng)
-            ADDRESS_CACHE[address] = result_tuple
+        # 2. 캐시에 저장
+        result_tuple = (place_name, lat, lng)
+        ADDRESS_CACHE[address] = result_tuple
                 
-            return result_tuple
+        return result_tuple
     except:
         pass
     
