@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # 최신 버전 v5 사용
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -45,14 +45,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 파일 경로가 contractMap/data.json 인 점을 명시
-          git add contractMap/data.json
+          # [핵심] 결과 데이터(data.json)와 캐시 파일(address_cache.json)을 모두 추가합니다.
+          git add contractMap/data.json contractMap/address_cache.json
           
           # 변경사항 확인 후 처리
           if ! git diff --cached --exit-code; then
-            git commit -m "Auto-update contract data: $(date +'%Y-%m-%d %H:%M:%S')"
+            git commit -m "Auto-update contract data & cache: $(date +'%Y-%m-%d %H:%M:%S')"
             
-            # [핵심] 푸시 전 원격의 최신 상태를 가져와서 내 커밋을 그 뒤로 재배치
+            # 푸시 전 원격의 최신 상태를 가져와서 내 커밋을 그 뒤로 재배치
             git pull --rebase origin main
             
             git push origin main
