@@ -48,6 +48,8 @@ async def get_lat_lon(session, address):
         
         if data['documents']:
             documents = [x for x in data['documents'] if '아파트' in x['category_name']]
+			if len(documents) == 0:
+				documents = [x for x in data['documents'] if '주거시설' in x['category_name']]
             if len(documents) == 0:
                 documents = [x for x in data['documents'] if '부동산' in x['category_name']]
 
