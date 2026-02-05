@@ -23,7 +23,7 @@
         body { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
         #map { width: 100%; height: 100vh; z-index: 1; background: #f0f0f0; }
         
-        /* --- 1. 상단 UI --- */
+        /* --- 1. 상단 UI (필터/검색) --- */
         .top-container {
             position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             z-index: 1000; width: 90%; max-width: 400px; height: 44px;
@@ -42,11 +42,13 @@
         }
         .filter-btn:hover { background: #f1f1f1; }
         .filter-btn.active { background: #2c3e50; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
         .search-trigger-btn {
             width: 36px; height: 36px; border-radius: 50%; border: none;
             background: #fff; color: #333; font-size: 16px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
+
         .search-group {
             display: none; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.95); border-radius: 25px;
@@ -76,8 +78,69 @@
         .item-name { font-weight: bold; color: #333; display: block; margin-bottom: 2px;}
         .item-addr { font-size: 12px; color: #888; }
 
-        .leaflet-top.leaflet-left { margin-top: 70px; }
 
+        /* --- 2. 랭킹 버튼 (좌측 상단, 줌버튼 대체) --- */
+        .ranking-trigger-btn {
+            position: absolute; top: 15px; left: 15px; z-index: 1000;
+            background: white; width: 44px; height: 44px; border-radius: 50%;
+            border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer; font-size: 20px; color: #f1c40f; /* 트로피 색상 */
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        .ranking-trigger-btn:active { transform: scale(0.95); }
+
+        /* --- 3. 랭킹 패널 --- */
+        .ranking-panel {
+            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; max-height: 60vh;
+            background: white; border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000; display: none; overflow: hidden;
+            flex-direction: column;
+        }
+        .ranking-header {
+            display: flex; border-bottom: 1px solid #eee; background: #f8f9fa;
+        }
+        .ranking-tab {
+            flex: 1; padding: 12px 0; text-align: center; font-size: 14px; font-weight: 600;
+            color: #888; cursor: pointer; border-bottom: 2px solid transparent;
+        }
+        .ranking-tab.active { color: #2c3e50; border-bottom: 2px solid #2c3e50; background: white; }
+        
+        .ranking-content {
+            flex: 1; overflow-y: auto; padding: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .rank-list { list-style: none; padding: 0; margin: 0; }
+        .rank-item {
+            padding: 12px 20px; border-bottom: 1px solid #f1f1f1;
+            display: flex; align-items: center; cursor: pointer;
+        }
+        .rank-item:active { background: #f8f9fa; }
+        .rank-num {
+            width: 25px; font-weight: 900; font-size: 16px; color: #3498db; margin-right: 10px; font-style: italic;
+        }
+        .rank-num.top3 { color: #e74c3c; font-size: 18px; }
+        .rank-info { flex: 1; }
+        .rank-name { font-size: 14px; font-weight: bold; color: #333; display: block; }
+        .rank-addr { font-size: 12px; color: #888; }
+        .rank-count {
+            background: #2c3e50; color: white; padding: 4px 10px;
+            border-radius: 12px; font-size: 12px; font-weight: bold;
+        }
+
+        .load-more-btn {
+            width: 100%; padding: 12px; background: transparent; border: none;
+            color: #3498db; font-weight: 600; cursor: pointer; border-top: 1px dashed #eee;
+        }
+        .back-btn-area {
+            padding: 10px; background: #f1f1f1; border-bottom: 1px solid #ddd;
+            display: flex; align-items: center; cursor: pointer; font-size: 13px; font-weight: bold; color: #555;
+        }
+
+
+        /* --- 4. 하단 요소 --- */
         .last-updated {
             position: absolute; bottom: 30px; left: 20px; z-index: 1000;
             background: rgba(255, 255, 255, 0.85);
@@ -94,20 +157,12 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* --- [NEW] 개별 장소 마커 스타일 (숫자 핀) --- */
+        /* --- 마커 및 기타 --- */
         .single-location-icon {
-            background: #3498db; /* 파란색 */
-            color: white;
-            border: 2px solid white;
-            border-radius: 50%;
-            text-align: center;
-            font-weight: bold;
-            font-size: 13px;
-            line-height: 30px;
+            background: #3498db; color: white; border: 2px solid white; border-radius: 50%;
+            text-align: center; font-weight: bold; font-size: 13px; line-height: 30px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
-
-        /* --- 기존 클러스터 아이콘 (그룹) --- */
         .custom-cluster-icon {
             background: rgba(46, 204, 113, 0.9);
             color: white; border: 2px solid white; border-radius: 50%;
@@ -124,7 +179,6 @@
             backdrop-filter: blur(2px);
         }
         
-        /* 팝업 스타일 */
         .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .leaflet-popup-content { margin: 0; width: 280px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 15px; }
@@ -141,11 +195,24 @@
 
     <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> 데이터 불러오는 중...</div>
     
+    <button class="ranking-trigger-btn" onclick="toggleRankingPanel()">
+        <i class="fa-solid fa-trophy"></i>
+    </button>
+
+    <div class="ranking-panel" id="rankingPanel">
+        <div class="ranking-header">
+            <div class="ranking-tab active" onclick="switchRankingTab('overall')">전체 순위</div>
+            <div class="ranking-tab" onclick="switchRankingTab('district')">지역구별 순위</div>
+        </div>
+        <div class="ranking-content" id="rankingContent">
+            </div>
+    </div>
+
     <div class="top-container">
         <div class="filter-group" id="filterGroup">
-            <button class="filter-btn active" onclick="setPeriod('60', this)">최근 60일</button>
-            <button class="filter-btn" onclick="setPeriod('30', this)">최근 30일</button>
-            <button class="filter-btn" onclick="setPeriod('7', this)">최근 7일</button>
+            <button class="filter-btn active" id="btn60" onclick="setPeriod('60', this)">최근 60일</button>
+            <button class="filter-btn" id="btn30" onclick="setPeriod('30', this)">최근 30일</button>
+            <button class="filter-btn" id="btn7" onclick="setPeriod('7', this)">최근 7일</button>
             <button class="search-trigger-btn" onclick="toggleSearchMode(true)">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
@@ -160,7 +227,6 @@
     </div>
 
     <div id="last-updated" class="last-updated"></div>
-
     <button class="gps-btn" onclick="moveToCurrentLocation()">
         <i class="fa-solid fa-location-crosshairs"></i>
     </button>
@@ -171,13 +237,12 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
+        // 1. 지도 초기화 (줌 컨트롤 제거)
         const map = L.map('map', { 
             zoomControl: false, 
             attributionControl: false 
         }).setView([37.5665, 126.9780], 11);
         
-        L.control.zoom({ position: 'topleft' }).addTo(map);
-
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
         }).addTo(map);
@@ -198,7 +263,6 @@
                         totalPermits += (marker.options.permit_count || 0);
                     });
 
-                    // 주변이 뭉쳤을 때의 클러스터 아이콘 (기존 유지)
                     let c = 'custom-cluster-icon';
                     let size = 40;
                     if (totalPermits >= 50) { c += ' large'; size = 60; }
@@ -214,7 +278,13 @@
         }
 
         let allData = [];
+        let aggregatedCurrentData = []; // 현재 필터링된 후 병합된 데이터 (랭킹용)
         let lastUpdatedDate = new Date();
+        
+        // 랭킹 상태 관리
+        let currentRankLimit = 10;
+        let currentTab = 'overall'; // 'overall' or 'district'
+        let selectedDistrict = null; // 구별 상세보기 시 구 이름 저장
 
         async function loadData() {
             const loadingEl = document.getElementById('loading');
@@ -235,7 +305,8 @@
                     dateObj: parseDateString(item.date)
                 }));
 
-                setPeriod('60', document.querySelector('.filter-btn.active'));
+                // 초기 로드: 최근 60일
+                setPeriod('60', document.getElementById('btn60'));
 
             } catch (err) {
                 console.error(err);
@@ -245,6 +316,173 @@
             }
         }
 
+        // --- 랭킹 관련 로직 ---
+        function toggleRankingPanel() {
+            const panel = document.getElementById('rankingPanel');
+            if (panel.style.display === 'flex') {
+                panel.style.display = 'none';
+            } else {
+                panel.style.display = 'flex';
+                // 패널 열릴 때 현재 데이터 기준으로 갱신
+                renderRankingContent();
+            }
+        }
+
+        function switchRankingTab(tabName) {
+            currentTab = tabName;
+            selectedDistrict = null; // 탭 변경 시 상세 보기 초기화
+            currentRankLimit = 10; // 더보기 초기화
+
+            // 탭 스타일 변경
+            document.querySelectorAll('.ranking-tab').forEach(el => el.classList.remove('active'));
+            if(tabName === 'overall') {
+                document.querySelectorAll('.ranking-tab')[0].classList.add('active');
+            } else {
+                document.querySelectorAll('.ranking-tab')[1].classList.add('active');
+            }
+            renderRankingContent();
+        }
+
+        function renderRankingContent() {
+            const container = document.getElementById('rankingContent');
+            container.innerHTML = ''; // 초기화
+
+            if (currentTab === 'overall') {
+                renderOverallRanking(container);
+            } else {
+                if (selectedDistrict) {
+                    renderDistrictDetail(container, selectedDistrict);
+                } else {
+                    renderDistrictRanking(container);
+                }
+            }
+        }
+
+        function renderOverallRanking(container) {
+            // 1. 현재 지도에 표시된 데이터(aggregatedCurrentData)를 건수 기준 내림차순 정렬
+            const sortedData = [...aggregatedCurrentData].sort((a, b) => b.permit_count - a.permit_count);
+            
+            // 2. 리스트 생성
+            const ul = document.createElement('ul');
+            ul.className = 'rank-list';
+
+            const limit = Math.min(currentRankLimit, sortedData.length);
+            
+            for (let i = 0; i < limit; i++) {
+                const item = sortedData[i];
+                const li = document.createElement('li');
+                li.className = 'rank-item';
+                li.onclick = () => {
+                    map.flyTo([item.lat, item.lng], 17);
+                    document.getElementById('rankingPanel').style.display = 'none';
+                };
+
+                const rankClass = (i < 3) ? 'top3' : '';
+                li.innerHTML = `
+                    <span class="rank-num ${rankClass}">${i + 1}</span>
+                    <div class="rank-info">
+                        <span class="rank-name">${item.place_name}</span>
+                        <span class="rank-addr">${item.address}</span>
+                    </div>
+                    <span class="rank-count">${item.permit_count}건</span>
+                `;
+                ul.appendChild(li);
+            }
+            container.appendChild(ul);
+
+            // 3. 더보기 버튼
+            if (sortedData.length > limit) {
+                const moreBtn = document.createElement('button');
+                moreBtn.className = 'load-more-btn';
+                moreBtn.innerText = '더보기 👇';
+                moreBtn.onclick = () => {
+                    currentRankLimit += 10;
+                    renderRankingContent();
+                };
+                container.appendChild(moreBtn);
+            }
+        }
+
+        function renderDistrictRanking(container) {
+            // 1. 구별 합계 계산
+            const guStats = {};
+            aggregatedCurrentData.forEach(item => {
+                const gu = item.address ? item.address.split(' ')[0] : '기타';
+                if (!guStats[gu]) guStats[gu] = 0;
+                guStats[gu] += item.permit_count;
+            });
+
+            // 2. 정렬
+            const sortedGu = Object.keys(guStats).sort((a, b) => guStats[b] - guStats[a]);
+
+            // 3. 리스트 생성
+            const ul = document.createElement('ul');
+            ul.className = 'rank-list';
+            
+            sortedGu.forEach((gu, idx) => {
+                const li = document.createElement('li');
+                li.className = 'rank-item';
+                li.onclick = () => {
+                    selectedDistrict = gu;
+                    renderRankingContent();
+                };
+
+                const rankClass = (idx < 3) ? 'top3' : '';
+                li.innerHTML = `
+                    <span class="rank-num ${rankClass}">${idx + 1}</span>
+                    <div class="rank-info">
+                        <span class="rank-name" style="font-size:16px;">${gu}</span>
+                    </div>
+                    <span class="rank-count">${guStats[gu]}건</span>
+                    <i class="fa-solid fa-chevron-right" style="margin-left:10px; color:#ccc;"></i>
+                `;
+                ul.appendChild(li);
+            });
+            container.appendChild(ul);
+        }
+
+        function renderDistrictDetail(container, districtName) {
+            // 1. 헤더 (뒤로가기)
+            const header = document.createElement('div');
+            header.className = 'back-btn-area';
+            header.innerHTML = `<i class="fa-solid fa-arrow-left" style="margin-right:5px;"></i> ${districtName} 전체 목록`;
+            header.onclick = () => {
+                selectedDistrict = null;
+                renderRankingContent();
+            };
+            container.appendChild(header);
+
+            // 2. 해당 구 데이터 필터링 및 정렬
+            const districtData = aggregatedCurrentData
+                .filter(item => item.address && item.address.startsWith(districtName))
+                .sort((a, b) => b.permit_count - a.permit_count);
+
+            // 3. 리스트 출력
+            const ul = document.createElement('ul');
+            ul.className = 'rank-list';
+            
+            districtData.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.className = 'rank-item';
+                li.onclick = () => {
+                    map.flyTo([item.lat, item.lng], 17);
+                    document.getElementById('rankingPanel').style.display = 'none';
+                };
+                
+                li.innerHTML = `
+                    <span class="rank-num">${idx + 1}</span>
+                    <div class="rank-info">
+                        <span class="rank-name">${item.place_name}</span>
+                        <span class="rank-addr">${item.address}</span>
+                    </div>
+                    <span class="rank-count">${item.permit_count}건</span>
+                `;
+                ul.appendChild(li);
+            });
+            container.appendChild(ul);
+        }
+
+        // --- 지도 및 필터 로직 ---
         function toggleSearchMode(isSearch) {
             const filterGroup = document.getElementById('filterGroup');
             const searchGroup = document.getElementById('searchGroup');
@@ -267,13 +505,19 @@
             if (btn) {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-            } else if (period === 'all') {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             }
 
             let filteredData = [];
+            // 'all' 파라미터가 들어와도, 버튼은 기본적으로 60일을 가리키게 되어 있으므로
+            // 실제 로직도 60일, 30일, 7일, 전체 중 하나를 따라야 합니다.
+            // 여기서는 UI와 데이터를 동기화합니다.
+            
+            // 만약 검색결과 클릭으로 인해 period가 '60'으로 강제 설정되면 데이터도 60일치만 보여줍니다.
+            // 주의: 검색된 결과가 60일 이내가 아니면 지도에 안 보일 수 있습니다.
+            // 요청사항에 따라 "검색결과 누르면 최근 60일 선택"이므로 60일 로직을 따릅니다.
+            
             if (period === 'all') {
-                filteredData = allData;
+                filteredData = allData; 
             } else {
                 const daysLimit = parseInt(period);
                 filteredData = allData.filter(item => {
@@ -283,8 +527,13 @@
                 });
             }
 
-            const aggregated = aggregateData(filteredData);
-            renderMarkers(aggregated);
+            aggregatedCurrentData = aggregateData(filteredData);
+            renderMarkers(aggregatedCurrentData);
+            
+            // 랭킹 패널이 열려있다면 내용 갱신
+            if(document.getElementById('rankingPanel').style.display === 'flex') {
+                renderRankingContent();
+            }
         }
 
         function aggregateData(points) {
@@ -307,7 +556,6 @@
                 mapData[key].history.push({ date: pt.date, name: pt.place_name });
             });
 
-            // 날짜 최신순 정렬
             Object.values(mapData).forEach(item => {
                 item.history.sort((a, b) => b.date.localeCompare(a.date));
             });
@@ -326,20 +574,17 @@
                     map.addLayer(guClusterLayers[guName]);
                 }
 
-                // [수정됨] 일반 핀 대신 숫자(DivIcon) 사용
                 const icon = L.divIcon({
                     html: `<div>${pt.permit_count}</div>`,
-                    className: 'single-location-icon', // 새로 정의한 스타일
+                    className: 'single-location-icon',
                     iconSize: [30, 30]
                 });
 
-                // 마커 생성
                 const marker = L.marker([pt.lat, pt.lng], { 
                     icon: icon,
                     permit_count: pt.permit_count 
                 });
 
-                // 상세 리스트 HTML 생성
                 const historyHtml = pt.history.map(h => `
                     <li class="permit-item">
                         <span>${h.name}</span>
@@ -349,7 +594,7 @@
 
                 const popupContent = `
                     <div class="popup-header">
-                        <h3>${pt.place_name}</h3>
+                        <h3>${pt.place_name} ${pt.permit_count > 1 ? '외' : ''}</h3>
                         <p>${pt.address}</p>
                     </div>
                     <div class="popup-body">
@@ -409,9 +654,15 @@
             }
         });
 
+        // 검색 결과 클릭 시 이동 및 60일 필터 설정
         window.moveToPoint = function(lat, lng, name) {
-            setPeriod('all', null);
+            // 1. "최근 60일"로 필터 변경 및 데이터 갱신
+            setPeriod('60', document.getElementById('btn60'));
+            
+            // 2. 지도 이동
             map.flyTo([lat, lng], 17, { duration: 1.5 });
+            
+            // 3. 검색창 닫기 및 초기화
             toggleSearchMode(false); 
         };
 
