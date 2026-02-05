@@ -109,6 +109,8 @@ async def main():
             if content and "result" in content:
                 for x in content["result"]:
                     if x["USE_PURP"] != "주거용": continue
+                    if x["JOB_GBN_NM"] != "허가": continue
+                    if x["JIMOK"] != "대": continue
 
                     if x["ADDRESS"] in ADDRESS_CACHE:
                         cache_hit_count += 1
