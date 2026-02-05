@@ -3,7 +3,7 @@ name: Seoul Land Contract Update
 on:
   schedule:
     # 한국 시간(KST) 기준: 09:00, 12:00, 15:00, 18:00
-    - cron: '0 0,3,6,9 * * *'
+    - cron: '7 0,3,6,9 * * *'
   workflow_dispatch: # 수동 실행 버튼
 
 # 동일 작업이 겹칠 경우 이전 작업을 취소하여 파일 잠금/충돌 방지
