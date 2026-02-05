@@ -79,12 +79,15 @@
         .item-addr { font-size: 12px; color: #888; }
 
 
-        /* --- 2. 랭킹 버튼 (좌측 상단, 줌버튼 대체) --- */
+        /* --- 2. 랭킹 버튼 (위치 수정됨: 상단 버튼 아래, 왼쪽) --- */
         .ranking-trigger-btn {
-            position: absolute; top: 15px; left: 15px; z-index: 1000;
+            position: absolute; 
+            top: 75px; /* 상단바(44px) + 여백(15px) + 추가 여백 아래로 배치 */
+            left: 15px; 
+            z-index: 1000;
             background: white; width: 44px; height: 44px; border-radius: 50%;
             border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            cursor: pointer; font-size: 20px; color: #f1c40f; /* 트로피 색상 */
+            cursor: pointer; font-size: 20px; color: #f1c40f;
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.2s;
         }
@@ -92,7 +95,7 @@
 
         /* --- 3. 랭킹 패널 --- */
         .ranking-panel {
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 400px; max-height: 60vh;
             background: white; border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
@@ -237,7 +240,6 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // 1. 지도 초기화 (줌 컨트롤 제거)
         const map = L.map('map', { 
             zoomControl: false, 
             attributionControl: false 
@@ -278,13 +280,12 @@
         }
 
         let allData = [];
-        let aggregatedCurrentData = []; // 현재 필터링된 후 병합된 데이터 (랭킹용)
+        let aggregatedCurrentData = [];
         let lastUpdatedDate = new Date();
         
-        // 랭킹 상태 관리
         let currentRankLimit = 10;
-        let currentTab = 'overall'; // 'overall' or 'district'
-        let selectedDistrict = null; // 구별 상세보기 시 구 이름 저장
+        let currentTab = 'overall';
+        let selectedDistrict = null;
 
         async function loadData() {
             const loadingEl = document.getElementById('loading');
@@ -305,7 +306,6 @@
                     dateObj: parseDateString(item.date)
                 }));
 
-                // 초기 로드: 최근 60일
                 setPeriod('60', document.getElementById('btn60'));
 
             } catch (err) {
@@ -316,24 +316,21 @@
             }
         }
 
-        // --- 랭킹 관련 로직 ---
         function toggleRankingPanel() {
             const panel = document.getElementById('rankingPanel');
             if (panel.style.display === 'flex') {
                 panel.style.display = 'none';
             } else {
                 panel.style.display = 'flex';
-                // 패널 열릴 때 현재 데이터 기준으로 갱신
                 renderRankingContent();
             }
         }
 
         function switchRankingTab(tabName) {
             currentTab = tabName;
-            selectedDistrict = null; // 탭 변경 시 상세 보기 초기화
-            currentRankLimit = 10; // 더보기 초기화
+            selectedDistrict = null;
+            currentRankLimit = 10;
 
-            // 탭 스타일 변경
             document.querySelectorAll('.ranking-tab').forEach(el => el.classList.remove('active'));
             if(tabName === 'overall') {
                 document.querySelectorAll('.ranking-tab')[0].classList.add('active');
@@ -345,7 +342,7 @@
 
         function renderRankingContent() {
             const container = document.getElementById('rankingContent');
-            container.innerHTML = ''; // 초기화
+            container.innerHTML = '';
 
             if (currentTab === 'overall') {
                 renderOverallRanking(container);
@@ -359,10 +356,7 @@
         }
 
         function renderOverallRanking(container) {
-            // 1. 현재 지도에 표시된 데이터(aggregatedCurrentData)를 건수 기준 내림차순 정렬
             const sortedData = [...aggregatedCurrentData].sort((a, b) => b.permit_count - a.permit_count);
-            
-            // 2. 리스트 생성
             const ul = document.createElement('ul');
             ul.className = 'rank-list';
 
@@ -374,7 +368,8 @@
                 li.className = 'rank-item';
                 li.onclick = () => {
                     map.flyTo([item.lat, item.lng], 17);
-                    document.getElementById('rankingPanel').style.display = 'none';
+                    // 모바일에서 지도 볼 때 방해되지 않도록 선택 시 닫기 (선택 사항)
+                    // document.getElementById('rankingPanel').style.display = 'none';
                 };
 
                 const rankClass = (i < 3) ? 'top3' : '';
@@ -390,7 +385,6 @@
             }
             container.appendChild(ul);
 
-            // 3. 더보기 버튼
             if (sortedData.length > limit) {
                 const moreBtn = document.createElement('button');
                 moreBtn.className = 'load-more-btn';
@@ -404,7 +398,6 @@
         }
 
         function renderDistrictRanking(container) {
-            // 1. 구별 합계 계산
             const guStats = {};
             aggregatedCurrentData.forEach(item => {
                 const gu = item.address ? item.address.split(' ')[0] : '기타';
@@ -412,10 +405,8 @@
                 guStats[gu] += item.permit_count;
             });
 
-            // 2. 정렬
             const sortedGu = Object.keys(guStats).sort((a, b) => guStats[b] - guStats[a]);
 
-            // 3. 리스트 생성
             const ul = document.createElement('ul');
             ul.className = 'rank-list';
             
@@ -442,7 +433,6 @@
         }
 
         function renderDistrictDetail(container, districtName) {
-            // 1. 헤더 (뒤로가기)
             const header = document.createElement('div');
             header.className = 'back-btn-area';
             header.innerHTML = `<i class="fa-solid fa-arrow-left" style="margin-right:5px;"></i> ${districtName} 전체 목록`;
@@ -452,12 +442,10 @@
             };
             container.appendChild(header);
 
-            // 2. 해당 구 데이터 필터링 및 정렬
             const districtData = aggregatedCurrentData
                 .filter(item => item.address && item.address.startsWith(districtName))
                 .sort((a, b) => b.permit_count - a.permit_count);
 
-            // 3. 리스트 출력
             const ul = document.createElement('ul');
             ul.className = 'rank-list';
             
@@ -466,7 +454,7 @@
                 li.className = 'rank-item';
                 li.onclick = () => {
                     map.flyTo([item.lat, item.lng], 17);
-                    document.getElementById('rankingPanel').style.display = 'none';
+                    // document.getElementById('rankingPanel').style.display = 'none';
                 };
                 
                 li.innerHTML = `
@@ -482,7 +470,6 @@
             container.appendChild(ul);
         }
 
-        // --- 지도 및 필터 로직 ---
         function toggleSearchMode(isSearch) {
             const filterGroup = document.getElementById('filterGroup');
             const searchGroup = document.getElementById('searchGroup');
@@ -508,13 +495,6 @@
             }
 
             let filteredData = [];
-            // 'all' 파라미터가 들어와도, 버튼은 기본적으로 60일을 가리키게 되어 있으므로
-            // 실제 로직도 60일, 30일, 7일, 전체 중 하나를 따라야 합니다.
-            // 여기서는 UI와 데이터를 동기화합니다.
-            
-            // 만약 검색결과 클릭으로 인해 period가 '60'으로 강제 설정되면 데이터도 60일치만 보여줍니다.
-            // 주의: 검색된 결과가 60일 이내가 아니면 지도에 안 보일 수 있습니다.
-            // 요청사항에 따라 "검색결과 누르면 최근 60일 선택"이므로 60일 로직을 따릅니다.
             
             if (period === 'all') {
                 filteredData = allData; 
@@ -530,8 +510,9 @@
             aggregatedCurrentData = aggregateData(filteredData);
             renderMarkers(aggregatedCurrentData);
             
-            // 랭킹 패널이 열려있다면 내용 갱신
+            // [수정] 랭킹 패널이 열려있다면 즉시 갱신 (더보기 초기화 포함)
             if(document.getElementById('rankingPanel').style.display === 'flex') {
+                currentRankLimit = 10; // 목록 상단부터 다시 보기 위해 초기화
                 renderRankingContent();
             }
         }
@@ -654,15 +635,9 @@
             }
         });
 
-        // 검색 결과 클릭 시 이동 및 60일 필터 설정
         window.moveToPoint = function(lat, lng, name) {
-            // 1. "최근 60일"로 필터 변경 및 데이터 갱신
             setPeriod('60', document.getElementById('btn60'));
-            
-            // 2. 지도 이동
             map.flyTo([lat, lng], 17, { duration: 1.5 });
-            
-            // 3. 검색창 닫기 및 초기화
             toggleSearchMode(false); 
         };
 
