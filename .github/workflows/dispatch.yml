@@ -1,0 +1,61 @@
+name: Seoul Land Contract Update (Dispatch)
+
+on:
+  workflow_dispatch: # 수동 실행 버튼
+
+# 동일 작업이 겹칠 경우 이전 작업을 취소하여 파일 잠금/충돌 방지
+concurrency:
+  group: crawling-group
+  cancel-in-progress: true
+  
+permissions:
+  contents: write
+
+jobs:
+  update_data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then 
+            pip install -r requirements.txt
+          else 
+            pip install aiohttp requests
+          fi
+
+      - name: Run Geocoding Script
+        env:
+          KAKAO_API_KEY: ${{ secrets.KAKAO_API_KEY }}
+        run: python contractMap/main.py 
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # [핵심] 결과 데이터(data.json)와 캐시 파일(address_cache.json)을 모두 추가합니다.
+          git add contractMap/data.json contractMap/address_cache.json
+          
+          # 변경사항 확인 후 처리
+          if ! git diff --cached --exit-code; then
+            git commit -m "Auto-update contract data & cache: $(date +'%Y-%m-%d %H:%M:%S')"
+            
+            # 푸시 전 원격의 최신 상태를 가져와서 내 커밋을 그 뒤로 재배치
+            git pull --rebase origin main
+            
+            git push origin main
+          else
+            echo "변경사항이 없어 작업을 종료합니다."
+          fi
