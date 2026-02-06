@@ -19,9 +19,9 @@ sass:
 
 # Gems
 plugins:
+  - jekyll-redirect-from
   - jekyll-feed
   - jekyll-paginate
-  - jekyll-redirect-from
   # - jemoji #Uncomment this to allow emoji in your post
 
 # Permalinks
