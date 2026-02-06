@@ -1,6 +1,8 @@
 name: Seoul Land Contract Update (Dispatch)
 
 on:
+  repository_dispatch:
+    types: [seoul_trigger]
   workflow_dispatch: # 수동 실행 버튼
 
 # 동일 작업이 겹칠 경우 이전 작업을 취소하여 파일 잠금/충돌 방지
