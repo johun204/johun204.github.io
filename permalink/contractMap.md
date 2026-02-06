@@ -1,3 +1,3 @@
 layout: null
 permalink: /contractMap/
-redirect_to: "/seoul-permit-map"
+redirect_to: "https://johun204.github.io/seoul-permit-map/"
