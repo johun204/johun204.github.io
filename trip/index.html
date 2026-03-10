@@ -1,0 +1,1017 @@
+import { useState } from "react";
+
+const days = [
+  {
+    day: 1,
+    date: "10월 10일 (토)",
+    city: "인천 → 로마",
+    icon: "✈️",
+    theme: "출발",
+    color: "from-slate-700 to-slate-900",
+    accent: "#C9A96E",
+    energy: 2,
+    places: [
+      { time: "10:30", name: "인천공항 출발", desc: "대한항공 KE929 직항 탑승 (ICN → FCO)", tag: "이동" },
+      { time: "16:25", name: "로마 피우미치노 도착", desc: "현지시간 도착, 입국심사 및 수하물 수령", tag: "도착" },
+      { time: "18:30", name: "호텔 체크인", desc: "로마 시내 호텔 (콜로세움 인근 추천)", tag: "숙박" },
+      { time: "20:00", name: "저녁 식사", desc: "트라스테베레 지역 트라토리아에서 첫날 로마 만찬", tag: "식사" },
+    ],
+    tip: "장거리 비행 후 첫날은 가볍게! 저녁 산책으로 로마의 밤공기만 맛보세요.",
+  },
+  {
+    day: 2,
+    date: "10월 11일 (일)",
+    city: "로마",
+    icon: "🏛️",
+    theme: "고대 로마의 심장",
+    color: "from-amber-800 to-amber-950",
+    accent: "#F5C842",
+    energy: 5,
+    places: [
+      { time: "08:00", name: "아침 식사", desc: "이탈리아식 카푸치노 & 코르네토로 하루 시작", tag: "식사" },
+      { time: "09:00", name: "콜로세움 & 포로 로마노", desc: "사전 예약 필수! 검투사의 역사를 직접 느끼는 곳", tag: "핵심" },
+      { time: "12:30", name: "팔라티노 언덕", desc: "포로 로마노 통합권으로 입장, 로마 전경 감상", tag: "관광" },
+      { time: "14:00", name: "점심 식사", desc: "인근 오스테리아에서 카르보나라 or 아마트리차나", tag: "식사" },
+      { time: "15:30", name: "진실의 입", desc: "산타 마리아 인 코스메딘 성당 앞, 커플 필수 코스", tag: "핵심" },
+      { time: "17:00", name: "캄피돌리오 광장", desc: "미켈란젤로 설계, 황금빛 마르쿠스 아우렐리우스 기마상", tag: "관광" },
+      { time: "20:00", name: "저녁 & 나보나 광장", desc: "바로크 분수 야경을 감상하며 젤라또 산책", tag: "야경" },
+    ],
+    tip: "콜로세움은 반드시 2~3주 전 사전 예약하세요. 현장 줄은 2시간 이상 소요됩니다.",
+  },
+  {
+    day: 3,
+    date: "10월 12일 (월)",
+    city: "로마",
+    icon: "⛪",
+    theme: "바티칸 & 낭만 분수",
+    color: "from-blue-800 to-blue-950",
+    accent: "#7EC8E3",
+    energy: 4,
+    places: [
+      { time: "07:30", name: "바티칸 박물관 오픈런", desc: "시스티나 예배당 & 미켈란젤로 천지창조, 오전이 덜 복잡", tag: "핵심" },
+      { time: "10:30", name: "성 베드로 대성당", desc: "세계 최대 성당, 쿠폴라 전망대에서 로마 전경 파노라마", tag: "핵심" },
+      { time: "13:00", name: "점심 식사", desc: "바티칸 인근 피자 알 탈리오 (조각 피자) 간편 식사", tag: "식사" },
+      { time: "14:30", name: "산탄젤로 성", desc: "테베레 강변의 우아한 성채, 신혼 사진 스팟 1순위", tag: "관광" },
+      { time: "17:00", name: "트레비 분수", desc: "동전을 던지며 '다시 로마에 올 것'을 맹세하는 커플 성지", tag: "핵심" },
+      { time: "18:30", name: "스페인 계단", desc: "석양 빛에 물드는 낭만적인 계단, 사진 촬영 필수", tag: "관광" },
+      { time: "20:30", name: "저녁 식사", desc: "콜로네제 지역 리스토란테에서 로마의 마지막 만찬", tag: "식사" },
+    ],
+    tip: "바티칸 박물관은 개장 30분 전 도착 권장. 금요일 야간 개장(21시까지) 이용 시 더욱 한산합니다.",
+  },
+  {
+    day: 4,
+    date: "10월 13일 (화)",
+    city: "로마 → 아테네",
+    icon: "🛫",
+    theme: "그리스로 이동",
+    color: "from-teal-700 to-teal-950",
+    accent: "#5BC8AF",
+    energy: 2,
+    places: [
+      { time: "08:00", name: "체크아웃 & 이동 준비", desc: "짐 정리 및 공항 이동", tag: "이동" },
+      { time: "10:30", name: "로마 FCO 출발", desc: "Aegean Airlines A3 700 or ITA 항공 로마→아테네 (비행 2시간)", tag: "이동" },
+      { time: "14:00", name: "아테네 도착 & 이동", desc: "아크로폴리스 인근 호텔 체크인", tag: "도착" },
+      { time: "16:00", name: "아크로폴리스 언덕 산책", desc: "체력 조절을 위해 외관 감상 위주로, 파르테논 신전 뷰포인트", tag: "관광" },
+      { time: "18:30", name: "모나스티라키 광장", desc: "벼룩시장 & 메트로폴리스 카페에서 에스프레소 한잔", tag: "산책" },
+      { time: "20:00", name: "저녁 식사", desc: "플라카 지구 타베르나에서 무사카 & 수블라키 첫맛보기", tag: "식사" },
+    ],
+    tip: "이동일은 관광보다 여유있게 현지 적응에 집중하세요. 그리스 요리는 이날부터 본격적으로 시작!",
+  },
+  {
+    day: 5,
+    date: "10월 14일 (수)",
+    city: "아테네",
+    icon: "🏺",
+    theme: "그리스 문명의 정수",
+    color: "from-indigo-700 to-indigo-950",
+    accent: "#A78BFA",
+    energy: 5,
+    places: [
+      { time: "08:30", name: "아크로폴리스", desc: "파르테논 신전, 에렉테이온, 프로필라이아 - 서양 문명의 요람", tag: "핵심" },
+      { time: "11:00", name: "아크로폴리스 박물관", desc: "세계 최고 수준의 고대 그리스 유물 컬렉션", tag: "핵심" },
+      { time: "13:00", name: "점심 식사", desc: "아크로폴리스 뷰 레스토랑에서 그릭 샐러드 & 해산물", tag: "식사" },
+      { time: "14:30", name: "국립 아테네 고고학 박물관", desc: "미케네 황금마스크, 아테나 여신상 등 인류 최고 유물", tag: "관광" },
+      { time: "17:00", name: "제우스 신전 & 하드리아누스 개선문", desc: "석양 빛에 물든 고대 신전의 장엄한 기둥들", tag: "관광" },
+      { time: "19:00", name: "신타그마 광장 & 리카비토스 언덕", desc: "아테네 야경 전망대, 도심 최고 뷰포인트", tag: "야경" },
+      { time: "20:30", name: "저녁 식사", desc: "콜로나키 지역 모던 그릭 레스토랑", tag: "식사" },
+    ],
+    tip: "아크로폴리스는 오전 8~9시가 가장 한산합니다. 10월 아테네 기온은 20~25도로 쾌적!",
+  },
+  {
+    day: 6,
+    date: "10월 15일 (목)",
+    city: "아테네 → 산토리니",
+    icon: "⛴️",
+    theme: "에게해의 진주로",
+    color: "from-sky-600 to-sky-900",
+    accent: "#38BDF8",
+    energy: 3,
+    places: [
+      { time: "07:00", name: "조기 출발 이동", desc: "아테네 피레에프스 항구 or 아테네 공항으로 이동", tag: "이동" },
+      { time: "08:30", name: "아테네 → 산토리니 이동", desc: "✈️ 국내선 항공 40분 (Aegean/Sky Express) OR ⛴️ 고속 페리 5시간 (Hellenic Seaways)", tag: "이동" },
+      { time: "13:00", name: "피라 항구 도착 & 체크인", desc: "칼데라 뷰 호텔 체크인, 에게해 전망 인피니티풀 숙소 추천", tag: "도착" },
+      { time: "15:00", name: "이아 마을 예비 답사", desc: "흰 벽과 파란 돔, 가장 산토리니다운 그림 같은 마을", tag: "관광" },
+      { time: "17:00", name: "아모우디 항구", desc: "이아 마을 절벽 아래 작은 항구, 신선한 해산물 타베르나", tag: "식사" },
+      { time: "19:30", name: "이아 마을 일몰", desc: "세계 3대 일몰 중 하나! 일몰 30분 전 도착해야 자리 확보 가능", tag: "핵심" },
+    ],
+    tip: "이아 일몰은 세계에서 가장 유명한 일몰 스팟. 성수기에는 수백 명이 몰리니 자리 선점 필수!",
+  },
+  {
+    day: 7,
+    date: "10월 16일 (금)",
+    city: "산토리니",
+    icon: "🌅",
+    theme: "화산섬의 하루",
+    color: "from-rose-700 to-rose-950",
+    accent: "#FB7185",
+    energy: 4,
+    places: [
+      { time: "07:00", name: "이아 마을 일출 & 아침 산책", desc: "관광객이 없는 조용한 이아, 골목과 블루돔 사진 촬영 황금시간", tag: "핵심" },
+      { time: "09:30", name: "피라 구시가지", desc: "당나귀 케이블카 탑승, 칼데라 절벽 전망대 산책", tag: "관광" },
+      { time: "11:00", name: "빨간 해변 & 검은 해변", desc: "화산 용암이 만들어낸 세상에서 가장 특이한 해변들", tag: "관광" },
+      { time: "13:30", name: "점심 식사", desc: "아크로티리 인근 해산물 레스토랑에서 랍스터 스파게티", tag: "식사" },
+      { time: "15:00", name: "아크로티리 고고학 유적지", desc: "3,600년 전 화산으로 묻힌 미노아 문명 도시", tag: "관광" },
+      { time: "17:30", name: "칼데라 뷰 카페", desc: "와인 한 잔과 함께 에게해 저녁 빛 감상", tag: "여유" },
+      { time: "20:00", name: "저녁 식사", desc: "피라 최고급 칼데라뷰 레스토랑에서 신혼 디너", tag: "식사" },
+    ],
+    tip: "산토리니 와인(아시르티코)은 꼭 시음해보세요. 화산토양의 독특한 미네랄 향이 일품입니다.",
+  },
+  {
+    day: 8,
+    date: "10월 17일 (토)",
+    city: "산토리니",
+    icon: "🏖️",
+    theme: "에게해 리조트 데이",
+    color: "from-cyan-700 to-cyan-950",
+    accent: "#22D3EE",
+    energy: 3,
+    places: [
+      { time: "09:00", name: "페리사 & 페리볼로스 해변", desc: "산토리니 최대 검은 모래 해변, 선베드 & 해수욕", tag: "핵심" },
+      { time: "12:00", name: "해변 레스토랑 브런치", desc: "파라솔 아래서 문어 그릴과 그리스식 샐러드", tag: "식사" },
+      { time: "14:30", name: "칼데라 크루즈 투어", desc: "화산섬 네아 카메니, 온천 수영, 이아 일몰 크루즈 (3~4시간)", tag: "핵심" },
+      { time: "19:00", name: "이아 마을 리턴", desc: "크루즈 후 이아 마을 저녁 노을 & 쇼핑", tag: "산책" },
+      { time: "21:00", name: "낭만 디너", desc: "이아 마을 절벽 레스토랑, 칸들 라이트 디너 with 칼데라뷰", tag: "식사" },
+    ],
+    tip: "칼데라 크루즈는 현지에서 20~40유로. 이아 출발 선셋 크루즈가 가장 인기있습니다.",
+  },
+  {
+    day: 9,
+    date: "10월 18일 (일)",
+    city: "산토리니 → 아테네 → 추천지",
+    icon: "🚢",
+    theme: "미코노스 or 낙소스 이동",
+    color: "from-violet-700 to-violet-950",
+    accent: "#A78BFA",
+    energy: 3,
+    places: [
+      { time: "09:00", name: "마지막 산토리니 아침", desc: "호텔 칼데라뷰 테라스에서 조식, 체크아웃 준비", tag: "여유" },
+      { time: "11:00", name: "산토리니 출발", desc: "페리 or 국내선 항공으로 미코노스 OR 낙소스 이동", tag: "이동" },
+      { time: "15:00", name: "미코노스 도착 (추천 A)", desc: "코스모폴리탄한 파티 아일랜드, 유명 풍차 & 리틀 베니스", tag: "도착" },
+      { time: "15:00", name: "낙소스 도착 (추천 B)", desc: "한적하고 진정성 있는 그리스 섬, 포르타라 아폴론 신전 문", tag: "도착" },
+      { time: "17:00", name: "호라 구시가지 탐방", desc: "미로 같은 골목, 부티크 쇼핑, 선셋 바", tag: "산책" },
+      { time: "20:00", name: "저녁 식사", desc: "항구 레스토랑에서 신선한 그리스 해산물", tag: "식사" },
+    ],
+    tip: "미코노스는 화려하고 나이트라이프가 풍부, 낙소스는 자연과 현지 문화 체험에 적합. 취향에 맞게 선택!",
+  },
+  {
+    day: 10,
+    date: "10월 19일 (월)",
+    city: "미코노스 or 낙소스",
+    icon: "🌊",
+    theme: "에게해 섬 여유",
+    color: "from-emerald-700 to-emerald-950",
+    accent: "#34D399",
+    energy: 2,
+    places: [
+      { time: "09:00", name: "섬 투어 & 해변", desc: "파라다이스 비치(미코노스) or 아기아스 조르지오스 비치(낙소스)", tag: "핵심" },
+      { time: "12:00", name: "현지 타베르나 점심", desc: "갓 잡은 생선 그릴, 차지키, 피타 브레드로 그리스 향 흠뻑", tag: "식사" },
+      { time: "14:00", name: "자유 시간 & 쇼핑", desc: "기념품, 올리브 오일, 허브 등 그리스 특산품 구매", tag: "여유" },
+      { time: "16:30", name: "선셋 포인트", desc: "섬에서 가장 아름다운 일몰 뷰포인트 탐방", tag: "관광" },
+      { time: "19:00", name: "호텔 휴식", desc: "다음날 이동을 위해 일찍 저녁 & 충분한 휴식", tag: "여유" },
+    ],
+    tip: "이 날은 여행의 후반부, 체력 회복에 집중. 무리한 일정보다 느긋한 섬 시간을 즐기세요.",
+  },
+  {
+    day: 11,
+    date: "10월 20일 (화)",
+    city: "→ 아테네",
+    icon: "🏙️",
+    theme: "아테네 귀환 & 쇼핑",
+    color: "from-orange-700 to-orange-950",
+    accent: "#FB923C",
+    energy: 3,
+    places: [
+      { time: "09:00", name: "체크아웃 & 이동",desc: "페리 or 항공으로 아테네 귀환", tag: "이동" },
+      { time: "13:00", name: "아테네 도착 & 점심", desc: "에르무 쇼핑거리 인근 카페에서 점심", tag: "식사" },
+      { time: "14:30", name: "모나스티라키 & 에르무 거리 쇼핑", desc: "올리브 오일, 허브, 도자기, 악마의눈 기념품 쇼핑", tag: "쇼핑" },
+      { time: "17:00", name: "케라미코스 고고학 유적지", desc: "아테네의 숨겨진 고대 묘지 & 도자기 구역", tag: "관광" },
+      { time: "19:00", name: "가스트리 지구 미식 투어", desc: "아테네 트렌디 레스토랑 밀집 지역에서 모던 그리스 요리", tag: "식사" },
+    ],
+    tip: "그리스 기념품 1순위: 크레타산 올리브 오일, 오레가노, 꿀, 악마의 눈(마티) 장식품",
+  },
+  {
+    day: 12,
+    date: "10월 21일 (수)",
+    city: "아테네 주변",
+    icon: "🏔️",
+    theme: "근교 당일치기 (선택)",
+    color: "from-lime-700 to-lime-950",
+    accent: "#A3E635",
+    energy: 4,
+    places: [
+      { time: "08:00", name: "수니온 곶 (추천 A)", desc: "포세이돈 신전, 아테네에서 70km, 에게해 절벽 전망", tag: "핵심" },
+      { time: "08:00", name: "델피 유적지 (추천 B)", desc: "아폴론 신전, 신탁의 도시, 아테네에서 180km (당일치기 가능)", tag: "핵심" },
+      { time: "08:00", name: "코린토스 & 나플리오 (추천 C)", desc: "고대 코린토스 유적 + 그리스 최고 예쁜 항구 도시 나플리오", tag: "핵심" },
+      { time: "19:00", name: "아테네 귀환", desc: "마지막 밤, 리카비토스 언덕 야경 감상", tag: "야경" },
+      { time: "21:00", name: "송별 디너", desc: "플라카 지구 루프탑 레스토랑에서 마지막 그리스 만찬", tag: "식사" },
+    ],
+    tip: "수니온 곶은 일몰 시간에 맞춰 가면 황금빛 포세이돈 신전을 볼 수 있어 가장 추천합니다.",
+  },
+  {
+    day: 13,
+    date: "10월 22일 (목)",
+    city: "아테네",
+    icon: "🛍️",
+    theme: "마지막 자유 일정",
+    color: "from-pink-700 to-pink-950",
+    accent: "#F472B6",
+    energy: 2,
+    places: [
+      { time: "09:00", name: "자유 아침", desc: "카페 조식 & 느긋한 아침, 못 가본 곳 탐방", tag: "여유" },
+      { time: "11:00", name: "마지막 관광 & 쇼핑", desc: "잊었던 기념품 구매, 포토 스팟 재방문", tag: "쇼핑" },
+      { time: "14:00", name: "점심 & 카페 타임", desc: "그리스 프라페 & 바클라바 디저트로 이별 인사", tag: "식사" },
+      { time: "16:00", name: "아테네 공항 이동", desc: "공항 도착 3시간 전 출발 권장", tag: "이동" },
+      { time: "20:30", name: "아테네 ATH 출발", desc: "대한항공 KE (ATH→ICN) 또는 에미레이트/카타르 경유편 탑승", tag: "이동" },
+    ],
+    tip: "귀국편은 밤 출발이 많아 마지막 날 오후까지 여유있게 시내 관광이 가능합니다.",
+  },
+  {
+    day: 14,
+    date: "10월 23일 (금)",
+    city: "→ 인천",
+    icon: "🏠",
+    theme: "귀국",
+    color: "from-gray-700 to-gray-900",
+    accent: "#9CA3AF",
+    energy: 1,
+    places: [
+      { time: "비행중", name: "아테네 → 인천 비행", desc: "직항 약 11시간 30분, 경유시 14~18시간 소요", tag: "이동" },
+      { time: "도착", name: "인천공항 도착", desc: "13박 14일 로마-그리스 신혼여행 완료! 💑", tag: "도착" },
+    ],
+    tip: "귀국 후 시차 적응 1~2일을 여유있게 두는 게 좋습니다. 그리스 시간은 한국보다 6시간 느립니다.",
+  },
+];
+
+const flights = [
+  {
+    type: "가는편 ① (추천)",
+    label: "직항 최강추천",
+    airline: "대한항공",
+    code: "KE929",
+    route: "ICN → FCO",
+    depart: "10:30 (인천)",
+    arrive: "16:25 (로마, 현지)",
+    duration: "13시간 55분",
+    stopover: "없음",
+    price: "약 120~150만원",
+    note: "직항, B787-9 또는 B777 투입, 매일 운항 / 현지 저녁 도착 시내 이동 여유",
+    rating: 5,
+    tag: "직항",
+    tagColor: "#16a34a",
+  },
+  {
+    type: "가는편 ②",
+    label: "직항 대안",
+    airline: "아시아나항공",
+    code: "OZ563",
+    route: "ICN → FCO",
+    depart: "14:05 (인천)",
+    arrive: "19:35 (로마, 현지)",
+    duration: "13시간 30분",
+    stopover: "없음",
+    price: "약 115~145만원",
+    note: "직항, A350 투입, 월/수/토 운항 제외 매일 / 저녁 늦게 도착해 첫날 관광 제한",
+    rating: 4,
+    tag: "직항",
+    tagColor: "#16a34a",
+  },
+  {
+    type: "가는편 ③",
+    label: "저가 직항",
+    airline: "티웨이항공",
+    code: "TW801",
+    route: "ICN → FCO",
+    depart: "11:00 (인천, 예정)",
+    arrive: "16:30 (로마, 현지)",
+    duration: "약 13시간 30분",
+    stopover: "없음",
+    price: "약 60~90만원",
+    note: "시즌 운항(4~10월), 수하물 유료, 기내식 유료, 2026년 10월 운항 여부 최종 확인 필요",
+    rating: 3,
+    tag: "저가직항",
+    tagColor: "#ca8a04",
+  },
+  {
+    type: "가는편 ④",
+    label: "가성비 경유",
+    airline: "에미레이트항공",
+    code: "EK323+EK097",
+    route: "ICN → DXB → FCO",
+    depart: "23:50 (인천, D-1)",
+    arrive: "13:05 (로마, 현지)",
+    duration: "약 16시간 (두바이 경유 2~3h)",
+    stopover: "두바이 (DXB) 2~3시간",
+    price: "약 90~120만원",
+    note: "밤 출발로 10월 9일(금) 밤 탑승, 두바이 공항 경유, 기내서비스 최고 수준",
+    rating: 4,
+    tag: "경유",
+    tagColor: "#2563eb",
+  },
+  {
+    type: "가는편 ⑤",
+    label: "유럽계 경유",
+    airline: "루프트한자",
+    code: "LH713+LH0116",
+    route: "ICN → FRA → FCO",
+    depart: "13:20 (인천)",
+    arrive: "19:00 (로마, 현지)",
+    duration: "약 17시간 (프랑크푸르트 경유 3h)",
+    stopover: "프랑크푸르트 (FRA) 2~3시간",
+    price: "약 100~130만원",
+    note: "프랑크푸르트 환승, 유럽 기내 서비스 경험, 연결편 신뢰도 높음",
+    rating: 3,
+    tag: "경유",
+    tagColor: "#2563eb",
+  },
+  {
+    type: "귀국편 ①",
+    label: "추천 귀국",
+    airline: "대한항공",
+    code: "KE958",
+    route: "ATH → ICN",
+    depart: "20:30 (아테네)",
+    arrive: "14:30+1 (인천, 익일)",
+    duration: "약 11시간 30분",
+    stopover: "없음",
+    price: "왕복 포함",
+    note: "아테네 직항, 귀국 시간대 최적, 마지막 날 오후까지 아테네 관광 가능",
+    rating: 5,
+    tag: "직항",
+    tagColor: "#16a34a",
+  },
+  {
+    type: "귀국편 ②",
+    label: "경유 귀국",
+    airline: "카타르항공",
+    code: "QR193+QR859",
+    route: "ATH → DOH → ICN",
+    depart: "19:05 (아테네)",
+    arrive: "17:00+1 (인천, 익일)",
+    duration: "약 18시간 (도하 경유 3h)",
+    stopover: "도하 (DOH) 2~3시간",
+    price: "약 85~110만원",
+    note: "카타르 도하 경유, 합리적 가격대, 세계 최고 항공사 중 하나",
+    rating: 4,
+    tag: "경유",
+    tagColor: "#2563eb",
+  },
+];
+
+const recommendations = [
+  {
+    name: "미코노스 (Mykonos)",
+    emoji: "🎉",
+    desc: "에게해의 화려한 파티 아일랜드. 유명 풍차, 리틀 베니스, 밤문화로 유명. 코스모폴리탄한 분위기를 원하는 커플에게 추천.",
+    best: "1박 2일",
+    tip: "9~10월도 따뜻하지만 성수기보다 여유롭습니다",
+    score: 4,
+  },
+  {
+    name: "낙소스 (Naxos)",
+    emoji: "🏛️",
+    desc: "그리스에서 가장 큰 키클라데스 섬. 아폴론 신전 포르타라, 아름다운 해변, 진정한 그리스 현지 문화 체험.",
+    best: "1박 2일",
+    tip: "관광객이 적어 오히려 더 특별한 경험 가능",
+    score: 4,
+  },
+  {
+    name: "수니온 곶 (Cape Sounion)",
+    emoji: "⚡",
+    desc: "아테네 근교 70km, 바위 절벽 위 포세이돈 신전. 에게해 절경과 일몰이 압도적. 아테네에서 당일치기 최강 추천.",
+    best: "당일치기",
+    tip: "일몰 1시간 전 도착하면 황금빛 신전을 볼 수 있어요",
+    score: 5,
+  },
+  {
+    name: "코린토스 & 나플리오",
+    emoji: "🏰",
+    desc: "고대 코린토스 운하 + 그리스에서 가장 아름다운 항구 도시 나플리오. 베네치아 성벽과 파스텔 건물들이 동화 같은 분위기.",
+    best: "당일치기",
+    tip: "나플리오의 파라미디 요새에서 보는 항구 뷰는 산토리니 못지않아요",
+    score: 4,
+  },
+  {
+    name: "아말피 해안 (이탈리아)",
+    emoji: "🍋",
+    desc: "로마에서 약 3시간. 포지타노, 아말피, 라벨로 등 절벽 위 알록달록 마을들. 이탈리아 최고의 드라이브 코스.",
+    best: "1일 추가시",
+    tip: "로마 체류 중 1일 투어로 다녀올 수 있어요",
+    score: 5,
+  },
+  {
+    name: "크레타 (Crete)",
+    emoji: "🦁",
+    desc: "그리스 최대의 섬, 미노아 문명의 발상지 크노소스 궁전, 사마리아 협곡 트레킹, 리조트 천국.",
+    best: "2박 3일",
+    tip: "일정이 길면 산토리니 대신 크레타를 선택해도 탁월",
+    score: 4,
+  },
+];
+
+const budget = [
+  { item: "✈️ 항공권 (2인 왕복)", amount: "240~300만원", note: "직항 기준, 경유시 180~240만원" },
+  { item: "🏨 숙박 (13박, 2인)", amount: "200~400만원", note: "3성급 150 / 4성급 250 / 5성급 400만원" },
+  { item: "🍽️ 식사 (2인, 13일)", amount: "80~150만원", note: "1인 1일 약 3~6만원 (현지 물가 기준)" },
+  { item: "🎫 입장료 & 투어", amount: "30~60만원", note: "콜로세움, 바티칸, 아크로폴리스, 크루즈 등" },
+  { item: "🚌 현지 교통", amount: "30~50만원", note: "페리, 국내선, 버스, 택시 등" },
+  { item: "🛍️ 쇼핑 & 기타", amount: "50~100만원", note: "기념품, 예비비 포함" },
+  { item: "💰 총 예상 비용 (2인)", amount: "630만~1,060만원", note: "등급 선택에 따라 크게 달라짐" },
+];
+
+function StarRating({ score }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <span key={s} style={{ color: s <= score ? "#F5C842" : "#374151", fontSize: 14 }}>★</span>
+      ))}
+    </div>
+  );
+}
+
+export default function HoneymoonPlanner() {
+  const [activeTab, setActiveTab] = useState("itinerary");
+  const [openDay, setOpenDay] = useState(1);
+
+  const tabs = [
+    { id: "itinerary", label: "📅 전체 일정" },
+    { id: "flights", label: "✈️ 항공편" },
+    { id: "recommend", label: "🗺️ 추천 후보지" },
+    { id: "budget", label: "💰 여행 경비" },
+  ];
+
+  const energyBars = (e) => (
+    <div className="flex gap-1 items-center">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: 2,
+            background: i <= e ? "#F5C842" : "#374151",
+          }}
+        />
+      ))}
+      <span style={{ fontSize: 11, color: "#9CA3AF", marginLeft: 4 }}>{["", "매우 가벼움", "가벼움", "보통", "활발", "빡빡"][e]}</span>
+    </div>
+  );
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 40%, #0a1a1a 100%)",
+        fontFamily: "'Georgia', 'Palatino Linotype', serif",
+        color: "#E5E7EB",
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          background: "linear-gradient(180deg, rgba(201,169,110,0.15) 0%, transparent 100%)",
+          borderBottom: "1px solid rgba(201,169,110,0.3)",
+          padding: "40px 24px 30px",
+          textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.08) 0%, transparent 60%)" }} />
+        <div style={{ fontSize: 13, letterSpacing: "0.3em", color: "#C9A96E", marginBottom: 12, textTransform: "uppercase" }}>
+          2026 Honeymoon Journey
+        </div>
+        <h1 style={{ fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 400, color: "#F9F5EC", lineHeight: 1.2, marginBottom: 8, letterSpacing: "0.02em" }}>
+          로마 & 그리스<br />
+          <span style={{ color: "#C9A96E", fontStyle: "italic" }}>신혼여행 플래너</span>
+        </h1>
+        <p style={{ color: "#9CA3AF", fontSize: 15, marginTop: 12 }}>
+          2026.10.10 (토) — 2026.10.23 (금) · 13박 14일 · 인천 출발
+        </p>
+        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20, flexWrap: "wrap" }}>
+          {["🏛️ 로마 3박", "🏺 아테네 3박", "🌅 산토리니 3박", "🌊 섬 2박"].map((t) => (
+            <span
+              key={t}
+              style={{
+                padding: "6px 16px",
+                border: "1px solid rgba(201,169,110,0.4)",
+                borderRadius: 20,
+                fontSize: 13,
+                color: "#C9A96E",
+                background: "rgba(201,169,110,0.08)",
+              }}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 4,
+          padding: "20px 16px 0",
+          flexWrap: "wrap",
+        }}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: "10px 20px",
+              borderRadius: 8,
+              border: activeTab === tab.id ? "1px solid #C9A96E" : "1px solid rgba(255,255,255,0.1)",
+              background: activeTab === tab.id ? "rgba(201,169,110,0.2)" : "rgba(255,255,255,0.03)",
+              color: activeTab === tab.id ? "#F5C842" : "#9CA3AF",
+              cursor: "pointer",
+              fontSize: 14,
+              fontFamily: "inherit",
+              transition: "all 0.2s",
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 16px 60px" }}>
+
+        {/* ITINERARY TAB */}
+        {activeTab === "itinerary" && (
+          <div>
+            {days.map((d) => (
+              <div key={d.day} style={{ marginBottom: 12 }}>
+                <button
+                  onClick={() => setOpenDay(openDay === d.day ? null : d.day)}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                    padding: "16px 20px",
+                    background: openDay === d.day
+                      ? `linear-gradient(135deg, rgba(201,169,110,0.15) 0%, rgba(201,169,110,0.05) 100%)`
+                      : "rgba(255,255,255,0.03)",
+                    border: openDay === d.day ? `1px solid rgba(201,169,110,0.4)` : "1px solid rgba(255,255,255,0.07)",
+                    borderRadius: openDay === d.day ? "12px 12px 0 0" : 12,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    color: "inherit",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: "50%",
+                      background: `linear-gradient(135deg, ${d.accent}33, ${d.accent}11)`,
+                      border: `1px solid ${d.accent}66`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 20,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {d.icon}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <span style={{ color: d.accent, fontSize: 13, fontWeight: 600, letterSpacing: "0.1em" }}>
+                        DAY {d.day}
+                      </span>
+                      <span style={{ color: "#6B7280", fontSize: 13 }}>{d.date}</span>
+                      <span
+                        style={{
+                          padding: "2px 10px",
+                          borderRadius: 20,
+                          background: `${d.accent}22`,
+                          color: d.accent,
+                          fontSize: 12,
+                          border: `1px solid ${d.accent}44`,
+                        }}
+                      >
+                        {d.city}
+                      </span>
+                    </div>
+                    <div style={{ color: "#E5E7EB", fontSize: 15, marginTop: 2 }}>{d.theme}</div>
+                    <div style={{ marginTop: 4 }}>{energyBars(d.energy)}</div>
+                  </div>
+                  <div style={{ color: "#6B7280", fontSize: 18 }}>{openDay === d.day ? "▲" : "▼"}</div>
+                </button>
+
+                {openDay === d.day && (
+                  <div
+                    style={{
+                      background: "rgba(0,0,0,0.3)",
+                      border: `1px solid rgba(201,169,110,0.2)`,
+                      borderTop: "none",
+                      borderRadius: "0 0 12px 12px",
+                      padding: "20px",
+                    }}
+                  >
+                    <div style={{ marginBottom: 16 }}>
+                      {d.places.map((p, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            display: "flex",
+                            gap: 16,
+                            paddingBottom: 14,
+                            borderBottom: i < d.places.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                            marginBottom: i < d.places.length - 1 ? 14 : 0,
+                          }}
+                        >
+                          <div style={{ color: "#6B7280", fontSize: 13, minWidth: 48, paddingTop: 2, whiteSpace: "nowrap" }}>{p.time}</div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                              <span style={{ color: "#F9F5EC", fontSize: 15, fontWeight: 600 }}>{p.name}</span>
+                              <span
+                                style={{
+                                  padding: "1px 8px",
+                                  borderRadius: 10,
+                                  fontSize: 11,
+                                  background: p.tag === "핵심" ? "rgba(245,200,66,0.2)" : p.tag === "이동" ? "rgba(96,165,250,0.2)" : "rgba(255,255,255,0.07)",
+                                  color: p.tag === "핵심" ? "#F5C842" : p.tag === "이동" ? "#60A5FA" : "#9CA3AF",
+                                  border: p.tag === "핵심" ? "1px solid rgba(245,200,66,0.4)" : "1px solid transparent",
+                                }}
+                              >
+                                {p.tag}
+                              </span>
+                            </div>
+                            <div style={{ color: "#9CA3AF", fontSize: 13, marginTop: 2 }}>{p.desc}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div
+                      style={{
+                        background: `${d.accent}11`,
+                        border: `1px solid ${d.accent}33`,
+                        borderRadius: 8,
+                        padding: "10px 14px",
+                        fontSize: 13,
+                        color: "#D1D5DB",
+                      }}
+                    >
+                      <span style={{ color: d.accent }}>💡 Tip: </span>{d.tip}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* FLIGHTS TAB */}
+        {activeTab === "flights" && (
+          <div>
+            <div
+              style={{
+                background: "rgba(245,200,66,0.08)",
+                border: "1px solid rgba(245,200,66,0.3)",
+                borderRadius: 12,
+                padding: "16px 20px",
+                marginBottom: 24,
+                fontSize: 14,
+                color: "#D1D5DB",
+                lineHeight: 1.7,
+              }}
+            >
+              <strong style={{ color: "#F5C842" }}>⚠️ 항공편 안내:</strong> 2026년 10월 실제 운항 스케줄은 항공사 홈페이지에서 최종 확인 필요합니다.
+              가격은 2025~26년 유사 시즌 기준 참고가이드이며, 실제 예매 시 달라질 수 있습니다.
+              대한항공-아시아나 합병(2026년)으로 편명이 변경될 수 있으니 예약 전 확인하세요.
+            </div>
+
+            {/* 여행 루트 설명 */}
+            <div
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 12,
+                padding: "20px",
+                marginBottom: 24,
+              }}
+            >
+              <h3 style={{ color: "#C9A96E", fontSize: 16, marginBottom: 12 }}>📍 전체 항공 루트</h3>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontSize: 15 }}>
+                {["인천 (ICN)", "→ 직항 13~14h →", "로마 (FCO)", "→ 유럽 국내선 2h →", "아테네 (ATH)", "→ 국내선/페리 →", "산토리니 (JTR)", "→", "아테네 (ATH)", "→ 직항 11.5h →", "인천 (ICN)"].map((s, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      color: s.startsWith("→") ? "#6B7280" : "#F9F5EC",
+                      fontSize: s.startsWith("→") ? 13 : 14,
+                    }}
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gap: 16 }}>
+              {flights.map((f, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    border: `1px solid ${f.tag === "직항" ? "rgba(22,163,74,0.3)" : f.tag === "저가직항" ? "rgba(202,138,4,0.3)" : "rgba(37,99,235,0.3)"}`,
+                    borderRadius: 12,
+                    padding: "20px",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
+                        <span style={{ color: "#F9F5EC", fontSize: 16, fontWeight: 600 }}>{f.airline}</span>
+                        <span style={{ color: "#9CA3AF", fontSize: 14 }}>{f.code}</span>
+                        <span
+                          style={{
+                            padding: "2px 10px",
+                            borderRadius: 20,
+                            fontSize: 12,
+                            background: `${f.tagColor}22`,
+                            color: f.tagColor,
+                            border: `1px solid ${f.tagColor}44`,
+                          }}
+                        >
+                          {f.tag}
+                        </span>
+                      </div>
+                      <div style={{ color: "#C9A96E", fontSize: 13 }}>{f.type} · {f.label}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ color: "#F5C842", fontSize: 18, fontWeight: 600 }}>{f.price}</div>
+                      <div style={{ color: "#6B7280", fontSize: 12 }}>1인 편도 기준</div>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                      gap: 12,
+                      marginBottom: 12,
+                    }}
+                  >
+                    {[
+                      { label: "노선", val: f.route },
+                      { label: "출발", val: f.depart },
+                      { label: "도착", val: f.arrive },
+                      { label: "소요시간", val: f.duration },
+                      { label: "경유", val: f.stopover },
+                    ].map((item) => (
+                      <div key={item.label}>
+                        <div style={{ color: "#6B7280", fontSize: 11, marginBottom: 2, textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.label}</div>
+                        <div style={{ color: "#E5E7EB", fontSize: 14 }}>{item.val}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                    <div style={{ color: "#9CA3AF", fontSize: 13 }}>{f.note}</div>
+                    <StarRating score={f.rating} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div
+              style={{
+                marginTop: 24,
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 12,
+                padding: "20px",
+              }}
+            >
+              <h3 style={{ color: "#C9A96E", fontSize: 15, marginBottom: 14 }}>🔗 로마 → 아테네 구간 (Day 4)</h3>
+              <div style={{ display: "grid", gap: 10 }}>
+                {[
+                  { airline: "Aegean Airlines", code: "A3 700", route: "FCO → ATH", time: "10:30~14:00", dur: "3h 00m", price: "약 8~15만원", note: "1일 다수 운항, 그리스 국적사" },
+                  { airline: "ITA 항공", code: "AZ XXX", route: "FCO → ATH", time: "13:00~16:30", dur: "3h 30m", price: "약 7~12만원", note: "이탈리아 국적사, 운항 확인 필요" },
+                  { airline: "Ryanair", code: "FR XXX", route: "FCO → ATH", time: "다양", dur: "3h 10m", price: "약 3~8만원", note: "최저가 저가항공, 수하물 추가 비용 주의" },
+                ].map((r, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "12px 16px",
+                      background: "rgba(255,255,255,0.03)",
+                      borderRadius: 8,
+                      flexWrap: "wrap",
+                      gap: 8,
+                    }}
+                  >
+                    <div>
+                      <span style={{ color: "#F9F5EC", fontWeight: 600, fontSize: 14 }}>{r.airline}</span>
+                      <span style={{ color: "#6B7280", fontSize: 13, marginLeft: 8 }}>{r.code} · {r.route} · {r.time}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                      <span style={{ color: "#9CA3AF", fontSize: 13 }}>{r.dur}</span>
+                      <span style={{ color: "#F5C842", fontSize: 15, fontWeight: 600 }}>{r.price}</span>
+                    </div>
+                    <div style={{ width: "100%", color: "#6B7280", fontSize: 12 }}>{r.note}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* RECOMMENDATIONS TAB */}
+        {activeTab === "recommend" && (
+          <div>
+            <div
+              style={{
+                color: "#9CA3AF",
+                fontSize: 14,
+                marginBottom: 24,
+                lineHeight: 1.7,
+                background: "rgba(255,255,255,0.03)",
+                borderRadius: 12,
+                padding: "16px 20px",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
+              로마·산토리니·아테네 외에 일정에 추가하면 더욱 풍성해질 <strong style={{ color: "#C9A96E" }}>추천 후보지들</strong>입니다.
+              13박 일정에서 1~2곳을 선택해 넣으면 이상적입니다.
+            </div>
+            <div style={{ display: "grid", gap: 16 }}>
+              {recommendations.map((r, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 12,
+                    padding: "20px",
+                    transition: "border-color 0.2s",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ fontSize: 28 }}>{r.emoji}</span>
+                      <div>
+                        <div style={{ color: "#F9F5EC", fontSize: 17, fontWeight: 600 }}>{r.name}</div>
+                        <span
+                          style={{
+                            padding: "2px 10px",
+                            borderRadius: 20,
+                            fontSize: 12,
+                            background: "rgba(201,169,110,0.15)",
+                            color: "#C9A96E",
+                            border: "1px solid rgba(201,169,110,0.3)",
+                          }}
+                        >
+                          권장 일수: {r.best}
+                        </span>
+                      </div>
+                    </div>
+                    <StarRating score={r.score} />
+                  </div>
+                  <p style={{ color: "#D1D5DB", fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>{r.desc}</p>
+                  <div
+                    style={{
+                      background: "rgba(245,200,66,0.08)",
+                      border: "1px solid rgba(245,200,66,0.2)",
+                      borderRadius: 8,
+                      padding: "8px 12px",
+                      fontSize: 13,
+                      color: "#D1D5DB",
+                    }}
+                  >
+                    <span style={{ color: "#F5C842" }}>💡 </span>{r.tip}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* BUDGET TAB */}
+        {activeTab === "budget" && (
+          <div>
+            <div
+              style={{
+                background: "rgba(201,169,110,0.08)",
+                border: "1px solid rgba(201,169,110,0.3)",
+                borderRadius: 12,
+                padding: "20px",
+                marginBottom: 24,
+                textAlign: "center",
+              }}
+            >
+              <div style={{ color: "#9CA3AF", fontSize: 14, marginBottom: 8 }}>총 예상 여행 경비 (2인)</div>
+              <div style={{ color: "#F5C842", fontSize: "clamp(28px,6vw,48px)", fontWeight: 700, letterSpacing: "-0.02em" }}>
+                630만 ~ 1,060만원
+              </div>
+              <div style={{ color: "#6B7280", fontSize: 13, marginTop: 8 }}>
+                숙박 등급과 항공편 선택에 따라 달라집니다
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gap: 12 }}>
+              {budget.map((b, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "16px 20px",
+                    background: i === budget.length - 1 ? "rgba(245,200,66,0.08)" : "rgba(255,255,255,0.03)",
+                    border: i === budget.length - 1 ? "1px solid rgba(245,200,66,0.3)" : "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 10,
+                    flexWrap: "wrap",
+                    gap: 10,
+                  }}
+                >
+                  <div>
+                    <div style={{ color: i === budget.length - 1 ? "#F5C842" : "#E5E7EB", fontSize: 15, fontWeight: i === budget.length - 1 ? 700 : 400 }}>
+                      {b.item}
+                    </div>
+                    <div style={{ color: "#6B7280", fontSize: 13 }}>{b.note}</div>
+                  </div>
+                  <div
+                    style={{
+                      color: i === budget.length - 1 ? "#F5C842" : "#C9A96E",
+                      fontSize: i === budget.length - 1 ? 20 : 16,
+                      fontWeight: i === budget.length - 1 ? 700 : 400,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {b.amount}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div
+              style={{
+                marginTop: 24,
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 12,
+                padding: "20px",
+              }}
+            >
+              <h3 style={{ color: "#C9A96E", fontSize: 15, marginBottom: 14 }}>💡 예산 절약 팁</h3>
+              {[
+                "항공권은 6~9개월 전 구매 시 최대 30% 절약 가능 (특히 직항)",
+                "산토리니 숙박은 이아 > 피라 순으로 비쌈 — 피라 or 피로스테파니 지역이 가성비 ↑",
+                "아테네↔섬 이동은 고속페리(약 8~12만원/1인)가 국내선(6~10만원)보다 경험상 추천",
+                "10월은 유럽 비수기 전환, 성수기보다 숙박/항공 20~30% 저렴",
+                "현지 식사는 관광지 바로 옆 식당보다 골목 1~2블록 안쪽이 맛도 좋고 저렴",
+              ].map((tip, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, marginBottom: 10, fontSize: 14, color: "#D1D5DB" }}>
+                  <span style={{ color: "#F5C842", flexShrink: 0 }}>✓</span>
+                  <span>{tip}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div
+        style={{
+          textAlign: "center",
+          padding: "24px",
+          color: "#4B5563",
+          fontSize: 13,
+          borderTop: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        항공편 스케줄·가격은 실제 예약 시 반드시 재확인 필요 · 대한항공·아시아나 합병으로 편명 변경 가능 · Kayak, 스카이스캐너, 네이버 항공 비교 추천
+      </div>
+    </div>
+  );
+}
