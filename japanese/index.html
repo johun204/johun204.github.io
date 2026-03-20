@@ -1,193 +1,922 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>히라가나 & 가타카나 퀴즈</title>
-    <style>
-        /* 기본 스타일 */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 100vh;
-        }
-        header {
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            background: #007bff;
-            color: white;
-            padding: 10px 0;
-        }
-        header button {
-            flex: 1;
-            margin: 0 5px;
-            padding: 10px;
-            font-size: 18px;
-            background: transparent;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        header button.active {
-            background: white;
-            color: #007bff;
-            font-weight: bold;
-        }
-        main {
-            text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .character {
-            font-size: 100px;
-            color: #495057;
-            margin: 30px 0;
-        }
-        .options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .options button {
-            padding: 15px;
-            font-size: 18px;
-            border: 2px solid #dee2e6;
-            background: white;
-            cursor: pointer;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: 0.3s;
-        }
-        .options button:hover {
-            background: #f1f3f5;
-        }
-        .feedback {
-            font-size: 18px;
-            color: #007bff;
-            margin-top: 10px;
-			margin-bottom: 10px;
-            font-weight: bold;
-        }
-        #next-button {
-            display: none;
-            padding: 12px 20px;
-            font-size: 18px;
-            background: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: 0.3s;
-        }
-        #next-button:hover {
-            background: #0056b3;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>히라가나 & 가타카나 퀴즈</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1209;
+    --paper: #f5f0e8;
+    --paper2: #ede7d9;
+    --accent: #c0392b;
+    --accent2: #e67e22;
+    --gold: #b8860b;
+    --correct: #27ae60;
+    --wrong: #e74c3c;
+    --muted: #8a7f72;
+    --border: #c8bfad;
+    --shadow: rgba(26,18,9,0.15);
+    --tab-h: 56px;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(192,57,43,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(184,134,11,0.07) 0%, transparent 60%);
+  }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    padding: 36px 20px 24px;
+    position: relative;
+  }
+  header::after {
+    content: '';
+    display: block;
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    margin: 16px auto 0;
+    border-radius: 2px;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 6vw, 48px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  header h1 span {
+    font-style: italic;
+    color: var(--accent);
+  }
+  header p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── Script tabs ── */
+  .script-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 0 auto 8px;
+    max-width: 340px;
+    background: var(--paper2);
+    border-radius: 999px;
+    border: 2px solid var(--border);
+    padding: 4px;
+  }
+  .script-tab {
+    flex: 1;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 15px;
+    color: var(--muted);
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .script-tab.active {
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .script-tab .kana-label { font-size: 18px; }
+
+  /* ── Mode tabs ── */
+  .mode-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px 20px;
+    flex-wrap: wrap;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .mode-tab {
+    padding: 8px 20px;
+    border-radius: 999px;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .mode-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .mode-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: 0 3px 12px rgba(192,57,43,0.3);
+  }
+
+  /* ── Main card ── */
+  #app {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 8px 32px var(--shadow), 0 2px 8px var(--shadow);
+    overflow: hidden;
+    animation: slideUp 0.35s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .card-header .score { color: var(--gold); font-size: 14px; font-weight: 500; }
+
+  .card-body { padding: 36px 32px 28px; }
+
+  /* ── Stimulus ── */
+  .stimulus {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .stimulus .kana-big {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(72px, 20vw, 120px);
+    line-height: 1;
+    color: var(--ink);
+    display: block;
+    filter: drop-shadow(0 4px 16px rgba(26,18,9,0.1));
+    transition: transform 0.15s;
+  }
+  .stimulus .roman-big {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(42px, 12vw, 72px);
+    font-style: italic;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .stimulus .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ── Choices ── */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .choice-btn {
+    padding: 16px 12px;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    background: var(--paper);
+    cursor: pointer;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 28px;
+    color: var(--ink);
+    transition: all 0.18s;
+    position: relative;
+    overflow: hidden;
+    min-height: 70px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .choice-btn.roman { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 22px; }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(192,57,43,0.04);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+  .choice-btn.correct {
+    border-color: var(--correct);
+    background: rgba(39,174,96,0.08);
+    color: var(--correct);
+    animation: pulse-green 0.4s ease;
+  }
+  .choice-btn.wrong {
+    border-color: var(--wrong);
+    background: rgba(231,76,60,0.08);
+    color: var(--wrong);
+    animation: shake 0.35s ease;
+  }
+  .choice-btn:disabled { cursor: default; }
+
+  @keyframes pulse-green {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    60% { transform: translateX(6px); }
+  }
+
+  /* ── Feedback bar ── */
+  .feedback {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(39,174,96,0.12); color: var(--correct); border: 1.5px solid rgba(39,174,96,0.3); }
+  .feedback.wrong-fb   { background: rgba(231,76,60,0.12);  color: var(--wrong);   border: 1.5px solid rgba(231,76,60,0.3); }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── Next button ── */
+  .btn-next {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding: 15px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .btn-next.show { display: block; }
+  .btn-next:hover { background: #2c2315; transform: translateY(-1px); box-shadow: 0 4px 16px var(--shadow); }
+
+  /* ── Drawing Mode ── */
+  .draw-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .prompt-roman {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    font-style: italic;
+    color: var(--ink);
+    text-align: center;
+    line-height: 1;
+  }
+  .prompt-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  .canvas-wrap {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    box-shadow: inset 0 2px 12px rgba(0,0,0,0.06);
+    touch-action: none;
+  }
+  #guide-canvas, #draw-canvas {
+    display: block;
+  }
+  #guide-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+  }
+  #draw-canvas { cursor: crosshair; background: #fefcf8; }
+
+  .canvas-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn-sm {
+    padding: 9px 20px;
+    border-radius: 999px;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: all 0.18s;
+  }
+  .btn-sm:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-sm.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .btn-sm.primary:hover { background: #a93226; box-shadow: 0 3px 12px rgba(192,57,43,0.35); }
+
+  .match-result {
+    text-align: center;
+    padding: 14px 20px;
+    border-radius: var(--radius);
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+  .match-result.show { display: block; }
+  .match-result .pct {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    line-height: 1;
+  }
+  .match-result .pct-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .match-result.pass { background: rgba(39,174,96,0.1); border: 1.5px solid rgba(39,174,96,0.3); color: var(--correct); }
+  .match-result.fail { background: rgba(231,76,60,0.1); border: 1.5px solid rgba(231,76,60,0.3); color: var(--wrong); }
+  .match-result .answer-kana {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    margin-top: 6px;
+    opacity: 0.7;
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--paper2);
+    border-radius: 0;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 0;
+    transition: width 0.4s ease;
+  }
+
+  /* ── Stats ── */
+  .stats-row {
+    display: flex;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .stats-row .s { color: var(--correct); }
+  .stats-row .f { color: var(--wrong); }
+
+  /* ── Streak badge ── */
+  .streak {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--gold);
+  }
+</style>
 </head>
 <body>
+
 <header>
-    <button id="hiragana-tab" class="active" onclick="switchMode('hiragana')">히라가나</button>
-    <button id="katakana-tab" onclick="switchMode('katakana')">가타카나</button>
+  <h1><span>かな</span> Study</h1>
+  <p>Hiragana · Katakana · Mastery</p>
 </header>
-<main>
-    <div id="quiz-container">
-        <div class="character" id="character">あ</div>
-        <div class="options" id="options"></div>
-        <div class="feedback" id="feedback"></div>
-        <button id="next-button" onclick="generateQuestion()">다음 문제</button>
-    </div>
-</main>
+
+<!-- Script selector -->
+<div class="script-tabs">
+  <button class="script-tab active" onclick="setScript('hiragana')">
+    <span class="kana-label">あ</span> Hiragana
+  </button>
+  <button class="script-tab" onclick="setScript('katakana')">
+    <span class="kana-label">ア</span> Katakana
+  </button>
+</div>
+
+<!-- Mode selector -->
+<div class="mode-tabs">
+  <button class="mode-tab active" onclick="setMode('kana2roman')">① 기호→발음</button>
+  <button class="mode-tab" onclick="setMode('roman2kana')">② 발음→기호</button>
+  <button class="mode-tab" onclick="setMode('draw')">③ 직접 쓰기</button>
+</div>
+
+<div id="app"></div>
+
 <script>
-    const hiragana = [
-        ["あ", "a"], ["い", "i"], ["う", "u"], ["え", "e"], ["お", "o"],
-        ["か", "ka"], ["き", "ki"], ["く", "ku"], ["け", "ke"], ["こ", "ko"],
-        ["さ", "sa"], ["し", "shi"], ["す", "su"], ["せ", "se"], ["そ", "so"],
-        ["た", "ta"], ["ち", "chi"], ["つ", "tsu"], ["て", "te"], ["と", "to"],
-        ["な", "na"], ["に", "ni"], ["ぬ", "nu"], ["ね", "ne"], ["の", "no"],
-        ["は", "ha"], ["ひ", "hi"], ["ふ", "fu"], ["へ", "he"], ["ほ", "ho"],
-        ["ま", "ma"], ["み", "mi"], ["む", "mu"], ["め", "me"], ["も", "mo"],
-        ["や", "ya"], ["ゆ", "yu"], ["よ", "yo"], ["ら", "ra"], ["り", "ri"],
-        ["る", "ru"], ["れ", "re"], ["ろ", "ro"], ["わ", "wa"], ["を", "wo"],
-        ["ん", "n"]
-    ];
-    const katakana = [
-        ["ア", "a"], ["イ", "i"], ["ウ", "u"], ["エ", "e"], ["オ", "o"],
-        ["カ", "ka"], ["キ", "ki"], ["ク", "ku"], ["ケ", "ke"], ["コ", "ko"],
-        ["サ", "sa"], ["シ", "shi"], ["ス", "su"], ["セ", "se"], ["ソ", "so"],
-        ["タ", "ta"], ["チ", "chi"], ["ツ", "tsu"], ["テ", "te"], ["ト", "to"],
-        ["ナ", "na"], ["ニ", "ni"], ["ヌ", "nu"], ["ネ", "ne"], ["ノ", "no"],
-        ["ハ", "ha"], ["ヒ", "hi"], ["フ", "fu"], ["ヘ", "he"], ["ホ", "ho"],
-        ["マ", "ma"], ["ミ", "mi"], ["ム", "mu"], ["メ", "me"], ["モ", "mo"],
-        ["ヤ", "ya"], ["ユ", "yu"], ["ヨ", "yo"], ["ラ", "ra"], ["リ", "ri"],
-        ["ル", "ru"], ["レ", "re"], ["ロ", "ro"], ["ワ", "wa"], ["ヲ", "wo"],
-        ["ン", "n"]
-    ];
+// ── Data ──────────────────────────────────────────────────────────────────
+const hiragana = [
+  ["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],
+  ["か","ka"],["き","ki"],["く","ku"],["け","ke"],["こ","ko"],
+  ["さ","sa"],["し","shi"],["す","su"],["せ","se"],["そ","so"],
+  ["た","ta"],["ち","chi"],["つ","tsu"],["て","te"],["と","to"],
+  ["な","na"],["に","ni"],["ぬ","nu"],["ね","ne"],["の","no"],
+  ["は","ha"],["ひ","hi"],["ふ","fu"],["へ","he"],["ほ","ho"],
+  ["ま","ma"],["み","mi"],["む","mu"],["め","me"],["も","mo"],
+  ["や","ya"],["ゆ","yu"],["よ","yo"],
+  ["ら","ra"],["り","ri"],["る","ru"],["れ","re"],["ろ","ro"],
+  ["わ","wa"],["を","wo"],["ん","n"]
+];
+const katakana = [
+  ["ア","a"],["イ","i"],["ウ","u"],["エ","e"],["オ","o"],
+  ["カ","ka"],["キ","ki"],["ク","ku"],["ケ","ke"],["コ","ko"],
+  ["サ","sa"],["シ","shi"],["ス","su"],["セ","se"],["ソ","so"],
+  ["タ","ta"],["チ","chi"],["ツ","tsu"],["テ","te"],["ト","to"],
+  ["ナ","na"],["ニ","ni"],["ヌ","nu"],["ネ","ne"],["ノ","no"],
+  ["ハ","ha"],["ヒ","hi"],["フ","fu"],["ヘ","he"],["ホ","ho"],
+  ["マ","ma"],["ミ","mi"],["ム","mu"],["メ","me"],["モ","mo"],
+  ["ヤ","ya"],["ユ","yu"],["ヨ","yo"],
+  ["ラ","ra"],["リ","ri"],["ル","ru"],["レ","re"],["ロ","ro"],
+  ["ワ","wa"],["ヲ","wo"],["ン","n"]
+];
 
-    let currentMode = "hiragana";
-    let currentQuestion = {};
+// ── State ─────────────────────────────────────────────────────────────────
+let currentScript = 'hiragana';
+let currentMode = 'kana2roman';
+let currentItem = null;
+let score = { correct: 0, total: 0 };
+let streak = 0;
+let answered = false;
 
-    function switchMode(mode) {
-        currentMode = mode;
-        document.getElementById("hiragana-tab").classList.toggle("active", mode === "hiragana");
-        document.getElementById("katakana-tab").classList.toggle("active", mode === "katakana");
-        generateQuestion();
+// Drawing state
+let isDrawing = false;
+let drawCtx = null;
+let lastX = 0, lastY = 0;
+const CANVAS_SIZE = 280;
+
+// ── Utils ─────────────────────────────────────────────────────────────────
+function getDataset() { return currentScript === 'hiragana' ? hiragana : katakana; }
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickDistractors(correct, all, count) {
+  const pool = all.filter(x => x !== correct);
+  return shuffle(pool).slice(0, count);
+}
+
+function setScript(s) {
+  currentScript = s;
+  document.querySelectorAll('.script-tab').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && s==='hiragana') || (i===1 && s==='katakana'));
+  });
+  score = { correct: 0, total: 0 };
+  streak = 0;
+  render();
+}
+
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.mode-tab').forEach((b, i) => {
+    b.classList.toggle('active', ['kana2roman','roman2kana','draw'][i] === m);
+  });
+  score = { correct: 0, total: 0 };
+  streak = 0;
+  render();
+}
+
+// ── Render ────────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  const dataset = getDataset();
+  currentItem = dataset[Math.floor(Math.random() * dataset.length)];
+  answered = false;
+  guideVisible = false;
+
+  if (currentMode === 'draw') {
+    renderDraw(app, currentItem);
+  } else {
+    renderMCQ(app, currentItem);
+  }
+}
+
+function renderMCQ(app, item) {
+  const dataset = getDataset();
+  const isKana2Roman = currentMode === 'kana2roman';
+  const correct = isKana2Roman ? item[1] : item[0];
+  const distractors = pickDistractors(item, dataset, 3).map(d => isKana2Roman ? d[1] : d[0]);
+  const choices = shuffle([correct, ...distractors]);
+
+  const pct = score.total > 0 ? Math.round(score.correct / score.total * 100) : 0;
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <div class="card-header">
+        <div class="stats-row">
+          <span class="s">✓ ${score.correct}</span>&nbsp;
+          <span class="f">✗ ${score.total - score.correct}</span>
+          &nbsp;/ ${score.total}
+        </div>
+        <div class="streak">${streak > 1 ? '🔥 ×' + streak : ''}</div>
+        <div class="score">${score.total > 0 ? pct + '%' : '—'}</div>
+      </div>
+      <div class="card-body">
+        <div class="stimulus">
+          ${isKana2Roman
+            ? `<span class="kana-big">${item[0]}</span><div class="label">이 기호의 발음은?</div>`
+            : `<span class="roman-big">${item[1]}</span><div class="label">이 발음의 ${currentScript === 'hiragana' ? '히라가나' : '가타카나'}는?</div>`
+          }
+        </div>
+        <div class="choices">
+          ${choices.map(c => `
+            <button class="choice-btn ${isKana2Roman ? 'roman' : ''}"
+              onclick="checkMCQ(this, '${c}', '${correct}', '${item[0]}', '${item[1]}')"
+            >${c}</button>
+          `).join('')}
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <button class="btn-next" id="btn-next" onclick="render()">다음 문제 →</button>
+      </div>
+    </div>
+  `;
+}
+
+function checkMCQ(btn, chosen, correct, kana, roman) {
+  if (answered) return;
+  answered = true;
+  score.total++;
+
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  const nextBtn = document.getElementById('btn-next');
+
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    score.correct++;
+    streak++;
+    fb.textContent = streak > 2 ? `🔥 정답! ${streak}연속 정답 중!` : '✓ 정답입니다!';
+    fb.className = 'feedback correct-fb show';
+  } else {
+    btn.classList.add('wrong');
+    streak = 0;
+    // highlight correct
+    allBtns.forEach(b => { if (b.textContent.trim() === correct) b.classList.add('correct'); });
+    fb.textContent = `✗ 틀렸습니다. 정답: ${kana} = ${roman}`;
+    fb.className = 'feedback wrong-fb show';
+  }
+
+  nextBtn.classList.add('show');
+}
+
+// ── Draw Mode ─────────────────────────────────────────────────────────────
+function renderDraw(app, item) {
+  const pct = score.total > 0 ? Math.round(score.correct / score.total * 100) : 0;
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <div class="card-header">
+        <div class="stats-row">
+          <span class="s">✓ ${score.correct}</span>&nbsp;
+          <span class="f">✗ ${score.total - score.correct}</span>
+          &nbsp;/ ${score.total}
+        </div>
+        <div class="streak">${streak > 1 ? '🔥 ×' + streak : ''}</div>
+        <div class="score">${score.total > 0 ? pct + '%' : '—'}</div>
+      </div>
+      <div class="card-body">
+        <div class="draw-area">
+          <div>
+            <div class="prompt-roman">${item[1]}</div>
+            <div class="prompt-label">위 발음의 ${currentScript === 'hiragana' ? '히라가나' : '가타카나'}를 아래 캔버스에 써 보세요</div>
+          </div>
+          <div class="canvas-wrap" id="canvas-wrap">
+            <canvas id="draw-canvas" width="${CANVAS_SIZE}" height="${CANVAS_SIZE}"></canvas>
+            <canvas id="guide-canvas" width="${CANVAS_SIZE}" height="${CANVAS_SIZE}"></canvas>
+          </div>
+          <div class="canvas-controls">
+            <button class="btn-sm" onclick="clearCanvas()">지우기</button>
+            <button class="btn-sm" onclick="toggleGuide()">가이드 보기</button>
+            <button class="btn-sm primary" onclick="checkDrawing()">채점하기</button>
+          </div>
+          <div class="match-result" id="match-result"></div>
+          <button class="btn-next show" id="btn-next" onclick="render()" style="display:none;">다음 문제 →</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  initCanvas();
+  drawGuideKana(false);
+}
+
+let guideVisible = false;
+
+function initCanvas() {
+  const dc = document.getElementById('draw-canvas');
+  drawCtx = dc.getContext('2d');
+  drawCtx.strokeStyle = '#1a1209';
+  drawCtx.lineWidth = 5;
+  drawCtx.lineCap = 'round';
+  drawCtx.lineJoin = 'round';
+
+  // Mouse
+  dc.addEventListener('mousedown', startDraw);
+  dc.addEventListener('mousemove', doDraw);
+  dc.addEventListener('mouseup', stopDraw);
+  dc.addEventListener('mouseleave', stopDraw);
+
+  // Touch
+  dc.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e.touches[0]); }, {passive:false});
+  dc.addEventListener('touchmove', e => { e.preventDefault(); doDraw(e.touches[0]); }, {passive:false});
+  dc.addEventListener('touchend', stopDraw, {passive:false});
+}
+
+function getPos(e) {
+  const rect = document.getElementById('draw-canvas').getBoundingClientRect();
+  const scaleX = CANVAS_SIZE / rect.width;
+  const scaleY = CANVAS_SIZE / rect.height;
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY
+  };
+}
+
+function startDraw(e) {
+  isDrawing = true;
+  const p = getPos(e);
+  lastX = p.x; lastY = p.y;
+  drawCtx.beginPath();
+  drawCtx.moveTo(lastX, lastY);
+}
+function doDraw(e) {
+  if (!isDrawing) return;
+  const p = getPos(e);
+  drawCtx.lineTo(p.x, p.y);
+  drawCtx.stroke();
+  lastX = p.x; lastY = p.y;
+}
+function stopDraw() { isDrawing = false; }
+
+function clearCanvas() {
+  if (!drawCtx) return;
+  drawCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  document.getElementById('match-result').className = 'match-result';
+  const nb = document.getElementById('btn-next');
+  if (nb) nb.style.display = 'none';
+  answered = false;
+}
+
+function drawGuideKana(visible) {
+  const gc = document.getElementById('guide-canvas');
+  if (!gc) return;
+  const ctx = gc.getContext('2d');
+  ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  if (visible) {
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = '#c0392b';
+    ctx.font = `bold ${CANVAS_SIZE * 0.72}px "Noto Serif JP", serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(currentItem[0], CANVAS_SIZE / 2, CANVAS_SIZE / 2 + 8);
+    ctx.restore();
+  }
+}
+
+function toggleGuide() {
+  guideVisible = !guideVisible;
+  drawGuideKana(guideVisible);
+  const btn = event.target;
+  btn.textContent = guideVisible ? '가이드 숨기기' : '가이드 보기';
+}
+
+// ── Drawing check ─────────────────────────────────────────────────────────
+// 설계 원칙:
+//   Precision  = 사용자가 그린 픽셀 중 "정답 영역 안"에 있는 비율
+//                → 낙서/과잉 획 → precision 하락
+//   Recall     = 정답 영역 중 사용자가 커버한 비율
+//                → 획 부족/위치 완전 이탈 → recall 하락
+//   최종 점수  = precision × recall 의 기하 평균(sqrt)
+//                → 둘 중 하나라도 낮으면 점수가 낮아짐
+//   허용 오차  = 정답을 바운딩박스 기준으로 정규화 후 dilate 적용
+//                → 위치·크기 독립, 폭넓게/좁게 써도 OK
+function checkDrawing() {
+  if (answered) return;
+  const dc = document.getElementById('draw-canvas');
+  const userCtx = dc.getContext('2d');
+  const userData = userCtx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE).data;
+
+  const hasStrokes = userData.some((v, i) => i % 4 === 3 && v > 10);
+  if (!hasStrokes) { alert('먼저 글자를 써 주세요!'); return; }
+
+  // ── 정답 레퍼런스 렌더링 ─────────────────────────────────────────────────
+  const refCanvas = document.createElement('canvas');
+  refCanvas.width = CANVAS_SIZE; refCanvas.height = CANVAS_SIZE;
+  const refCtx = refCanvas.getContext('2d');
+  refCtx.fillStyle = 'black';
+  refCtx.font = `bold ${CANVAS_SIZE * 0.72}px "Noto Serif JP", serif`;
+  refCtx.textAlign = 'center';
+  refCtx.textBaseline = 'middle';
+  refCtx.fillText(currentItem[0], CANVAS_SIZE / 2, CANVAS_SIZE / 2 + 8);
+  const refData = refCtx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE).data;
+
+  // ── 유틸: 픽셀 → 점 배열 ────────────────────────────────────────────────
+  function getInkPts(data) {
+    const pts = [];
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] > 20)
+        pts.push([ i/4 % CANVAS_SIZE, Math.floor(i/4 / CANVAS_SIZE) ]);
     }
+    return pts;
+  }
 
-    function generateQuestion() {
-        const data = currentMode === "hiragana" ? hiragana : katakana;
-        const randomIndex = Math.floor(Math.random() * data.length);
-        const correctAnswer = data[randomIndex];
-        currentQuestion = { character: correctAnswer[0], pronunciation: correctAnswer[1] };
+  // ── 유틸: 바운딩박스 ────────────────────────────────────────────────────
+  function bbox(pts) {
+    let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+    for (const [x,y] of pts) {
+      if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
+    }
+    return { x0, y0, w: (x1-x0)||1, h: (y1-y0)||1 };
+  }
 
-        const options = [...data].sort(() => Math.random() - 0.5).slice(0, 6);
-        if (!options.some(option => option[1] === correctAnswer[1])) {
-            options[Math.floor(Math.random() * options.length)] = correctAnswer;
+  // ── 유틸: 점 배열 → N×N 이진 그리드 (바운딩박스 정규화) ────────────────
+  // stretch=true : x·y 축을 각각 독립적으로 늘려 bbox를 꽉 채움
+  //   → 폭넓게/좁게 쓴 경우를 허용
+  function toGrid(pts, N, stretch) {
+    if (!pts.length) return new Uint8Array(N*N);
+    const b = bbox(pts);
+    const g = new Uint8Array(N*N);
+    for (const [x,y] of pts) {
+      const gx = stretch
+        ? Math.min(N-1, Math.floor((x - b.x0) / b.w * N))
+        : Math.min(N-1, Math.floor((x - b.x0) / Math.max(b.w, b.h) * N));
+      const gy = stretch
+        ? Math.min(N-1, Math.floor((y - b.y0) / b.h * N))
+        : Math.min(N-1, Math.floor((y - b.y0) / Math.max(b.w, b.h) * N));
+      g[gy*N+gx] = 1;
+    }
+    return g;
+  }
+
+  // ── 유틸: 이진 그리드 팽창(dilate) ─────────────────────────────────────
+  function dilate(g, N, r) {
+    const out = new Uint8Array(N*N);
+    for (let y=0;y<N;y++) for (let x=0;x<N;x++) {
+      if (!g[y*N+x]) continue;
+      for (let dy=-r;dy<=r;dy++) for (let dx=-r;dx<=r;dx++) {
+        const nx=x+dx, ny=y+dy;
+        if (nx>=0&&nx<N&&ny>=0&&ny<N) out[ny*N+nx]=1;
+      }
+    }
+    return out;
+  }
+
+  // ── 유틸: 연결 요소(획 덩어리) 수 ──────────────────────────────────────
+  function numComponents(g, N) {
+    const vis = new Uint8Array(N*N); let cnt=0;
+    for (let i=0;i<N*N;i++) {
+      if (!g[i]||vis[i]) continue;
+      cnt++; const stk=[i];
+      while (stk.length) {
+        const c=stk.pop(); if(vis[c])continue; vis[c]=1;
+        const cx=c%N, cy=Math.floor(c/N);
+        for (const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+          const nx=cx+dx,ny=cy+dy;
+          if(nx>=0&&nx<N&&ny>=0&&ny<N&&g[ny*N+nx]&&!vis[ny*N+nx]) stk.push(ny*N+nx);
         }
-
-        document.getElementById("character").textContent = correctAnswer[0];
-        const optionsHTML = options.map(
-            option => `<button onclick="checkAnswer('${option[1]}')">${option[1]}</button>`
-        ).join("");
-        document.getElementById("options").innerHTML = optionsHTML;
-        document.getElementById("feedback").textContent = "";
-        document.getElementById("next-button").style.display = "none";
+      }
     }
+    return cnt;
+  }
 
-    function checkAnswer(selected) {
-		const feedbackText = `${currentQuestion.character} (${currentQuestion.pronunciation})`;
-		const equivalent = currentMode === "hiragana" 
-			? getEquivalentCharacter(katakana) 
-			: getEquivalentCharacter(hiragana);
-        if (selected === currentQuestion.pronunciation) {
-            document.getElementById("feedback").textContent = "정답입니다!!!";
-            document.getElementById("next-button").style.display = "block";
-        } else {
-            document.getElementById("feedback").textContent = `틀렸습니다! ${currentQuestion.pronunciation} (${equivalent})`;
-        }
-    }
+  const userPts = getInkPts(userData);
+  const refPts  = getInkPts(refData);
+  const N = 20; // 비교 해상도
 
-    function getEquivalentCharacter(data) {
-        return data.find(item => item[1] === currentQuestion.pronunciation)[0];
-    }
+  // ── 핵심: stretch 정규화 (위치·크기·종횡비 독립) ────────────────────────
+  // 사용자와 정답 모두 자신의 bbox를 N×N에 꽉 채워 stretch
+  const userG = toGrid(userPts, N, true);
+  const refG  = toGrid(refPts,  N, true);
 
-    generateQuestion();
+  // 정답은 반경 2 dilate → 약간 벗어나도 허용 (획 두께·미세 오차)
+  // 사용자는 반경 1 dilate → 선이 조금 굵어도 OK
+  const refTol  = dilate(refG,  N, 2);
+  const userTol = dilate(userG, N, 1);
 
+  // ── Precision & Recall 계산 ──────────────────────────────────────────────
+  // precision: 사용자가 그린 영역(userTol) 중 정답 허용영역(refTol)과 겹치는 비율
+  //            → 불필요한 획을 그리면 분모↑ → precision↓
+  // recall:    정답 허용영역(refTol) 중 사용자 영역(userTol)이 커버하는 비율
+  //            → 획이 부족하면 분자↓ → recall↓
+  let hit=0, userFill=0, refFill=0;
+  for (let i=0;i<N*N;i++) {
+    if (userTol[i]) userFill++;
+    if (refTol[i])  refFill++;
+    if (userTol[i] && refTol[i]) hit++;
+  }
+  const precision = userFill > 0 ? hit / userFill : 0;
+  const recall    = refFill  > 0 ? hit / refFill  : 0;
+
+  // 기하 평균: 둘 다 높아야 점수가 높음
+  const shape = Math.sqrt(precision * recall);
+
+  // ── 잉크량 비율 페널티 ───────────────────────────────────────────────────
+  // 사용자 잉크 픽셀 수 / 정답 잉크 픽셀 수
+  // • 너무 적음(점 찍기 등): 선형 감점
+  // • 너무 많음(화면을 다 채우는 낙서): 선형 감점
+  // 정상 범위: 0.25 ~ 4.0 (글자를 작게/크게 써도 획 두께 차이가 있으므로 넓게 허용)
+  const inkRatio = userPts.length / (refPts.length || 1);
+  let inkMul;
+  if      (inkRatio < 0.10) inkMul = inkRatio / 0.10;        // 10% 미만 → 비례 감점
+  else if (inkRatio < 0.25) inkMul = 0.5 + (inkRatio-0.10)/0.15 * 0.5; // 10~25% → 50~100%
+  else if (inkRatio <= 5.0) inkMul = 1.0;                    // 정상 범위
+  else                      inkMul = Math.max(0, 1 - (inkRatio-5.0)/5.0); // 500% 초과 → 감점
+
+  // ── 획 덩어리 수 비교 (연결 컴포넌트) ───────────────────────────────────
+  // 정답보다 덩어리가 3배 이상 많으면 패널티 (난화 방지)
+  const compN = 14;
+  const uComp = numComponents(dilate(toGrid(userPts, compN, true), compN, 1), compN);
+  const rComp = numComponents(dilate(toGrid(refPts,  compN, true), compN, 1), compN);
+  const compRatio = uComp / (rComp || 1);
+  const compMul = compRatio > 3.0 ? Math.max(0.2, 1 - (compRatio-3.0)*0.2) : 1.0;
+
+  // ── 최종 점수 ────────────────────────────────────────────────────────────
+  // shape(0~1) × inkMul × compMul → 0~100 점
+  const raw  = shape * inkMul * compMul;
+  const sim  = Math.min(100, Math.round(raw * 100));
+  const pass = sim >= 65;   // 65% 이상이면 정답
+
+  showMatchResult(sim, pass);
+}
+
+function showMatchResult(sim, pass) {
+  answered = true;
+  score.total++;
+  if (pass) { score.correct++; streak++; }
+  else streak = 0;
+
+  const msg = sim >= 85 ? '완벽합니다! 🎉'
+            : sim >= 65 ? '✓ 통과! 조금 더 정확하게 써보세요'
+            : sim >= 40 ? '✗ 획의 구성이 다릅니다. 다시 도전!'
+            : '✗ 획이 많이 부족하거나 다른 형태입니다';
+
+  const el = document.getElementById('match-result');
+  el.innerHTML = `
+    <div class="pct">${sim}%</div>
+    <div class="pct-label">${msg}</div>
+    <div class="answer-kana">정답: ${currentItem[0]} (${currentItem[1]})</div>
+  `;
+  el.className = `match-result ${pass ? 'pass' : 'fail'} show`;
+
+  const nb = document.getElementById('btn-next');
+  if (nb) { nb.style.display = 'block'; }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+render();
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
             .then(() => console.log('Service Worker 등록 완료!!!!!!'))
