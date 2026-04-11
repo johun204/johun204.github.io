@@ -2,33 +2,53 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gaze Tracker Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gaze Master</title>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
     <style>
-        body { margin: 0; background: #000; color: #fff; overflow: hidden; font-family: sans-serif; user-select: none; }
-        #ui, #calibration, #gameArea, #gameOver { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; background: rgba(0,0,0,0.8); }
-        #calibration, #gameArea, #gameOver { display: none; }
-        #video { position: absolute; top: 10px; left: 10px; width: 120px; transform: scaleX(-1); z-index: 100; opacity: 0.7; border: 1px solid #fff; }
-        .dot { position: absolute; width: 24px; height: 24px; background: red; border-radius: 50%; transform: translate(-50%, -50%); }
+        body { margin: 0; background: #000; color: #fff; overflow: hidden; font-family: 'Malgun Gothic', sans-serif; user-select: none; }
+        #ui, #calibration, #gameArea, #gameOver, #loading { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; background: rgba(0,0,0,0.9); }
+        #calibration, #gameArea, #gameOver, #loading { display: none; }
+        
+        /* 비디오 영역: 보정 중에만 작게 표시 */
+        #video { position: absolute; bottom: 10px; right: 10px; width: 100px; transform: scaleX(-1); z-index: 5; border: 2px solid #fff; border-radius: 8px; display: none; }
+        
+        /* 캘리브레이션 관련 */
+        .dot { position: absolute; width: 30px; height: 30px; background: red; border-radius: 50%; transform: translate(-50%, -50%); transition: all 0.3s ease; box-shadow: 0 0 10px red; }
+        #calibMsg { font-size: 24px; text-align: center; position: absolute; top: 40%; width: 80%; line-height: 1.5; }
+
+        /* 게임 영역 */
         #gameCanvas { width: 100vw; height: 100vh; display: block; }
+        
+        /* 시선 커서 */
+        #gazeCursor { position: absolute; width: 20px; height: 20px; background: rgba(255, 0, 0, 0.5); border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; display: none; }
+
         .hidden { display: none !important; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button { padding: 15px 30px; font-size: 18px; cursor: pointer; margin-top: 20px; background: #fff; color: #000; border: none; border-radius: 5px; font-weight: bold; }
+        button:disabled { background: #555; color: #aaa; cursor: not-allowed; }
+        input[type="file"] { background: #333; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
     <video id="video" autoplay playsinline></video>
     
+    <div id="gazeCursor"></div>
+
+    <div id="loading">
+        <h2>AI 모델 로딩 중...</h2>
+    </div>
+
     <div id="ui">
-        <h2>시선 추적 게임</h2>
+        <h1>Gaze Master</h1>
+        <p>상단 25% 지역을 시선으로 사수하세요!</p>
         <input type="file" id="upload" accept="image/*">
         <br><br>
-        <button id="startBtn" disabled>영점 맞추기 및 시작</button>
+        <button id="startBtn" disabled>시선 영점 맞추기 시작</button>
     </div>
 
     <div id="calibration">
-        <div id="calibMsg" style="position: absolute; top: 50%; transform: translateY(-50%); font-size: 20px; text-align: center; width: 100%;"></div>
+        <div id="calibMsg">화면 중앙의 점을<br>똑바로 쳐다보세요.</div>
         <div id="calibDot" class="dot hidden"></div>
     </div>
 
@@ -38,15 +58,18 @@
 
     <div id="gameOver">
         <h1>GAME OVER</h1>
+        <p>상단 지역을 이탈했습니다.</p>
         <h2 id="resultTime"></h2>
-        <button onclick="location.reload()">처음으로</button>
+        <button onclick="location.reload()">다시 시작</button>
     </div>
 
     <script>
         const video = document.getElementById('video');
+        const gazeCursor = document.getElementById('gazeCursor');
         const upload = document.getElementById('upload');
         const startBtn = document.getElementById('startBtn');
         const ui = document.getElementById('ui');
+        const loadingUI = document.getElementById('loading');
         const calibrationUI = document.getElementById('calibration');
         const calibMsg = document.getElementById('calibMsg');
         const calibDot = document.getElementById('calibDot');
@@ -57,12 +80,28 @@
         const resultTime = document.getElementById('resultTime');
 
         let targetImage = null;
-        let currentGazeY = null;
-        let gazeMetrics = { top: 0, center: 0, bottom: 0 };
-        let gameState = 'init';
+        let gameState = 'init'; // init, loading, calib, game, over
         let gameStartTime = 0;
         let outOfBoundsStartTime = 0;
+        let isModelLoaded = false;
+
+        // --- 시선 추적 및 보정 관련 변수 ---
+        let currentRawFeats = null; // 현재 프레임의 가공되지 않은 특징점 (x, y 비율)
+        let prediction = { x: 0, y: 0 }; // 보정된 스크린 좌표 (0~1)
         
+        // 회귀 모델 매개변수 (기본값)
+        let modelX = { slope: 0, intercept: 0.5 };
+        let modelY = { slope: 0, intercept: 0.5 };
+
+        // 캘리브레이션 포인트 정의 (화면 비율 좌표: 중앙, 상, 하, 좌, 우)
+        const calibPoints = [
+            { x: 0.5, y: 0.5, msg: "화면 중앙의 점을<br>똑바로 쳐다보세요." },
+            { x: 0.5, y: 0.1, msg: "화면 맨 위의 점을<br>쳐다보세요." },
+            { x: 0.5, y: 0.9, msg: "화면 맨 아래 점을<br>쳐다보세요." },
+            { x: 0.1, y: 0.5, msg: "화면 왼쪽 끝 점을<br>쳐다보세요." },
+            { x: 0.9, y: 0.5, msg: "화면 오른쪽 끝 점을<br>쳐다보세요." }
+        ];
+
         // 캔버스 사이즈 동적 조정
         function resize() {
             canvas.width = window.innerWidth;
@@ -71,15 +110,56 @@
         window.addEventListener('resize', resize);
         resize();
 
+        // 간단한 선형 회귀 (Least Squares Method)
+        function trainLinearRegression(dataX, dataY) {
+            const n = dataX.length;
+            if (n < 2) return { slope: 0, intercept: 0.5 };
+
+            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+            for (let i = 0; i < n; i++) {
+                sumX += dataX[i];
+                sumY += dataY[i];
+                sumXY += dataX[i] * dataY[i];
+                sumXX += dataX[i] * dataX[i];
+            }
+            const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+            return { slope, intercept };
+        }
+
         // MediaPipe FaceMesh 설정
         const faceMesh = new FaceMesh({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
         faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
         
         faceMesh.onResults((results) => {
+            if (!isModelLoaded) { isModelLoaded = true; loadingUI.style.display = 'none'; }
+
             if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
                 const landmarks = results.multiFaceLandmarks[0];
-                // 눈동자(468)와 이마(10), 턱(152)의 비율을 계산하여 시선의 수직 각도 추정
-                currentGazeY = (landmarks[468].y - landmarks[10].y) / (landmarks[152].y - landmarks[10].y);
+                
+                // 특징점 가공: 이마(10) 대비 눈동자 중심(468)의 상대적 위치 계산
+                // 머리 움직임에 대한 기초적인 내성을 가짐
+                const forehead = landmarks[10];
+                const iris = landmarks[468];
+                
+                currentRawFeats = {
+                    x: (iris.x - forehead.x),
+                    y: (iris.y - forehead.y)
+                };
+
+                // 모델 적용 (예측)
+                if (gameState === 'calib' || gameState === 'game') {
+                    const predX = modelX.slope * currentRawFeats.x + modelX.intercept;
+                    const predY = modelY.slope * currentRawFeats.y + modelY.intercept;
+                    
+                    // 0~1 사이로 클램핑
+                    prediction.x = Math.max(0, Math.min(1, predX));
+                    prediction.y = Math.max(0, Math.min(1, predY));
+
+                    // 시선 커서 위치 업데이트
+                    gazeCursor.style.left = `${prediction.x * canvas.width}px`;
+                    gazeCursor.style.top = `${prediction.y * canvas.height}px`;
+                }
             }
         });
 
@@ -89,6 +169,8 @@
             width: 320, height: 240, facingMode: 'user'
         });
         camera.start();
+        ui.style.display = 'none';
+        loadingUI.style.display = 'flex'; // 모델 로딩 화면 표시
 
         // 이미지 업로드 처리
         upload.addEventListener('change', (e) => {
@@ -107,37 +189,50 @@
 
         const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-        // 특정 위치 영점 기록
-        async function recordPoint(yPercent, name) {
-            calibDot.classList.remove('hidden');
-            calibDot.style.top = `${yPercent * 100}%`;
-            calibDot.style.left = '50%';
-            calibMsg.innerText = `빨간 점을 쳐다보세요 (${name})`;
-            
-            await wait(2000); // 2초간 유저가 점을 바라볼 시간 부여
-            
-            let sum = 0, count = 0;
-            for(let i=0; i<10; i++) { // 1초 동안 시선 데이터 수집
-                if(currentGazeY) { sum += currentGazeY; count++; }
-                await wait(100);
-            }
-            calibDot.classList.add('hidden');
-            return count > 0 ? sum / count : currentGazeY || 0;
-        }
-
         // 영점 캘리브레이션 프로세스
         async function startCalibration() {
-            calibrationUI.style.display = 'flex';
             gameState = 'calib';
+            calibrationUI.style.display = 'flex';
+            video.style.display = 'block'; // 보정 중에는 카메라 표시
+            gazeCursor.style.display = 'block'; // 시선 커서 표시 (훈련 전이라 부정확함)
             
-            calibMsg.innerText = "잠시 후 영점 조절을 시작합니다.";
-            await wait(2000);
-            
-            gazeMetrics.center = await recordPoint(0.5, "중앙");
-            gazeMetrics.top = await recordPoint(0.1, "상단");
-            gazeMetrics.bottom = await recordPoint(0.9, "하단");
+            calibDot.classList.remove('hidden');
+
+            const calibData = { rawX: [], rawY: [], screenX: [], screenY: [] };
+
+            for (const pt of calibPoints) {
+                // 점 이동 및 메시지 변경
+                calibDot.style.left = `${pt.x * 100}%`;
+                calibDot.style.top = `${pt.y * 100}%`;
+                calibMsg.innerHTML = pt.msg;
+                
+                await wait(1500); // 사용자가 시선을 이동하고 고정할 시간 부여
+
+                // 데이터 수집 (0.5초 동안 5번 샘플링)
+                let samples = 0;
+                while (samples < 5) {
+                    if (currentRawFeats) {
+                        calibData.rawX.push(currentRawFeats.x);
+                        calibData.rawY.push(currentRawFeats.y);
+                        calibData.screenX.push(pt.x);
+                        calibData.screenY.push(pt.y);
+                        samples++;
+                    }
+                    await wait(100);
+                }
+            }
+
+            // 모델 훈련 (계수 계산)
+            modelX = trainLinearRegression(calibData.rawX, calibData.screenX);
+            modelY = trainLinearRegression(calibData.rawY, calibData.screenY);
+
+            // 보정 완료 후 처리
+            calibMsg.innerText = "보정 완료! 게임을 시작합니다.";
+            calibDot.classList.add('hidden');
+            await wait(1500);
             
             calibrationUI.style.display = 'none';
+            video.style.display = 'none'; // 카메라 화면 숨김
             startGame();
         }
 
@@ -156,7 +251,7 @@
             const now = Date.now();
             const elapsed = now - gameStartTime;
             
-            // 캔버스 초기화 및 이미지 렌더링 (화면 비율에 맞춤)
+            // 캔버스 초기화 및 이미지 렌더링 (Aspect Ratio 맞춤)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const imgRatio = targetImage.width / targetImage.height;
             const screenRatio = canvas.width / canvas.height;
@@ -171,29 +266,32 @@
             }
             ctx.drawImage(targetImage, offsetX, offsetY, drawWidth, drawHeight);
 
-            // 마스킹 로직: 2000ms(2초) 동안 25% 지점부터 맨 아래까지 마스크 해제
+            // 마스킹 로직: 2초 동안 25% 지점부터 하단까지 서서히 공개
             const revealProgress = Math.min(elapsed / 2000, 1.0);
             const maskStartRatio = 0.25 + (0.75 * revealProgress);
             const maskY = canvas.height * maskStartRatio;
 
             ctx.fillStyle = 'black';
             ctx.fillRect(0, maskY, canvas.width, canvas.height - maskY);
+            
+            // 게임 가이드 라인 표시 (25% 지점)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.25);
+            ctx.lineTo(canvas.width, canvas.height * 0.25);
+            ctx.stroke();
 
-            // 시선 이탈 검사
-            if (currentGazeY !== null && (gazeMetrics.bottom - gazeMetrics.top) !== 0) {
-                // 선형 보간을 통한 현재 시선의 화면 상단(0.0) ~ 하단(1.0) 비율 추정
-                const estimatedScreenY = 0.1 + ((currentGazeY - gazeMetrics.top) / (gazeMetrics.bottom - gazeMetrics.top)) * 0.8;
-                
-                if (estimatedScreenY > 0.25) { // 시선이 상단 25% 아래로 내려간 경우
-                    if (outOfBoundsStartTime === 0) {
-                        outOfBoundsStartTime = now;
-                    } else if (now - outOfBoundsStartTime >= 500) { // 0.5초 유예시간 초과
-                        gameOver(elapsed);
-                        return;
-                    }
-                } else {
-                    outOfBoundsStartTime = 0; // 시선이 정상 범위로 복귀 시 유예시간 초기화
+            // 시선 이탈 검사 (예측된 Y좌표 기준)
+            if (prediction.y > 0.25) { // 시선이 상단 25%를 벗어남
+                if (outOfBoundsStartTime === 0) {
+                    outOfBoundsStartTime = now;
+                } else if (now - outOfBoundsStartTime >= 500) { // 0.5초 유예시간 초과
+                    gameOver(elapsed);
+                    return;
                 }
+            } else {
+                outOfBoundsStartTime = 0; // 복귀 시 초기화
             }
 
             requestAnimationFrame(gameLoop);
@@ -202,9 +300,9 @@
         function gameOver(surviveTime) {
             gameState = 'over';
             gameArea.style.display = 'none';
+            gazeCursor.style.display = 'none';
             gameOverUI.style.display = 'flex';
-            // 밀리초를 초 단위로 변환하여 출력
-            resultTime.innerText = `버틴 시간: ${(surviveTime / 1000).toFixed(2)}초`;
+            resultTime.innerText = `생존 시간: ${(surviveTime / 1000).toFixed(2)}초`;
         }
     </script>
 </body>
