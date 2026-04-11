@@ -3,729 +3,866 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>👁 EYE LOCK</title>
+<title>EYE LOCK</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;700&display=swap');
-:root{--red:#ff2244;--green:#00ff88;--bg:#050508;--panel:#0d0d14;--border:#1a1a2e;--text:#c8c8e0;--white:#eeeeff;}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+KR:wght@400;700&display=swap');
 
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:18px;transition:opacity .3s;}
-.screen.hidden{opacity:0;pointer-events:none;}
+/* ── RESET ── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { width:100%; height:100%; overflow:hidden; background:#000; }
+body { font-family:'Noto Sans KR', sans-serif; color:#ddd; touch-action:none; user-select:none; }
 
-/* TITLE */
-#screen-title{background:radial-gradient(ellipse at 50% 30%,#0d0d22 0%,#050508 70%);}
-.logo{font-family:'Orbitron',monospace;font-size:clamp(2.8rem,14vw,5rem);font-weight:900;color:var(--white);letter-spacing:.1em;text-shadow:0 0 30px rgba(255,34,68,.6),0 0 60px rgba(255,34,68,.3);line-height:1;}
-.logo span{color:var(--red);}
-.subtitle{font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:#555580;margin-top:4px;}
-.rule-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 20px;width:100%;max-width:400px;font-size:.82rem;line-height:1.85;color:#8888aa;}
-.rule-box b{color:var(--text);}.rule-box .r{color:var(--red);}
-
-/* BUTTONS */
-.btn{width:100%;max-width:360px;padding:15px;border-radius:12px;border:none;font-size:.95rem;font-family:'Orbitron',monospace;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:transform .15s,box-shadow .15s;user-select:none;}
-.btn:active{transform:scale(.97);}
-.btn-primary{background:var(--red);color:#fff;box-shadow:0 0 24px rgba(255,34,68,.4);}
-.btn-success{background:var(--green);color:#000;box-shadow:0 0 24px rgba(0,255,136,.35);}
-.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border);}
-.btn:disabled{opacity:.35;pointer-events:none;}
-
-/* CALIBRATION */
-#screen-calibration{background:#050508;padding:0;}
-#cal-canvas{position:absolute;inset:0;width:100%;height:100%;}
-
-/* GAZE CURSOR — global floating */
-#gaze-dot{
-  position:fixed;
-  width:38px;height:38px;
-  border-radius:50%;
-  border:2.5px solid var(--green);
-  pointer-events:none;
-  z-index:9999;
-  display:none;
-  transform:translate(-50%,-50%);
-  box-shadow:0 0 14px rgba(0,255,136,.5);
-  transition:left .04s linear,top .04s linear,border-color .15s;
+/* ── SCREEN SYSTEM ── */
+.scr {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; padding: 28px;
+  transition: opacity .25s ease;
 }
-#gaze-dot::after{
-  content:'';position:absolute;top:50%;left:50%;
-  width:8px;height:8px;background:var(--green);
-  border-radius:50%;transform:translate(-50%,-50%);
-  transition:background .15s;
+.scr.off { opacity: 0; pointer-events: none; }
+
+/* ── TITLE SCREEN ── */
+#s-title { background: #000; }
+.title-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(3rem, 15vw, 5.5rem);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(255,30,60,.8), 0 0 80px rgba(255,30,60,.3);
+  letter-spacing: .05em;
+  line-height: 1;
 }
-#gaze-dot.danger{border-color:var(--red);box-shadow:0 0 14px rgba(255,34,68,.6);}
-#gaze-dot.danger::after{background:var(--red);}
+.title-logo em { color: #ff1e3c; font-style: normal; }
+.title-sub {
+  font-family: 'Orbitron', monospace;
+  font-size: .65rem;
+  letter-spacing: .35em;
+  color: #333;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.rules {
+  background: #0a0a0a;
+  border: 1px solid #1c1c1c;
+  border-radius: 14px;
+  padding: 18px 22px;
+  width: 100%; max-width: 400px;
+  font-size: .83rem;
+  line-height: 1.9;
+  color: #666;
+}
+.rules strong { color: #bbb; }
+.rules .hl { color: #ff1e3c; }
 
-/* UPLOAD */
-#screen-upload{gap:14px;}
-.upload-title{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;color:var(--white);letter-spacing:.08em;}
-.upload-area{width:100%;max-width:380px;height:180px;border:2px dashed var(--border);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;overflow:hidden;position:relative;transition:border-color .2s;}
-.upload-area:active{border-color:var(--red);}
-.upload-area img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.upload-icon{font-size:2.2rem;}
-.upload-text{font-size:.82rem;color:#555580;}
-#file-input{display:none;}
+/* ── BUTTONS ── */
+.btn {
+  width: 100%; max-width: 360px;
+  padding: 16px; border: none; border-radius: 12px;
+  font-family: 'Orbitron', monospace;
+  font-size: .9rem; font-weight: 700;
+  letter-spacing: .1em; cursor: pointer;
+  transition: opacity .15s, transform .1s;
+}
+.btn:active { transform: scale(.96); opacity: .85; }
+.btn-red   { background: #ff1e3c; color: #fff; }
+.btn-green { background: #00ff88; color: #000; }
+.btn-ghost { background: transparent; color: #555; border: 1px solid #1c1c1c; }
+.btn:disabled { opacity: .3; pointer-events: none; }
 
-/* GAME */
-#screen-game{padding:0;background:#000;flex-direction:column;justify-content:flex-start;}
-#game-hud{width:100%;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;z-index:10;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);}
-#timer-display{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:700;color:var(--green);text-shadow:0 0 14px rgba(0,255,136,.5);}
-#zone-bar{font-size:.62rem;letter-spacing:.12em;color:#444466;text-transform:uppercase;}
-#status-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
-#status-dot.danger{background:var(--red);box-shadow:0 0 8px var(--red);animation:blink .2s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-#game-viewport{flex:1;width:100%;position:relative;overflow:hidden;background:#000;}
-#game-image{width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0;}
-#cover-black{position:absolute;left:0;right:0;bottom:0;background:#000;z-index:2;}
-#safe-zone-line{position:absolute;left:0;right:0;height:2px;background:rgba(255,34,68,.7);z-index:3;top:25%;}
-#safe-zone-bg{position:absolute;left:0;right:0;top:0;height:25%;background:rgba(255,34,68,.07);border-bottom:1px solid rgba(255,34,68,.25);z-index:3;pointer-events:none;}
+/* ── CALIBRATION SCREEN ── */
+#s-cal { background: #000; padding: 0; }
+#cal-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
-/* GAMEOVER */
-#screen-gameover{gap:14px;background:radial-gradient(ellipse at 50% 40%,#1a0008 0%,#050508 70%);}
-.go-label{font-family:'Orbitron',monospace;font-size:clamp(1.8rem,10vw,3rem);font-weight:900;color:var(--red);text-shadow:0 0 30px rgba(255,34,68,.8);letter-spacing:.1em;}
-.go-sublabel{font-size:.75rem;letter-spacing:.2em;color:#555580;text-transform:uppercase;}
-.score-box{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:24px 40px;text-align:center;width:100%;max-width:320px;}
-.score-time{font-family:'Orbitron',monospace;font-size:clamp(2.5rem,16vw,5rem);font-weight:900;color:var(--white);line-height:1;}
-.score-unit{font-size:.72rem;letter-spacing:.2em;color:#555580;margin-top:6px;text-transform:uppercase;}
+/* ── UPLOAD SCREEN ── */
+#s-upload { background: #000; }
+.up-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem; font-weight: 700;
+  color: #fff; letter-spacing: .08em;
+}
+.up-area {
+  width: 100%; max-width: 380px; height: 200px;
+  border: 1.5px dashed #222; border-radius: 14px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; cursor: pointer; overflow: hidden; position: relative;
+  transition: border-color .2s;
+}
+.up-area:active { border-color: #ff1e3c; }
+.up-area img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.up-icon { font-size: 2.4rem; }
+.up-hint { font-size: .8rem; color: #333; }
+#file-input { display: none; }
 
-/* FLASH / WARNING */
-#flash{position:fixed;inset:0;background:var(--red);opacity:0;pointer-events:none;z-index:200;transition:opacity .1s;}
-#flash.on{opacity:.3;}
-#warning-bar{position:fixed;top:0;left:0;right:0;padding:9px;text-align:center;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.18em;background:var(--red);color:#fff;z-index:150;transform:translateY(-100%);transition:transform .2s;}
-#warning-bar.show{transform:translateY(0);}
+/* ── GAME SCREEN ── */
+#s-game { padding: 0; justify-content: flex-start; background: #000; }
+#hud {
+  width: 100%; padding: 10px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+  position: relative; z-index: 10; flex-shrink: 0;
+}
+#hud-time {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem; font-weight: 900;
+  color: #00ff88;
+  text-shadow: 0 0 12px rgba(0,255,136,.5);
+}
+#hud-label { font-size: .6rem; letter-spacing: .18em; color: #222; text-transform: uppercase; }
+#hud-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #00ff88; box-shadow: 0 0 8px #00ff88;
+  transition: background .1s, box-shadow .1s;
+}
+#hud-dot.red { background: #ff1e3c; box-shadow: 0 0 8px #ff1e3c; }
 
-/* WEBCAM — hidden but active for WebGazer face tracking */
-video{position:fixed!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;}
+#viewport {
+  flex: 1; width: 100%; position: relative; overflow: hidden; background: #000;
+}
+#game-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+/* The black mask covers bottom portion — revealed by shrinking height */
+#mask {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: #000; z-index: 2;
+  /* height set by JS */
+}
+/* Safe zone indicator */
+#zone-line {
+  position: absolute; left: 0; right: 0; top: 25%;
+  height: 2px; background: rgba(255,30,60,.6);
+  z-index: 5; pointer-events: none;
+}
+#zone-shade {
+  position: absolute; left: 0; right: 0; top: 0; height: 25%;
+  background: rgba(255,30,60,.05);
+  border-bottom: 1px solid rgba(255,30,60,.2);
+  z-index: 5; pointer-events: none;
+}
+
+/* ── GAMEOVER SCREEN ── */
+#s-over { background: #000; }
+.over-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(2rem, 11vw, 3.5rem);
+  font-weight: 900; color: #ff1e3c;
+  text-shadow: 0 0 30px rgba(255,30,60,.9);
+  letter-spacing: .08em;
+}
+.over-sub { font-size: .7rem; letter-spacing: .2em; color: #333; text-transform: uppercase; }
+.score-card {
+  background: #0a0a0a; border: 1px solid #1c1c1c;
+  border-radius: 18px; padding: 26px 44px; text-align: center;
+  width: 100%; max-width: 300px;
+}
+.score-num {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(3rem, 18vw, 6rem);
+  font-weight: 900; color: #fff; line-height: 1;
+}
+.score-unit { font-size: .7rem; letter-spacing: .2em; color: #333; margin-top: 6px; }
+
+/* ── GLOBAL GAZE DOT ── */
+#gaze-dot {
+  position: fixed;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,255,136,.9);
+  box-shadow: 0 0 0 4px rgba(0,255,136,.25), 0 0 16px rgba(0,255,136,.6);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 99999;
+  display: none;
+  /* NO CSS transition — JS handles smoothing */
+}
+#gaze-dot.red {
+  background: rgba(255,30,60,.9);
+  box-shadow: 0 0 0 4px rgba(255,30,60,.25), 0 0 16px rgba(255,30,60,.6);
+}
+
+/* ── DANGER FLASH ── */
+#flash {
+  position: fixed; inset: 0;
+  background: #ff1e3c; opacity: 0;
+  pointer-events: none; z-index: 9000;
+  transition: opacity .08s;
+}
+#flash.on { opacity: .25; }
+
+/* ── WARNING BAR ── */
+#warn {
+  position: fixed; top: 0; left: 0; right: 0;
+  padding: 8px; text-align: center;
+  font-family: 'Orbitron', monospace;
+  font-size: .6rem; letter-spacing: .2em;
+  background: #ff1e3c; color: #fff;
+  transform: translateY(-100%); transition: transform .18s;
+  z-index: 9500;
+}
+#warn.on { transform: translateY(0); }
+
+/* ── LOADER OVERLAY ── */
+#loader {
+  position: fixed; inset: 0; background: #000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; z-index: 99000;
+  transition: opacity .3s;
+}
+#loader.off { opacity: 0; pointer-events: none; }
+#loader p {
+  font-family: 'Orbitron', monospace;
+  font-size: .75rem; letter-spacing: .2em; color: #333;
+}
+#loader small { font-size: .7rem; color: #222; text-align: center; line-height: 1.7; max-width: 240px; }
+.spinner {
+  width: 42px; height: 42px;
+  border: 3px solid #111; border-top-color: #ff1e3c;
+  border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Force all webgazer-injected video/canvas off-screen */
+#webgazerVideoFeed,
+#webgazerVideoCanvas,
+#webgazerFaceOverlay,
+#webgazerGazeDot,
+canvas[style*="z-index"] {
+  position: fixed !important;
+  left: -9999px !important; top: -9999px !important;
+  width: 1px !important; height: 1px !important;
+  opacity: 0 !important; pointer-events: none !important;
+}
 </style>
 </head>
 <body>
 
-<div id="flash"></div>
-<div id="warning-bar">⚠ 시선 이탈 — 위를 봐주세요!</div>
-<div id="gaze-dot"></div>
-
-<!-- TITLE -->
-<div class="screen" id="screen-title">
-  <div style="text-align:center">
-    <div class="logo">EYE<span>LOCK</span></div>
-    <div class="subtitle">눈을 떼지 마라</div>
-  </div>
-  <div class="rule-box">
-    <b>게임 방법</b><br>
-    1. 시선 보정 (5포인트) → 사진 선택 → 시작<br>
-    2. 사진이 2초에 걸쳐 아래로 드러납니다<br>
-    3. <span class="r">시선을 상단 25% 안에 유지</span>하세요<br>
-    4. 0.5초 이상 이탈 시 게임오버<br>
-    5. <span style="color:var(--green)">●</span> 녹색 원 = 현재 내 시선 위치
-  </div>
-  <button class="btn btn-primary" id="btn-start-flow">시작하기</button>
+<!-- LOADER -->
+<div id="loader">
+  <p>INITIALIZING</p>
+  <div class="spinner"></div>
+  <small>전면 카메라 권한을 허용해 주세요.<br>카메라는 시선 감지에만 사용되며<br>외부로 전송되지 않습니다.</small>
 </div>
 
-<!-- CALIBRATION -->
-<div class="screen hidden" id="screen-calibration">
+<!-- GAZE DOT (always on top) -->
+<div id="gaze-dot"></div>
+
+<!-- FLASH / WARN -->
+<div id="flash"></div>
+<div id="warn">⚠ 시선 이탈 — 위를 봐주세요!</div>
+
+<!-- ① TITLE -->
+<div class="scr" id="s-title">
+  <div style="text-align:center">
+    <div class="title-logo">EYE<em>LOCK</em></div>
+    <div class="title-sub">눈을 떼지 마라</div>
+  </div>
+  <div class="rules">
+    <strong>게임 방법</strong><br>
+    1. 시선 보정 5포인트 응시<br>
+    2. 사진을 선택하고 게임 시작<br>
+    3. 사진이 2초에 걸쳐 아래로 드러납니다<br>
+    4. <span class="hl">시선을 화면 상단 25% 안에 유지</span><br>
+    5. 0.5초 이상 이탈 시 게임오버
+  </div>
+  <button class="btn btn-red" id="btn-begin">시작하기</button>
+</div>
+
+<!-- ② CALIBRATION -->
+<div class="scr off" id="s-cal">
   <canvas id="cal-canvas"></canvas>
 </div>
 
-<!-- UPLOAD -->
-<div class="screen hidden" id="screen-upload">
-  <div class="upload-title">사진 선택</div>
-  <div class="upload-area" id="upload-area">
-    <span class="upload-icon">📷</span>
-    <span class="upload-text">탭하여 앨범에서 사진 선택</span>
+<!-- ③ UPLOAD -->
+<div class="scr off" id="s-upload">
+  <div class="up-title">사진 선택</div>
+  <div class="up-area" id="up-area">
+    <span class="up-icon">🖼</span>
+    <span class="up-hint">탭하여 앨범에서 선택</span>
   </div>
   <input type="file" id="file-input" accept="image/*">
-  <button class="btn btn-success" id="btn-play" disabled>게임 시작</button>
-  <button class="btn btn-secondary" id="btn-recal">시선 재보정</button>
+  <button class="btn btn-green" id="btn-play" disabled>게임 시작</button>
+  <button class="btn btn-ghost" id="btn-recal">시선 재보정</button>
 </div>
 
-<!-- GAME -->
-<div class="screen hidden" id="screen-game">
-  <div id="game-hud">
-    <div id="timer-display">0.00</div>
-    <div id="zone-bar">SAFE ZONE · TOP 25%</div>
-    <div id="status-dot"></div>
+<!-- ④ GAME -->
+<div class="scr off" id="s-game">
+  <div id="hud">
+    <div id="hud-time">0.00</div>
+    <div id="hud-label">SAFE ZONE · TOP 25%</div>
+    <div id="hud-dot"></div>
   </div>
-  <div id="game-viewport">
-    <img id="game-image" src="" alt="">
-    <div id="cover-black"></div>
-    <div id="safe-zone-bg"></div>
-    <div id="safe-zone-line"></div>
+  <div id="viewport">
+    <img id="game-img" src="" alt="">
+    <div id="mask"></div>
+    <div id="zone-shade"></div>
+    <div id="zone-line"></div>
   </div>
 </div>
 
-<!-- GAMEOVER -->
-<div class="screen hidden" id="screen-gameover">
-  <div class="go-label">GAME OVER</div>
-  <div class="go-sublabel">시선 이탈 감지됨</div>
-  <div class="score-box">
-    <div class="score-time" id="final-time">0.00</div>
+<!-- ⑤ GAMEOVER -->
+<div class="scr off" id="s-over">
+  <div class="over-title">GAME OVER</div>
+  <div class="over-sub">시선 이탈 감지</div>
+  <div class="score-card">
+    <div class="score-num" id="score-num">0.00</div>
     <div class="score-unit">초 버팀</div>
   </div>
-  <button class="btn btn-primary" id="btn-retry">다시 도전</button>
-  <button class="btn btn-secondary" id="btn-home">처음으로</button>
+  <button class="btn btn-red" id="btn-retry">다시 도전</button>
+  <button class="btn btn-ghost" id="btn-home">처음으로</button>
 </div>
 
+<!-- WebGazer -->
 <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
 <script>
-/* ══════════════════════════════════════
-   UTILS
-══════════════════════════════════════ */
-const $ = id => document.getElementById(id);
-const show = id => $('screen-'+id).classList.remove('hidden');
-const hide = id => $('screen-'+id).classList.add('hidden');
+'use strict';
 
-/* ══════════════════════════════════════
-   GAZE STATE
-══════════════════════════════════════ */
-// Raw output from WebGazer
-let rawGaze = { x: window.innerWidth/2, y: window.innerHeight/2 };
+/* ════════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════════ */
+const el  = id => document.getElementById(id);
+const on  = (id, ev, fn) => el(id).addEventListener(ev, fn);
+const scr = {}; // screen refs populated below
+['title','cal','upload','game','over'].forEach(k => scr[k] = el('s-'+k));
 
-// Exponential moving average smoothing
-let smoothGaze = { x: window.innerWidth/2, y: window.innerHeight/2 };
-
-// Larger alpha = more responsive, smaller = smoother
-// We use two-stage: fast when moving a lot, slow otherwise
-const ALPHA_FAST = 0.35;
-const ALPHA_SLOW = 0.15;
-
-// Affine calibration coefficients (fitted via least-squares)
-// px = ax*rx + bx*ry + cx
-// py = ay*rx + by*ry + cy
-let affine = null;
-
-// Raw calibration data collected during calibration steps
-let calPoints = []; // [{sx, sy, rx, ry}]
-
-let webgazerReady = false;
-let imageURL = null;
-
-/* ══════════════════════════════════════
-   WEBGAZER INIT
-══════════════════════════════════════ */
-async function initWebgazer() {
-  try {
-    webgazer.setGazeListener((data) => {
-      if (!data) return;
-      const dx = data.x - smoothGaze.x;
-      const dy = data.y - smoothGaze.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      // Adaptive smoothing: fast when far, slow when near
-      const alpha = dist > 80 ? ALPHA_FAST : ALPHA_SLOW;
-      smoothGaze.x += alpha * (data.x - smoothGaze.x);
-      smoothGaze.y += alpha * (data.y - smoothGaze.y);
-      rawGaze.x = data.x;
-      rawGaze.y = data.y;
-    });
-
-    await webgazer
-      .setRegression('ridge')
-      .setTracker('TFFacemesh')
-      .begin();
-
-    webgazer.showVideoPreview(false);
-    webgazer.showPredictionPoints(false);
-
-    // Force all video elements off-screen
-    setTimeout(() => {
-      document.querySelectorAll('video').forEach(v => {
-        v.style.cssText = 'position:fixed!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;opacity:0!important;';
-      });
-    }, 500);
-
-    webgazerReady = true;
-    console.log('WebGazer ready');
-  } catch(e) {
-    console.warn('WebGazer init failed, using fallback:', e);
-    webgazerReady = false;
-    enableFallback();
-  }
+function show(key) {
+  Object.values(scr).forEach(s => s.classList.add('off'));
+  scr[key].classList.remove('off');
 }
 
-// Touch/mouse fallback for testing or when camera is unavailable
-function enableFallback() {
-  document.addEventListener('touchmove', e => {
-    const t = e.touches[0];
-    smoothGaze.x = rawGaze.x = t.clientX;
-    smoothGaze.y = rawGaze.y = t.clientY;
-  }, { passive:true });
-  document.addEventListener('mousemove', e => {
-    smoothGaze.x = rawGaze.x = e.clientX;
-    smoothGaze.y = rawGaze.y = e.clientY;
-  });
+/* ════════════════════════════════════════════════════════
+   GAZE ENGINE
+   
+   WebGazer outputs noisy (x,y) in screen pixels.
+   We apply:
+   1) Double exponential smoothing (adaptive alpha)
+   2) 5-point affine calibration via least-squares
+   3) Clamp to viewport
+════════════════════════════════════════════════════════ */
+
+// Raw WebGazer output (screen px, uncalibrated)
+let wgRaw = { x: innerWidth/2, y: innerHeight/2 };
+// Smoothed raw (before calibration)
+let wgSmooth = { x: innerWidth/2, y: innerHeight/2 };
+// Final calibrated gaze (screen px)
+let gaze = { x: innerWidth/2, y: innerHeight/2 };
+
+// Smoothing params
+const S_FAST = 0.30; // alpha when eye moves fast
+const S_SLOW = 0.10; // alpha when eye is steady
+const FAST_THRESH = 60; // px — distance threshold
+
+// Affine calibration model
+// Maps smoothed WebGazer (rx,ry) → screen (px,py)
+// px = ax·rx + bx·ry + cx
+// py = ay·rx + by·ry + cy
+let CAL = null; // null until computed
+
+// Calibration training data
+let calPts = []; // [{sx,sy,rx,ry}]
+
+let wgReady = false;
+
+/* WebGazer smoothing listener */
+function onGaze(data) {
+  if (!data) return;
+  const dx = data.x - wgSmooth.x;
+  const dy = data.y - wgSmooth.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const alpha = dist > FAST_THRESH ? S_FAST : S_SLOW;
+  wgSmooth.x += alpha * (data.x - wgSmooth.x);
+  wgSmooth.y += alpha * (data.y - wgSmooth.y);
+  wgRaw.x = data.x;
+  wgRaw.y = data.y;
 }
 
-/* ══════════════════════════════════════
-   CALIBRATION — 5 POINT AFFINE
-══════════════════════════════════════ */
-function getCalTargets() {
-  const W = window.innerWidth, H = window.innerHeight;
-  return [
-    { x: W*0.5, y: H*0.5,  label:'화면 중앙' },
-    { x: W*0.5, y: H*0.1,  label:'화면 상단' },
-    { x: W*0.5, y: H*0.9,  label:'화면 하단' },
-    { x: W*0.12,y: H*0.5,  label:'화면 왼쪽' },
-    { x: W*0.88,y: H*0.5,  label:'화면 오른쪽' },
-  ];
+/* Apply affine calibration */
+function applyCAL(rx, ry) {
+  if (!CAL) return { x: rx, y: ry };
+  return {
+    x: CAL.ax*rx + CAL.bx*ry + CAL.cx,
+    y: CAL.ay*rx + CAL.by*ry + CAL.cy,
+  };
 }
 
-const WAIT_DURATION   = 2500; // ms — stare at dot before sampling starts
-const COLLECT_DURATION= 1800; // ms — actual sample collection
-const SAMPLES_PER_PT  = 30;   // how many raw samples to average
-
-let calTargets = [];
-let calStepIdx = 0;
-let calSampleBuf = [];
-let calPhase = 'wait'; // 'wait' | 'collecting' | 'flash'
-let calPhaseStart = 0;
-let calAnimFrame = null;
-let calCanvas, calCtx;
-let calCountdownStart = null;
-
-function startCalibration() {
-  calPoints = [];
-  calStepIdx = 0;
-  calTargets = getCalTargets();
-  calPhase = 'wait';
-  calPhaseStart = 0;
-  calCountdownStart = null;
-  calSampleBuf = [];
-  affine = null;
-
-  calCanvas = $('cal-canvas');
-  calCanvas.width  = window.innerWidth;
-  calCanvas.height = window.innerHeight;
-  calCtx = calCanvas.getContext('2d');
-
-  show('calibration');
-  $('gaze-dot').style.display = 'block';
-  cancelAnimationFrame(calAnimFrame);
-  calRenderLoop(performance.now());
+/* Get final gaze position */
+function getGaze() {
+  const g = applyCAL(wgSmooth.x, wgSmooth.y);
+  // Soft clamp (allow slightly out-of-bounds)
+  g.x = Math.max(-20, Math.min(innerWidth+20,  g.x));
+  g.y = Math.max(-20, Math.min(innerHeight+20, g.y));
+  return g;
 }
 
-function calRenderLoop(now) {
-  if ($('screen-calibration').classList.contains('hidden')) return;
-
-  const W = calCanvas.width, H = calCanvas.height;
-  calCtx.clearRect(0, 0, W, H);
-
-  // Background
-  calCtx.fillStyle = '#050508';
-  calCtx.fillRect(0, 0, W, H);
-
-  const target = calTargets[calStepIdx];
-
-  // ── Progress indicator (top) ──
-  const totalSteps = calTargets.length;
-  const dotSpacing = 28;
-  const startX = W/2 - (totalSteps-1)*dotSpacing/2;
-  for (let i=0; i<totalSteps; i++) {
-    calCtx.beginPath();
-    calCtx.arc(startX + i*dotSpacing, 32, 6, 0, Math.PI*2);
-    if (i < calStepIdx)       calCtx.fillStyle = '#00ff88';
-    else if (i === calStepIdx) calCtx.fillStyle = '#ff2244';
-    else                       calCtx.fillStyle = '#1a1a2e';
-    calCtx.fill();
-  }
-
-  // ── Step label ──
-  calCtx.font = 'bold 12px Orbitron, monospace';
-  calCtx.fillStyle = '#333355';
-  calCtx.textAlign = 'center';
-  calCtx.fillText(`STEP ${calStepIdx+1} / ${totalSteps}`, W/2, 56);
-
-  // ── Instruction ──
-  calCtx.font = '400 15px Noto Sans KR, sans-serif';
-  calCtx.fillStyle = '#c8c8e0';
-  calCtx.fillText(`"${target.label}"의 빨간 점을 바라봐 주세요`, W/2, H - 65);
-
-  // ── Phase logic ──
-  if (calPhase === 'wait') {
-    if (calPhaseStart === 0) calPhaseStart = now;
-    const elapsed = now - calPhaseStart;
-    const remaining = Math.max(0, WAIT_DURATION - elapsed);
-    const prog = elapsed / WAIT_DURATION;
-
-    // Countdown number
-    const cnt = Math.ceil(remaining/1000);
-    calCtx.font = `bold 44px Orbitron, monospace`;
-    calCtx.fillStyle = `rgba(200,200,224,${0.2 + 0.6*(1-prog)})`;
-    calCtx.fillText(cnt > 0 ? cnt : '→', W/2, H/2 + 80);
-
-    // Help text
-    calCtx.font = '300 13px Noto Sans KR, sans-serif';
-    calCtx.fillStyle = '#444466';
-    calCtx.fillText('점에 시선을 고정하세요', W/2, H - 38);
-
-    drawDotPulsing(target.x, target.y, prog);
-
-    if (elapsed >= WAIT_DURATION) {
-      calPhase = 'collecting';
-      calPhaseStart = now;
-      calSampleBuf = [];
-    }
-
-  } else if (calPhase === 'collecting') {
-    const elapsed = now - calPhaseStart;
-    const prog = Math.min(elapsed / COLLECT_DURATION, 1);
-
-    // Collect sample every frame (capped at SAMPLES_PER_PT)
-    if (calSampleBuf.length < 120) {
-      calSampleBuf.push({ rx: smoothGaze.x, ry: smoothGaze.y });
-      // Continuously train webgazer
-      if (webgazerReady) webgazer.recordScreenPosition(target.x, target.y, 'move');
-    }
-
-    drawDotCollecting(target.x, target.y, prog);
-
-    calCtx.font = '400 14px Noto Sans KR, sans-serif';
-    calCtx.fillStyle = '#00ff88';
-    calCtx.fillText('시선을 유지 중...', W/2, H/2 + 80);
-
-    calCtx.font = '300 13px Noto Sans KR, sans-serif';
-    calCtx.fillStyle = '#444466';
-    calCtx.fillText(`샘플 ${calSampleBuf.length}개 수집`, W/2, H - 38);
-
-    if (elapsed >= COLLECT_DURATION) {
-      // Compute trimmed mean: remove top & bottom 10% outliers
-      const avgRx = trimmedMean(calSampleBuf.map(s=>s.rx));
-      const avgRy = trimmedMean(calSampleBuf.map(s=>s.ry));
-
-      calPoints.push({ sx: target.x, sy: target.y, rx: avgRx, ry: avgRy });
-      console.log(`Cal point ${calStepIdx}: screen(${target.x.toFixed(0)},${target.y.toFixed(0)}) ← raw(${avgRx.toFixed(0)},${avgRy.toFixed(0)})`);
-
-      calStepIdx++;
-      if (calStepIdx >= calTargets.length) {
-        computeAffine();
-        finishCalibration();
-        return;
-      }
-      calPhase = 'wait';
-      calPhaseStart = 0;
-    }
-  }
-
-  // Update gaze preview cursor
-  const g = getCalibratedGaze();
-  $('gaze-dot').style.left = g.x + 'px';
-  $('gaze-dot').style.top  = g.y + 'px';
-
-  calAnimFrame = requestAnimationFrame(calRenderLoop);
-}
-
-// Pulsing red dot (during wait)
-function drawDotPulsing(x, y, prog) {
-  const t = performance.now() / 600;
-  const pulse = 0.7 + 0.3 * Math.sin(t * Math.PI * 2);
-
-  // Outer glow
-  const grad = calCtx.createRadialGradient(x, y, 0, x, y, 55*pulse);
-  grad.addColorStop(0, 'rgba(255,34,68,.25)');
-  grad.addColorStop(1, 'rgba(255,34,68,0)');
-  calCtx.beginPath(); calCtx.arc(x, y, 55*pulse, 0, Math.PI*2);
-  calCtx.fillStyle = grad; calCtx.fill();
-
-  // Main dot
-  calCtx.beginPath(); calCtx.arc(x, y, 16, 0, Math.PI*2);
-  calCtx.fillStyle = '#ff2244'; calCtx.fill();
-  // Center
-  calCtx.beginPath(); calCtx.arc(x, y, 4, 0, Math.PI*2);
-  calCtx.fillStyle = '#fff'; calCtx.fill();
-  // Crosshair
-  calCtx.strokeStyle = 'rgba(255,34,68,.4)';
-  calCtx.lineWidth = 1;
-  calCtx.setLineDash([4,4]);
-  calCtx.beginPath(); calCtx.moveTo(x-40, y); calCtx.lineTo(x+40, y); calCtx.stroke();
-  calCtx.beginPath(); calCtx.moveTo(x, y-40); calCtx.lineTo(x, y+40); calCtx.stroke();
-  calCtx.setLineDash([]);
-}
-
-// Progress ring (during collect)
-function drawDotCollecting(x, y, prog) {
-  // Glow
-  const grad = calCtx.createRadialGradient(x, y, 0, x, y, 50);
-  grad.addColorStop(0, 'rgba(0,255,136,.15)');
-  grad.addColorStop(1, 'rgba(0,255,136,0)');
-  calCtx.beginPath(); calCtx.arc(x, y, 50, 0, Math.PI*2);
-  calCtx.fillStyle = grad; calCtx.fill();
-
-  // Dot
-  calCtx.beginPath(); calCtx.arc(x, y, 16, 0, Math.PI*2);
-  calCtx.fillStyle = '#ff2244'; calCtx.fill();
-  calCtx.beginPath(); calCtx.arc(x, y, 4, 0, Math.PI*2);
-  calCtx.fillStyle = '#fff'; calCtx.fill();
-
-  // Progress arc
-  calCtx.beginPath();
-  calCtx.arc(x, y, 28, -Math.PI/2, -Math.PI/2 + Math.PI*2*prog);
-  calCtx.strokeStyle = '#00ff88';
-  calCtx.lineWidth = 4;
-  calCtx.lineCap = 'round';
-  calCtx.stroke();
-
-  // Background arc
-  calCtx.beginPath();
-  calCtx.arc(x, y, 28, -Math.PI/2 + Math.PI*2*prog, -Math.PI/2 + Math.PI*2);
-  calCtx.strokeStyle = '#1a1a2e';
-  calCtx.lineWidth = 4;
-  calCtx.stroke();
-}
-
-// Trimmed mean: remove outer 15% extremes
-function trimmedMean(arr) {
-  if (arr.length < 4) return arr.reduce((s,v)=>s+v,0)/arr.length;
-  const sorted = [...arr].sort((a,b)=>a-b);
-  const trim = Math.floor(sorted.length * 0.15);
-  const trimmed = sorted.slice(trim, sorted.length - trim);
-  return trimmed.reduce((s,v)=>s+v,0) / trimmed.length;
-}
-
-/* ══════════════════════════════════════
-   AFFINE TRANSFORM (Least-Squares)
-   Maps raw WebGazer coords → screen coords
-   px = ax*rx + bx*ry + cx
-   py = ay*rx + by*ry + cy
-══════════════════════════════════════ */
-function computeAffine() {
-  if (calPoints.length < 3) { affine = null; return; }
-
-  // Build normal equations for A^T A x = A^T b
-  let ATA = [[0,0,0],[0,0,0],[0,0,0]];
-  let ATbx = [0,0,0];
-  let ATby = [0,0,0];
-
-  for (const p of calPoints) {
-    const row = [p.rx, p.ry, 1];
-    for (let i=0; i<3; i++) {
-      ATbx[i] += row[i] * p.sx;
-      ATby[i] += row[i] * p.sy;
-      for (let j=0; j<3; j++) ATA[i][j] += row[i]*row[j];
-    }
-  }
-
-  const cx = solveLinear3(ATA, ATbx);
-  const cy = solveLinear3(ATA, ATby);
-
-  if (!cx || !cy) {
-    console.warn('Affine solve failed — using offset fallback');
-    // Fallback: simple offset from center point
-    const c = calPoints[0];
-    affine = { ax:1, bx:0, cx:c.sx-c.rx, ay:0, by:1, cy:c.sy-c.ry };
-    return;
-  }
-
-  affine = { ax:cx[0], bx:cx[1], cx:cx[2], ay:cy[0], by:cy[1], cy:cy[2] };
-
-  // Sanity check: compute residuals
-  let totalErr = 0;
-  for (const p of calPoints) {
-    const px = affine.ax*p.rx + affine.bx*p.ry + affine.cx;
-    const py = affine.ay*p.rx + affine.by*p.ry + affine.cy;
-    totalErr += Math.sqrt((px-p.sx)**2 + (py-p.sy)**2);
-  }
-  console.log(`Affine fit residual avg: ${(totalErr/calPoints.length).toFixed(1)}px`);
-  console.log('Affine:', affine);
-}
-
-// Gaussian elimination (3×3)
-function solveLinear3(A, b) {
+/* ─── Least-squares affine fit ─── */
+// Solves Ax=b where A is 3×3 via Gaussian elimination
+function solve3(A, b) {
   const M = A.map(r=>[...r]);
   const v = [...b];
-  for (let col=0; col<3; col++) {
-    let maxRow = col;
-    for (let row=col+1; row<3; row++) {
-      if (Math.abs(M[row][col]) > Math.abs(M[maxRow][col])) maxRow = row;
-    }
-    [M[col], M[maxRow]] = [M[maxRow], M[col]];
-    [v[col], v[maxRow]] = [v[maxRow], v[col]];
-    if (Math.abs(M[col][col]) < 1e-10) return null;
-    for (let row=col+1; row<3; row++) {
-      const f = M[row][col] / M[col][col];
-      for (let k=col; k<3; k++) M[row][k] -= f*M[col][k];
-      v[row] -= f*v[col];
+  for (let c=0; c<3; c++) {
+    // Partial pivot
+    let best = c;
+    for (let r=c+1; r<3; r++) if (Math.abs(M[r][c])>Math.abs(M[best][c])) best=r;
+    [M[c],M[best]]=[M[best],M[c]]; [v[c],v[best]]=[v[best],v[c]];
+    if (Math.abs(M[c][c])<1e-12) return null;
+    for (let r=c+1; r<3; r++) {
+      const f=M[r][c]/M[c][c];
+      for (let k=c;k<3;k++) M[r][k]-=f*M[c][k];
+      v[r]-=f*v[c];
     }
   }
-  const x = [0,0,0];
-  for (let i=2; i>=0; i--) {
-    x[i] = v[i];
-    for (let j=i+1; j<3; j++) x[i] -= M[i][j]*x[j];
-    x[i] /= M[i][i];
+  const x=[0,0,0];
+  for (let i=2;i>=0;i--) {
+    x[i]=v[i];
+    for (let j=i+1;j<3;j++) x[i]-=M[i][j]*x[j];
+    x[i]/=M[i][i];
   }
   return x;
 }
 
-function getCalibratedGaze() {
-  if (!affine) return smoothGaze;
-  return {
-    x: affine.ax*smoothGaze.x + affine.bx*smoothGaze.y + affine.cx,
-    y: affine.ay*smoothGaze.x + affine.by*smoothGaze.y + affine.cy,
+function fitAffine(pts) {
+  // Need ≥3 non-degenerate points
+  if (pts.length < 3) return null;
+
+  // Build normal equations: A^T·A · coeffs = A^T·b
+  // row = [rx, ry, 1], target = [sx] or [sy]
+  const ATA = [[0,0,0],[0,0,0],[0,0,0]];
+  const bX  = [0,0,0];
+  const bY  = [0,0,0];
+
+  for (const p of pts) {
+    const row = [p.rx, p.ry, 1];
+    for (let i=0;i<3;i++) {
+      bX[i] += row[i]*p.sx;
+      bY[i] += row[i]*p.sy;
+      for (let j=0;j<3;j++) ATA[i][j] += row[i]*row[j];
+    }
+  }
+
+  const cx = solve3(ATA, bX);
+  const cy = solve3(ATA, bY);
+  if (!cx||!cy) return null;
+
+  const model = { ax:cx[0],bx:cx[1],cx:cx[2], ay:cy[0],by:cy[1],cy:cy[2] };
+
+  // Log residuals for debugging
+  let totalErr=0;
+  for (const p of pts) {
+    const px=model.ax*p.rx+model.bx*p.ry+model.cx;
+    const py=model.ay*p.rx+model.by*p.ry+model.cy;
+    totalErr+=Math.hypot(px-p.sx,py-p.sy);
+  }
+  console.log('[CAL] affine residual:', (totalErr/pts.length).toFixed(1)+'px', model);
+  return model;
+}
+
+/* Trimmed mean — removes top/bottom 15% outliers */
+function trimMean(arr, trim=0.15) {
+  if (!arr.length) return 0;
+  const sorted=[...arr].sort((a,b)=>a-b);
+  const cut=Math.floor(sorted.length*trim);
+  const mid=sorted.slice(cut, sorted.length-cut);
+  return mid.length ? mid.reduce((s,v)=>s+v,0)/mid.length : sorted[Math.floor(sorted.length/2)];
+}
+
+/* ════════════════════════════════════════════════════════
+   WEBGAZER INITIALISATION
+════════════════════════════════════════════════════════ */
+let wgStarted = false;
+
+async function startWG() {
+  if (wgStarted) return;
+  wgStarted = true;
+  try {
+    webgazer.setGazeListener(onGaze);
+    await webgazer
+      .setRegression('ridge')
+      .setTracker('TFFacemesh')
+      .begin();
+    // Hide every element WebGazer injects into the DOM
+    webgazer.showVideoPreview(false);
+    webgazer.showPredictionPoints(false);
+    hideWGElements();
+    wgReady = true;
+  } catch(e) {
+    console.warn('WebGazer failed, touch fallback active', e);
+    wgReady = false;
+    enableTouchFallback();
+  }
+}
+
+function hideWGElements() {
+  // Repeatedly nuke webgazer's injected DOM — it re-injects on resize etc.
+  const kill = () => {
+    document.querySelectorAll(
+      '#webgazerVideoFeed, #webgazerVideoCanvas, #webgazerFaceOverlay, #webgazerGazeDot'
+    ).forEach(n => {
+      n.style.cssText='position:fixed!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;';
+    });
+    // Also nuke any canvas webgazer adds to body with high z-index
+    document.querySelectorAll('body > canvas').forEach(c => {
+      if (c.id!=='cal-canvas') c.style.cssText='display:none!important;';
+    });
+    document.querySelectorAll('body > video').forEach(v => {
+      v.style.cssText='position:fixed!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;';
+    });
   };
+  kill();
+  setInterval(kill, 800);
 }
 
-function finishCalibration() {
-  cancelAnimationFrame(calAnimFrame);
-  hide('calibration');
-  show('upload');
-  startPreviewLoop();
+function enableTouchFallback() {
+  // Simulate gaze from touch/mouse (for testing on desktop or when cam denied)
+  const update = (x,y) => { wgSmooth.x=wgRaw.x=x; wgSmooth.y=wgRaw.y=y; };
+  document.addEventListener('touchmove', e=>{e.preventDefault();const t=e.touches[0];update(t.clientX,t.clientY);},{passive:false});
+  document.addEventListener('touchstart',e=>{const t=e.touches[0];update(t.clientX,t.clientY);},{passive:true});
+  document.addEventListener('mousemove', e=>update(e.clientX,e.clientY));
 }
 
-/* ══════════════════════════════════════
-   GAZE PREVIEW LOOP (outside game)
-══════════════════════════════════════ */
-let previewRAF = null;
-function startPreviewLoop() {
-  $('gaze-dot').style.display = 'block';
+/* ════════════════════════════════════════════════════════
+   GLOBAL GAZE DOT — runs every rAF after calibration done
+════════════════════════════════════════════════════════ */
+let gazeLoopRunning = false;
+let _gazeDanger = false;
+
+function startGazeDot() {
+  const dot = el('gaze-dot');
+  dot.style.display = 'block';
+  if (gazeLoopRunning) return;
+  gazeLoopRunning = true;
   const loop = () => {
-    if (!$('screen-game').classList.contains('hidden')) { previewRAF = null; return; }
-    const g = getCalibratedGaze();
-    $('gaze-dot').style.left = g.x + 'px';
-    $('gaze-dot').style.top  = g.y + 'px';
-    previewRAF = requestAnimationFrame(loop);
+    const g = getGaze();
+    gaze.x = g.x; gaze.y = g.y;
+    dot.style.left = g.x + 'px';
+    dot.style.top  = g.y + 'px';
+    requestAnimationFrame(loop);
   };
-  if (!previewRAF) loop();
+  requestAnimationFrame(loop);
 }
 
-/* ══════════════════════════════════════
+/* ════════════════════════════════════════════════════════
+   CALIBRATION
+   5 targets. Each: 2s of watching, then 1.5s collecting samples.
+   Fitting: affine via least-squares on per-point trimmed means.
+════════════════════════════════════════════════════════ */
+const CAL_WAIT_MS    = 2000; // ms to stare before collecting
+const CAL_COLLECT_MS = 1500; // ms of collection
+const CAL_TARGETS = () => {
+  const W=innerWidth, H=innerHeight;
+  return [
+    {x:W*.5,  y:H*.5,  name:'중앙'},
+    {x:W*.5,  y:H*.1,  name:'상단'},
+    {x:W*.5,  y:H*.9,  name:'하단'},
+    {x:W*.15, y:H*.5,  name:'왼쪽'},
+    {x:W*.85, y:H*.5,  name:'오른쪽'},
+  ];
+};
+
+let calTargets=[], calIdx=0, calPhase='wait', calT0=0, calBuf=[];
+let calRAF=null, calCanvas, calCtx;
+
+function beginCalibration() {
+  calPts=[];
+  calTargets=CAL_TARGETS();
+  calIdx=0; calPhase='wait'; calT0=0; calBuf=[];
+  CAL=null;
+
+  calCanvas=el('cal-canvas');
+  calCanvas.width=innerWidth;
+  calCanvas.height=innerHeight;
+  calCtx=calCanvas.getContext('2d');
+
+  show('cal');
+  cancelAnimationFrame(calRAF);
+  calFrame(performance.now());
+}
+
+function calFrame(now) {
+  const W=calCanvas.width, H=calCanvas.height;
+  calCtx.clearRect(0,0,W,H);
+
+  // Background
+  calCtx.fillStyle='#000';
+  calCtx.fillRect(0,0,W,H);
+
+  const tgt=calTargets[calIdx];
+
+  // ── Progress pips ──
+  const N=calTargets.length;
+  const PIP_R=5, PIP_GAP=18;
+  const px0=W/2-(N-1)*PIP_GAP/2;
+  for(let i=0;i<N;i++){
+    calCtx.beginPath();
+    calCtx.arc(px0+i*PIP_GAP, 28, PIP_R, 0, Math.PI*2);
+    calCtx.fillStyle = i<calIdx ? '#00ff88' : i===calIdx ? '#ff1e3c' : '#111';
+    calCtx.fill();
+  }
+
+  // ── Step label ──
+  calCtx.textAlign='center';
+  calCtx.font='700 11px Orbitron,monospace';
+  calCtx.fillStyle='#222';
+  calCtx.fillText(`STEP ${calIdx+1} / ${N}`, W/2, 48);
+
+  // ── Phase: WAIT ──
+  if(calPhase==='wait'){
+    if(!calT0) calT0=now;
+    const elapsed=now-calT0;
+    const remain=Math.max(0,CAL_WAIT_MS-elapsed);
+    const prog=elapsed/CAL_WAIT_MS;
+
+    drawTarget(tgt.x, tgt.y, 'wait', prog, performance.now());
+
+    // Countdown number below target
+    calCtx.font=`900 ${Math.round(H*.1)}px Orbitron,monospace`;
+    calCtx.fillStyle=`rgba(255,255,255,${.12+.2*(1-prog)})`;
+    calCtx.fillText(Math.ceil(remain/1000)||'→', W/2, H*.75);
+
+    // Instruction
+    calCtx.font='400 14px Noto Sans KR,sans-serif';
+    calCtx.fillStyle='#555';
+    calCtx.fillText(`"${tgt.name}" 빨간 점을 바라봐 주세요`, W/2, H-50);
+
+    if(elapsed>=CAL_WAIT_MS){
+      calPhase='collect'; calT0=now; calBuf=[];
+      if(wgReady) webgazer.recordScreenPosition(tgt.x,tgt.y,'click');
+    }
+
+  // ── Phase: COLLECT ──
+  } else if(calPhase==='collect'){
+    const elapsed=now-calT0;
+    const prog=Math.min(elapsed/CAL_COLLECT_MS,1);
+
+    // Accumulate samples
+    calBuf.push({rx:wgSmooth.x, ry:wgSmooth.y});
+    if(wgReady) webgazer.recordScreenPosition(tgt.x,tgt.y,'move');
+
+    drawTarget(tgt.x, tgt.y, 'collect', prog, performance.now());
+
+    calCtx.font='700 13px Noto Sans KR,sans-serif';
+    calCtx.fillStyle='#00ff88';
+    calCtx.fillText('시선 유지 중…', W/2, H*.75);
+
+    calCtx.font='400 12px Noto Sans KR,sans-serif';
+    calCtx.fillStyle='#222';
+    calCtx.fillText(`${calBuf.length}샘플 수집`, W/2, H-50);
+
+    if(elapsed>=CAL_COLLECT_MS){
+      // Save trimmed-mean point
+      const avgRx=trimMean(calBuf.map(s=>s.rx));
+      const avgRy=trimMean(calBuf.map(s=>s.ry));
+      calPts.push({sx:tgt.x,sy:tgt.y,rx:avgRx,ry:avgRy});
+      console.log(`[CAL] pt${calIdx}: screen(${tgt.x|0},${tgt.y|0}) raw(${avgRx|0},${avgRy|0})`);
+
+      calIdx++;
+      if(calIdx>=calTargets.length){
+        // Done — fit model
+        CAL=fitAffine(calPts);
+        finishCalibration();
+        return;
+      }
+      calPhase='wait'; calT0=0; calBuf=[];
+    }
+  }
+
+  // Update gaze dot during calibration
+  const g=getGaze();
+  gaze.x=g.x; gaze.y=g.y;
+  const dot=el('gaze-dot');
+  dot.style.left=g.x+'px';
+  dot.style.top=g.y+'px';
+
+  calRAF=requestAnimationFrame(calFrame);
+}
+
+function drawTarget(x, y, phase, prog, now) {
+  const ctx=calCtx;
+
+  if(phase==='wait'){
+    // Pulsing red dot
+    const pulse=.7+.3*Math.sin(now/400*Math.PI);
+
+    // Outer halo
+    const g=ctx.createRadialGradient(x,y,0,x,y,60*pulse);
+    g.addColorStop(0,'rgba(255,30,60,.18)');
+    g.addColorStop(1,'rgba(255,30,60,0)');
+    ctx.beginPath(); ctx.arc(x,y,60*pulse,0,Math.PI*2);
+    ctx.fillStyle=g; ctx.fill();
+
+    // Main circle
+    ctx.beginPath(); ctx.arc(x,y,14,0,Math.PI*2);
+    ctx.fillStyle='#ff1e3c'; ctx.fill();
+
+    // Cross
+    ctx.strokeStyle='rgba(255,30,60,.35)'; ctx.lineWidth=1;
+    ctx.setLineDash([4,5]);
+    ctx.beginPath(); ctx.moveTo(x-44,y); ctx.lineTo(x+44,y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x,y-44); ctx.lineTo(x,y+44); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // White center
+    ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2);
+    ctx.fillStyle='#fff'; ctx.fill();
+
+  } else {
+    // Collecting — green progress ring
+    const halo=ctx.createRadialGradient(x,y,0,x,y,48);
+    halo.addColorStop(0,'rgba(0,255,136,.12)');
+    halo.addColorStop(1,'rgba(0,255,136,0)');
+    ctx.beginPath(); ctx.arc(x,y,48,0,Math.PI*2);
+    ctx.fillStyle=halo; ctx.fill();
+
+    ctx.beginPath(); ctx.arc(x,y,14,0,Math.PI*2);
+    ctx.fillStyle='#ff1e3c'; ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2);
+    ctx.fillStyle='#fff'; ctx.fill();
+
+    // Background ring
+    ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2);
+    ctx.strokeStyle='#111'; ctx.lineWidth=5; ctx.stroke();
+    // Progress ring
+    ctx.beginPath();
+    ctx.arc(x,y,26,-Math.PI/2,-Math.PI/2+Math.PI*2*prog);
+    ctx.strokeStyle='#00ff88'; ctx.lineWidth=5; ctx.lineCap='round'; ctx.stroke();
+  }
+}
+
+function finishCalibration(){
+  cancelAnimationFrame(calRAF);
+  show('upload');
+  startGazeDot(); // start continuous gaze dot from now on
+}
+
+/* ════════════════════════════════════════════════════════
    UPLOAD
-══════════════════════════════════════ */
-$('upload-area').addEventListener('click', () => $('file-input').click());
-$('file-input').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  imageURL = URL.createObjectURL(file);
-  const img = new Image(); img.src = imageURL;
-  $('upload-area').innerHTML = ''; $('upload-area').appendChild(img);
-  $('btn-play').disabled = false;
-});
-$('btn-recal').addEventListener('click', () => { cancelAnimationFrame(previewRAF); previewRAF=null; hide('upload'); startCalibration(); });
+════════════════════════════════════════════════════════ */
+let imageURL=null;
 
-/* ══════════════════════════════════════
+el('up-area').addEventListener('click',()=>el('file-input').click());
+el('file-input').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  imageURL=URL.createObjectURL(f);
+  const img=new Image(); img.src=imageURL;
+  img.onload=()=>{
+    el('up-area').innerHTML='';
+    el('up-area').appendChild(img);
+    el('btn-play').disabled=false;
+  };
+});
+on('btn-recal','click',()=>beginCalibration());
+
+/* ════════════════════════════════════════════════════════
    GAME
-══════════════════════════════════════ */
-let gameRunning = false;
-let gameStartTime = 0;
-let dangerStart = null;
-const DANGER_GRACE = 500;
-const REVEAL_DURATION = 2000;
-let gameRAF, timerInterval;
+════════════════════════════════════════════════════════ */
+const REVEAL_MS  = 2000;
+const GRACE_MS   = 500;
 
-$('btn-play').addEventListener('click', startGame);
-$('btn-retry').addEventListener('click', () => { hide('gameover'); startGame(); });
-$('btn-home').addEventListener('click', () => { hide('gameover'); show('title'); startPreviewLoop(); });
+let gameOn=false, t0Game=0, dangerT=null;
+let gameRAF=null, timerIV=null;
 
-function startGame() {
-  if (!imageURL) return;
-  cancelAnimationFrame(previewRAF); previewRAF = null;
-  show('game'); hide('upload'); hide('gameover');
-  $('gaze-dot').style.display = 'block';
+on('btn-play','click',startGame);
+on('btn-retry','click',()=>{hide();show('game');startGame();});
+on('btn-home','click',()=>{show('title');});
 
-  const gameImg = $('game-image');
-  if (gameImg.src === imageURL) {
-    initGameState();
-  } else {
-    gameImg.src = imageURL;
-    gameImg.onload = initGameState;
-  }
+function startGame(){
+  if(!imageURL) return;
+  show('game');
+  const img=el('game-img');
+
+  const go=()=>{
+    el('mask').style.height='75%';
+    gameOn=true;
+    t0Game=performance.now();
+    dangerT=null;
+    el('hud-time').textContent='0.00';
+    el('hud-dot').className='';
+    clearInterval(timerIV);
+    timerIV=setInterval(()=>{
+      if(gameOn) el('hud-time').textContent=((performance.now()-t0Game)/1e3).toFixed(2);
+    },50);
+    cancelAnimationFrame(gameRAF);
+    gameRAF=requestAnimationFrame(gameLoop);
+  };
+
+  if(img.src===imageURL){ go(); }
+  else { img.src=imageURL; img.onload=go; }
 }
 
-function initGameState() {
-  $('cover-black').style.height = '75%';
-  gameRunning = true;
-  gameStartTime = performance.now();
-  dangerStart = null;
-  $('timer-display').textContent = '0.00';
-  $('status-dot').className = '';
-  timerInterval = setInterval(() => {
-    if (gameRunning) $('timer-display').textContent = ((performance.now()-gameStartTime)/1000).toFixed(2);
-  }, 50);
-  cancelAnimationFrame(gameRAF);
-  gameRAF = requestAnimationFrame(gameLoop);
-}
+function gameLoop(now){
+  if(!gameOn) return;
 
-function gameLoop(now) {
-  if (!gameRunning) return;
-  const elapsed = now - gameStartTime;
+  // ── Reveal mask ──
+  const elapsed=now-t0Game;
+  const coverPct=75*Math.max(0,1-elapsed/REVEAL_MS);
+  el('mask').style.height=coverPct+'%';
 
-  // Reveal: cover shrinks 75% → 0% over REVEAL_DURATION
-  const coverPct = 75 * (1 - Math.min(elapsed / REVEAL_DURATION, 1));
-  $('cover-black').style.height = coverPct + '%';
+  // ── Gaze (already updated by startGazeDot loop) ──
+  // Re-read from the global gaze object (updated in startGazeDot rAF)
+  const gx=gaze.x, gy=gaze.y;
 
-  // Get calibrated gaze (screen coords)
-  const g = getCalibratedGaze();
+  // Update gaze dot position (in case startGazeDot loop is racing)
+  el('gaze-dot').style.left=gx+'px';
+  el('gaze-dot').style.top=gy+'px';
 
-  // Update global gaze cursor
-  $('gaze-dot').style.left = g.x + 'px';
-  $('gaze-dot').style.top  = g.y + 'px';
+  // ── Safe zone check ──
+  const vp=el('viewport').getBoundingClientRect();
+  const relX=gx-vp.left;
+  const relY=gy-vp.top;
+  const safeY=vp.height*0.25;
+  const inSafe=(relY>=0&&relY<=safeY&&relX>=0&&relX<=vp.width);
 
-  // Map to game viewport
-  const vp = $('game-viewport').getBoundingClientRect();
-  const relX = g.x - vp.left;
-  const relY = g.y - vp.top;
-  const safeLimit = vp.height * 0.25;
-  const inSafe = relY >= 0 && relY <= safeLimit && relX >= 0 && relX <= vp.width;
-
-  if (inSafe) {
-    dangerStart = null;
-    $('status-dot').className = '';
-    $('gaze-dot').className = '';
-    $('warning-bar').classList.remove('show');
-    $('flash').className = '';
+  if(inSafe){
+    dangerT=null;
+    el('hud-dot').className='';
+    el('gaze-dot').className='';
+    el('flash').className='';
+    el('warn').className='';
   } else {
-    if (!dangerStart) dangerStart = now;
-    const dangerElapsed = now - dangerStart;
-    if (dangerElapsed >= DANGER_GRACE) { gameOver(elapsed); return; }
-    $('status-dot').className = 'danger';
-    $('gaze-dot').className = 'danger';
-    $('warning-bar').classList.add('show');
-    $('flash').className = Math.floor(dangerElapsed/120)%2===0 ? 'on' : '';
+    if(!dangerT) dangerT=now;
+    const dElapsed=now-dangerT;
+    if(dElapsed>=GRACE_MS){ endGame(elapsed); return; }
+    el('hud-dot').className='red';
+    el('gaze-dot').className='red';
+    el('warn').className='on';
+    el('flash').className=Math.floor(dElapsed/110)%2===0?'on':'';
   }
 
-  gameRAF = requestAnimationFrame(gameLoop);
+  gameRAF=requestAnimationFrame(gameLoop);
 }
 
-function gameOver(elapsed) {
-  gameRunning = false;
+function endGame(elapsed){
+  gameOn=false;
   cancelAnimationFrame(gameRAF);
-  clearInterval(timerInterval);
-  $('flash').className = '';
-  $('warning-bar').classList.remove('show');
-  $('gaze-dot').className = '';
-  $('final-time').textContent = (elapsed/1000).toFixed(2);
-  hide('game');
-  show('gameover');
-  startPreviewLoop();
+  clearInterval(timerIV);
+  el('flash').className='';
+  el('warn').className='';
+  el('gaze-dot').className='';
+  el('score-num').textContent=(elapsed/1e3).toFixed(2);
+  show('over');
 }
 
-/* ══════════════════════════════════════
+/* ════════════════════════════════════════════════════════
    STARTUP FLOW
-══════════════════════════════════════ */
-$('btn-start-flow').addEventListener('click', async () => {
-  hide('title');
+════════════════════════════════════════════════════════ */
+on('btn-begin','click',async()=>{
+  el('gaze-dot').style.display='block'; // show early so user sees it loading
+  show('cal'); // show cal screen behind loader while WG starts
+  el('loader').classList.remove('off'); // keep loader visible
 
-  // Loading screen
-  const loader = document.createElement('div');
-  loader.id = 'loader';
-  loader.style.cssText = `
-    position:fixed;inset:0;background:#050508;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:20px;z-index:1000;
-  `;
-  loader.innerHTML = `
-    <div style="font-family:Orbitron,monospace;font-size:.85rem;color:#555580;letter-spacing:.2em;">카메라 초기화 중...</div>
-    <div style="width:44px;height:44px;border:3px solid #1a1a2e;border-top-color:#ff2244;border-radius:50%;animation:spin .9s linear infinite;"></div>
-    <div style="font-family:'Noto Sans KR',sans-serif;font-size:.75rem;color:#333355;max-width:260px;text-align:center;line-height:1.6;">
-      전면 카메라 권한을 허용해 주세요.<br>카메라는 시선 감지에만 사용됩니다.
-    </div>
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-  `;
-  document.body.appendChild(loader);
+  await startWG();
+  // Let face mesh warm up
+  await new Promise(r=>setTimeout(r,1400));
 
-  await initWebgazer();
-  // Give face mesh time to stabilize
-  await new Promise(r => setTimeout(r, 1500));
-  document.body.removeChild(loader);
-
-  startCalibration();
+  el('loader').classList.add('off');
+  beginCalibration();
 });
+
+on('btn-retry','click',()=>{ show('game'); startGame(); });
+on('btn-home','click',()=>show('title'));
+
 </script>
 </body>
 </html>
