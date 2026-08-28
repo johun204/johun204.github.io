@@ -123,8 +123,12 @@
   .dayfood b { color: var(--ink); font-weight: 700; }
   .daymap-wrap { margin: 12px 16px 0; }
   .daymap { height: 230px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; background: #e8e5dd; }
-  .daymap-static { display: none; font-size: 12px; color: var(--sub); line-height: 1.7; padding: 10px 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
-  .dayroute-link { display: inline-block; margin-top: 6px; font-size: 11.5px; font-weight: 700; color: var(--teal); text-decoration: none; border: 1px solid color-mix(in srgb, var(--teal) 38%, transparent); padding: 3px 9px; border-radius: 7px; }
+  .daymap-static { display: block; font-size: 12px; color: var(--sub); line-height: 2; padding: 8px 2px 0; }
+  .daymap-static .rt-label { font-weight: 700; color: var(--ink); margin-right: 2px; }
+  .rt-item { display: inline-block; color: var(--teal); font-weight: 600; cursor: pointer; padding: 1px 6px; margin: 2px 0; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--teal) 32%, transparent); -webkit-tap-highlight-color: transparent; }
+  .rt-item:hover, .rt-item:focus-visible { background: color-mix(in srgb, var(--teal) 14%, transparent); outline: none; }
+  .rt-sep { margin: 0 3px; color: var(--faint); }
+  .dayroute-link { display: inline-block; margin-top: 8px; font-size: 11.5px; font-weight: 700; color: var(--teal); text-decoration: none; border: 1px solid color-mix(in srgb, var(--teal) 38%, transparent); padding: 3px 9px; border-radius: 7px; }
   .mk-num { background: var(--accent); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45); }
   .leaflet-popup-content { font-size: 12px; font-weight: 600; margin: 8px 12px; }
   .leaflet-container { font: inherit; }
@@ -491,7 +495,7 @@
         <div class="daytag" style="--c: var(--gold)"><div><span class="dow">수</span><div class="dt">10/21</div></div></div>
         <div><div class="title">고대 로마 · 콜로세움 & 중심가 도보</div><div class="sub">콜로세움(개장) · 포로 로마노 · 팔라티노 · 판테온 · 트레비 · 스페인 계단</div></div>
       </div>
-      <div class="day-intro">🏛️ <b>고대와 바로크를 하루에.</b> 아침 일찍 예약 입장으로 콜로세움→포로 로마노→팔라티노를 한 티켓(24h)으로 오전에 묶고, 오후엔 판테온·트레비·스페인 계단을 <b>도보로 이어</b> 숙소 방향으로 걸어옵니다.<br><br><b>💶 오늘 경비(2인)</b> · 🚇 메트로 + 도보: 교통 €18(메트로 €6·택시 1회 €12) · 입장 €46(콜로세움 통합권 €36·판테온 예약 €10) · 식비 €170(Roscioli 점심 €100·저녁 €70) → <b>약 €235</b> <span class="en">(Roscioli 예약 시 €20/인 노쇼 보증금 · 계산서서 차감)</span></div>
+      <div class="day-intro">🏛️ <b>고대와 바로크를 하루에.</b> 아침 일찍 예약 입장으로 콜로세움→포로 로마노→팔라티노를 한 티켓(24h)으로 오전에 묶고, 오후엔 판테온·트레비·스페인 계단을 <b>도보로 이어</b> 숙소 방향으로 걸어옵니다.<br><br><b>💶 오늘 경비(2인)</b> · 🚇 메트로 + 도보: 교통 €18(메트로 €6·택시 1회 €12) · 입장 €46(콜로세움 통합권 €36·판테온 예약 €10) · 식비 €105(몬티 점심 €35·저녁 €70) → <b>약 €170</b></div>
       <div class="stats">
         <div class="stat"><b>08:15</b><span>출발</span></div>
         <div class="stat"><b>20:30</b><span>복귀</span></div>
@@ -503,10 +507,9 @@
         <div class="row"><div class="time">08:20</div><div class="act">숙소 → 콜로세움<span class="note">메트로 A Barberini→(Termini 환승)→B Colosseo, 15분. 또는 도보 25분/택시 €10. 게이트 15분 전 도착 규정</span></div></div>
         <div class="row"><div class="time">09:00</div><div class="act">콜로세움<span class="note">€18(포로·팔라티노 24h 포함). 예약 필수(준비탭). 아레나 층 옵션은 +€. 1~1.5h</span><span class="addr">📍 Colosseo, Piazza del Colosseo 1</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Colosseum+Rome" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
         <div class="row"><div class="time">10:45</div><div class="act">포로 로마노 + 팔라티노 언덕<span class="note">같은 티켓으로 입장(콜로세움서 도보 3분). 팔라티노에서 치르코 마시모 조망. 2~2.5h. 그늘 적음</span><span class="addr">📍 Foro Romano, Via della Salara Vecchia 5/6</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Roman+Forum" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
-        <div class="row"><div class="time">13:15</div><div class="act">유적 마무리 → 캄포 데 피오리 방향으로 도보<span class="note">포로 로마노서 캄포까지 도보 15~20분(중심가 관통). 광장·꽃시장 구경하며 예약 시간 맞추기</span></div></div>
-        <div class="row"><div class="time">14:30</div><div class="act">점심 · <b>Roscioli Salumeria con Cucina</b> <span class="pill">예약필수</span><span class="note">14:30 슬롯으로 예약(점심 슬롯: 12:30·12:45·14:30·14:45). 부라타·살루미 플래터·카초에페페·아마트리치아나, 와인 셀렉션이 로마 최고 수준. 미슐랭 가이드 등재. €€€ · 월~토, <b>일요일 휴무</b> · 노쇼 시 €20/인 청구. 몬티 점심안(La Carbonara 등)은 10/20 저녁 B안으로 이동</span><span class="addr">📍 Via dei Giubbonari 21, 00186 Roma <span class="en">(☎ +39 06 687 5287 · booking@salumeriaroscioli.com)</span></span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Roscioli+Salumeria+Via+dei+Giubbonari+21+Roma" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
-        <div class="row"><div class="time">16:15</div><div class="act">판테온<span class="note">Roscioli서 도보 8분. 무료지만 시간지정 예약 권장(현장 줄 김). 16:00~16:30 슬롯으로</span><span class="addr">📍 Pantheon, Piazza della Rotonda</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Pantheon+Rome" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
-        <div class="row"><div class="time">17:00</div><div class="act">트레비 분수 → 콜론나 광장 → 스페인 계단<span class="note">동전은 오른손으로 왼쪽 어깨 너머. 전부 도보 15분 내 연결, 숙소 방향. 스페인 계단 위 핀치오 언덕서 일몰(약 18:15)</span><span class="addr">📍 Fontana di Trevi</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Trevi+Fountain" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
+        <div class="row"><div class="time">13:30</div><div class="act">점심 · 몬티 지구 (식당탭 10/21 점심 A/B)<span class="note">콜로세움서 도보 10분. 로마식 카르보나라·카치오에페페의 본거지. Roscioli는 10/22 점심으로 옮겼습니다</span></div></div>
+        <div class="row"><div class="time">15:30</div><div class="act">판테온<span class="note">무료지만 시간지정 예약 권장(현장 줄 김). 정각 도착. 15분이면 충분하지만 여운은 길다</span><span class="addr">📍 Pantheon, Piazza della Rotonda</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Pantheon+Rome" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
+        <div class="row"><div class="time">16:30</div><div class="act">트레비 분수 → 콜론나 광장 → 스페인 계단<span class="note">동전은 오른손으로 왼쪽 어깨 너머. 전부 도보 15분 내 연결, 숙소 방향. 스페인 계단 위 핀치오 언덕서 일몰(약 18:15)</span><span class="addr">📍 Fontana di Trevi</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Trevi+Fountain" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
         <div class="row"><div class="time">19:30</div><div class="act">저녁 · 캄포 데 피오리/판테온 인근 (식당탭 10/21 저녁 A/B)</div></div>
       </div>
       <div class="alts">
@@ -521,7 +524,7 @@
         <div class="daytag" style="--c: var(--indigo)"><div><span class="dow">목</span><div class="dt">10/22</div></div></div>
         <div><div class="title">여유일 · 보르게세 & 트라스테베레</div><div class="sub">보르게세 미술관(예약) · 보르게세 공원 · 트라스테베레 골목 · 자니콜로 일몰</div></div>
       </div>
-      <div class="day-intro">🎨 <b>속도를 늦추는 마지막 온전한 날.</b> 오전은 예약제인 보르게세 미술관(베르니니·카라바조)과 공원 산책, 오후엔 강 건너 <b>트라스테베레</b> 골목에서 로마의 서민 동네 정취와 마지막 만찬. 자니콜로 언덕에서 로마 전경 일몰.<br><br><b>💶 오늘 경비(2인)</b> · 🚕 택시 2회 + 도보: 교통 €32(숙소→보르게세 €12·보르게세→트라스테베레 €20) · 입장 €40(보르게세 미술관 2인+예약비) · 식비 €125(점심 €35·만찬 €90) → <b>약 €195</b> <span class="en">(마지막 만찬을 미슐랭 1스타로 하면 저녁 2인 €260~360 → 그날 약 €390)</span></div>
+      <div class="day-intro">🎨 <b>속도를 늦추는 마지막 온전한 날.</b> 오전은 예약제인 보르게세 미술관(베르니니·카라바조)과 공원 산책, 오후엔 강 건너 <b>트라스테베레</b> 골목에서 로마의 서민 동네 정취와 마지막 만찬. 자니콜로 언덕에서 로마 전경 일몰.<br><br><b>💶 오늘 경비(2인)</b> · 🚕 택시 2회 + 도보: 교통 €24(숙소→보르게세 €12·보르게세→캄포 €12) · 입장 €40(보르게세 미술관 2인+예약비) · 식비 €190(Roscioli 점심 €100·마지막 만찬 €90) → <b>약 €255</b> <span class="en">(Roscioli 노쇼 €20/인 · 마지막 만찬을 미슐랭 1스타로 하면 저녁 2인 €260~360 → 그날 약 €430)</span></div>
       <div class="stats">
         <div class="stat"><b>09:00</b><span>출발</span></div>
         <div class="stat"><b>20:30</b><span>복귀</span></div>
@@ -531,8 +534,9 @@
       </div>
       <div class="rows">
         <div class="row"><div class="time">09:00</div><div class="act">보르게세 미술관<span class="note">2시간 지정입장(€15~), 예약 필수(준비탭). 숙소서 도보 20분(빌라 보르게세 공원 통과) 또는 택시 €10. 가방 클로크룸 의무</span><span class="addr">📍 Galleria Borghese, Piazzale Scipione Borghese 5</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Galleria+Borghese" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
-        <div class="row"><div class="time">11:30</div><div class="act">빌라 보르게세 공원 산책<span class="note">핀치오 테라스(포폴로 광장 조망), 보트 연못. 자전거·리브샤 대여 가능</span></div></div>
-        <div class="row"><div class="time">13:00</div><div class="act">점심 · 트라스테베레 (식당탭 10/22 점심 A/B)<span class="note">택시 20분 이동. Da Enzo al 29는 예약 안 받고 12시 전 줄 서야 자리</span></div></div>
+        <div class="row"><div class="time">11:15</div><div class="act">빌라 보르게세 공원 짧게 산책<span class="note">핀치오 테라스(포폴로 광장 조망). 40분이면 충분 — Roscioli 12:30 예약이 있어 서두름</span></div></div>
+        <div class="row"><div class="time">12:00</div><div class="act">캄포 데 피오리로 이동<span class="note">택시 15분(€12)</span></div></div>
+        <div class="row"><div class="time">12:30</div><div class="act">점심 · <b>Roscioli Salumeria con Cucina</b> <span class="pill">예약필수</span><span class="note">12:30 슬롯 예약(점심 슬롯: 12:30·12:45·14:30·14:45). 부라타·살루미 플래터·카초에페페·아마트리치아나, 와인 셀렉션이 로마 최고 수준. 미슐랭 가이드 등재. €€€ · 월~토, <b>일요일 휴무</b> · 노쇼 시 €20/인. 식사 후 폰테 시스토 건너 도보 8분이면 트라스테베레 — 오늘 동선에 딱 맞음</span><span class="addr">📍 Via dei Giubbonari 21, 00186 Roma <span class="en">(☎ +39 06 687 5287 · booking@salumeriaroscioli.com)</span></span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Roscioli+Salumeria+Via+dei+Giubbonari+21+Roma" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
         <div class="row"><div class="time">15:00</div><div class="act">트라스테베레 골목 · 산타 마리아 인 트라스테베레 성당<span class="note">로마에서 가장 오래된 성모 성당 중 하나, 금빛 모자이크. 골목의 공방·젤라테리아·서점</span><span class="addr">📍 Basilica di Santa Maria in Trastevere</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Santa+Maria+in+Trastevere" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
         <div class="row"><div class="time">17:15</div><div class="act">자니콜로 언덕 (Gianicolo)<span class="note">트라스테베레서 오르막 15분. 로마 전경 최고 전망, 일몰 약 18:10. 정오 대포 발사로 유명</span><span class="addr">📍 Passeggiata del Gianicolo</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Gianicolo+Terrace+Rome" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
         <div class="row"><div class="time">20:00</div><div class="act">마지막 만찬 — <b>미슐랭 1스타</b> 또는 트라스테베레 로컬<span class="note">신혼 기념 한 끼를 여기에: <b>Per Me – Giulio Terrinoni</b>(1스타, 캄포 인근, 현대 로마·해산물, 격식 없이 편안, 테이스팅 €120~160/인) — 오늘 동선상 자연스러움. 뷰가 우선이면 <b>Aroma</b>(1스타, 콜로세움 정면 테라스 야경)로 <b>10/21 저녁</b>에 배치. 격식이 부담이면 식당탭 10/22 A/B(로컬)로. 미슐랭은 <b>2~3개월 전 예약</b> → 지금 바로</span><span class="addr">📍 Per Me: Vicolo del Malpasso 9 · Aroma: Via Labicana 125 (Palazzo Manfredi)</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Per+Me+Giulio+Terrinoni+Roma" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
@@ -601,8 +605,8 @@
         <label class="item"><input type="checkbox" data-k="p-acropolis-tour" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">아크로폴리스 소그룹 가이드 투어 예약 (10/12 아침) <span class="tag hot">선택함</span></span><span class="desc">GetYourGuide/Viator ‘Acropolis small group guided tour’. €40~65/인(입장권 포함형으로), 08:00~08:30 시작, 스킵더라인. ‘+아크로폴리스 박물관’ 확장형(3.5~4h)이면 오전 한 번에 끝. 24h 전 무료취소. 신혼여행이면 <b>프라이빗 가이드</b>(2인 €160~250, 플라카까지 묶고 페이스·질문 자유)도 좋은 선택</span></span></label>
         <label class="item"><input type="checkbox" data-k="p-acropolis-ticket-check" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">가이드 투어에 ‘입장권 포함’인지 확인</span><span class="desc">포함이면 hhticket.gr 별도 구매 <b>불필요</b>. 미포함(‘ticket not included’)이면만 hhticket.gr에서 10/12 08:00 슬롯 €30/인 별도 예약. 아고라·로만아고라 등은 통합권(€30, 7곳 5일) 고려</span></span></label>
         <label class="item"><input type="checkbox" data-k="p-insurance" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">여행자보험 가입 (2인, 10/10~10/24)</span><span class="desc">의료+휴대품+항공지연. 산토리니 ATV 안 타면 특약 불필요. 증권 PDF 폰 저장</span></span></label>
-        <label class="item"><input type="checkbox" data-k="p-michelin" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">미슐랭 1스타 디너 예약 <span class="tag hot">2~3개월 전</span></span><span class="desc">10/22 저녁: <b>Per Me – Giulio Terrinoni</b>(permerome.com 또는 TheFork) · 뷰 원하면 10/21 저녁 <b>Aroma</b>(aromarestaurant.it, 콜로세움 테라스석 지정). 오늘 날짜(8/28) 기준 7주 전이라 서두를 것</span></span></label>
-        <label class="item"><input type="checkbox" data-k="p-roscioli" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">Roscioli 점심 예약 (10/21 14:30)</span><span class="desc">salumeriaroscioli.com/en/pages/prenota → 10/21 점심 슬롯(12:30·12:45·14:30·14:45) 중 14:30 선택. 취소는 booking@salumeriaroscioli.com 메일로만(안 하면 €20/인)</span></span></label>
+        <label class="item"><input type="checkbox" data-k="p-michelin" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">미슐랭 1스타 디너 예약 <span class="tag hot">2~3개월 전</span></span><span class="desc">추천 <b>Aroma</b>(1스타, 콜로세움 야경, aromarestaurant.it) → <b>10/21 저녁</b>에 두면 그날 콜로세움 동선과 맞고 10/22 Roscioli 점심과 안 겹침. 음식 중심이 좋으면 <b>Per Me – Giulio Terrinoni</b>(permerome.com/TheFork)를 10/22 저녁에(그날 점심은 가볍게). 8/28 기준 7주 전이라 즉시</span></span></label>
+        <label class="item"><input type="checkbox" data-k="p-roscioli" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">Roscioli 점심 예약 (10/22 12:30)</span><span class="desc">salumeriaroscioli.com/en/pages/prenota → 10/22 점심 슬롯(12:30·12:45·14:30·14:45) 중 12:30 선택. 취소는 booking@salumeriaroscioli.com 메일로만(안 하면 €20/인)</span></span></label>
       </div>
     </div>
 
@@ -704,8 +708,11 @@
         <label class="item"><input type="checkbox" data-k="f-rom-1021l-allecarrette" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/21 점심 <span class="tag b">B</span> Alle Carrette</span><span class="desc">몬티, 화덕 피자를 점심에도. 얇고 큰 로마식. € · Via della Madonna dei Monti 95</span></span></label>
         <label class="item"><input type="checkbox" data-k="f-rom-1021d-fortunata" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/21 저녁 <span class="tag a">A</span> Osteria da Fortunata</span><span class="desc">캄포 데 피오리 인근, 창가서 파스타 미는 할머니. 늘 줄. €€ · 예약 안 됨, 일찍</span></span></label>
         <label class="item"><input type="checkbox" data-k="f-rom-1021d-dafrancesco" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/21 저녁 <span class="tag b">B</span> Da Francesco</span><span class="desc">피아차 델 피코, 피자+트라토리아 메뉴 폭넓음. 회전 빠름. €€ · 예약/워크인</span></span></label>
-        <label class="item"><input type="checkbox" data-k="f-rom-1022l-daenzo" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/22 점심 <span class="tag a">A</span> Da Enzo al 29</span><span class="desc">트라스테베레 대표 트라토리아. 카초에페페·폴페테·부팔라. €€ 현금 선호 · <span class="tag hot">예약 안 받음</span> — 12:00 전 도착 or 웨이팅 등록</span></span></label>
-        <label class="item"><input type="checkbox" data-k="f-rom-1022l-dateo" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/22 점심 <span class="tag b">B</span> Da Teo</span><span class="desc">트라스테베레 광장, 현지 단골 많은 정통 트라토리아. €€ · ☎+39 06 581 8355 예약 권장</span></span></label>
+        <label class="item"><input type="checkbox" data-k="f-rom-1021d-aroma" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/21 저녁 ⭐ Aroma (미슐랭 1스타·선택)</span><span class="desc">Palazzo Manfredi 옥상, 콜로세움 정면 야경. 신혼 기념 한 끼로 이 날에. 테이스팅 €180~250/인 · Via Labicana 125 · <span class="tag hot">테라스석 지정 예약, 2~3개월 전</span> · aromarestaurant.it</span></span></label>
+        <label class="item"><input type="checkbox" data-k="f-rom-1022l-roscioli" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/22 점심 ★ Roscioli Salumeria con Cucina</span><span class="desc">부라타·살루미 플래터·카초에페페·아마트리치아나, 와인 셀렉션 로마 최고 수준. 미슐랭 가이드 등재. €€€ · Via dei Giubbonari 21 · 월~토, 일 휴무 · <span class="tag hot">12:30 슬롯 예약</span>(salumeriaroscioli.com), 노쇼 €20/인</span></span></label>
+        <label class="item"><input type="checkbox" data-k="f-rom-1022l-daenzo" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/22 점심 <span class="tag a">A</span> Da Enzo al 29 <span class="en">(Roscioli 대신)</span></span><span class="desc">트라스테베레 대표 트라토리아. 카초에페페·폴페테·부팔라. €€ 현금 선호 · <span class="tag hot">예약 안 받음</span> — 12:00 전 도착 or 웨이팅 등록</span></span></label>
+        <label class="item"><input type="checkbox" data-k="f-rom-1022l-dateo" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/22 점심 <span class="tag b">B</span> Da Teo <span class="en">(Roscioli 대신)</span></span><span class="desc">트라스테베레 광장, 현지 단골 많은 정통 트라토리아. €€ · ☎+39 06 581 8355 예약 권장</span></span></label>
+        <label class="item"><input type="checkbox" data-k="f-rom-1022d-perme" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/22 저녁 ⭐ Per Me – Giulio Terrinoni (미슐랭 1스타·선택)</span><span class="desc">캄포 인근, 현대 로마·해산물을 소분 테이스팅으로. 격식 없이 편안. €120~160/인 · Vicolo del Malpasso 9 · <span class="tag hot">예약 2~3개월 전</span> · permerome.com / TheFork. (이 날 점심 Roscioli와 겹치니 점심은 가볍게)</span></span></label>
         <label class="item"><input type="checkbox" data-k="f-rom-1022d-romasparita" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/22 저녁 <span class="tag a">A</span> Roma Sparita</span><span class="desc">트라스테베레, 파르미지아노 바구니에 담아주는 카치오에페페로 유명. €€ · Piazza di Santa Cecilia 24 · <span class="tag hot">예약</span></span></span></label>
         <label class="item"><input type="checkbox" data-k="f-rom-1022d-tonnarello" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/22 저녁 <span class="tag b">B</span> Tonnarello</span><span class="desc">트라스테베레, 큰 규모·라이브·정통 로마 메뉴. 대기 있어도 빠름. €€ · 워크인</span></span></label>
         <label class="item"><input type="checkbox" data-k="f-rom-1023l-derpallaro" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">10/23 점심 <span class="tag a">A</span> Trattoria Der Pallaro</span><span class="desc">메뉴 없이 나오는 대로 주는 세트(전채~디저트+와인 €25 내외). 옛 로마 가정식. 캄포 데 피오리 근처</span></span></label>
@@ -953,8 +960,8 @@
       [ [36.4290,25.4245,"이메로비글리 출발 · 10:00"],[36.3560,25.4700,"페리사 해변(또는 크루즈) · 11:00"],[36.4290,25.4245,"복귀·짐 정리 · 17:30"],[36.4235,25.4270,"마지막 저녁 · 19:30"] ],
       [ [41.8003,12.2389,"피우미치노 공항 FCO · 18:55"],[41.9036,12.4890,"Casa Guttmann 체크인 · 20:15"],[41.9009,12.4833,"트레비 분수 야경 · 20:45"] ],
       [ [41.9036,12.4890,"Casa Guttmann · 08:20"],[41.9065,12.4536,"바티칸 박물관·시스티나 · 09:00"],[41.9022,12.4539,"성 베드로 대성당 · 12:00"],[41.9070,12.4600,"점심 Prati/Borgo · 13:30"],[41.9031,12.4663,"천사의 성 · 15:00"],[41.8986,12.4769,"저녁 판테온 인근 · 19:00"] ],
-      [ [41.8902,12.4922,"콜로세움 · 09:00"],[41.8912,12.4864,"포로 로마노·팔라티노 · 10:45"],[41.8955,12.4723,"캄포 데 피오리 · 13:15"],[41.8946,12.4740,"Roscioli 점심 · 14:30"],[41.8986,12.4769,"판테온 · 16:15"],[41.9009,12.4833,"트레비 분수 · 17:00"],[41.9058,12.4823,"스페인 계단 · 17:40"],[41.8968,12.4740,"저녁 캄포/판테온 · 19:30"] ],
-      [ [41.9142,12.4923,"보르게세 미술관 · 09:00"],[41.9110,12.4840,"빌라 보르게세(핀치오) · 11:30"],[41.8882,12.4700,"점심 트라스테베레 · 13:00"],[41.8894,12.4695,"산타 마리아 인 트라스테베레 · 15:00"],[41.8917,12.4630,"자니콜로 언덕 일몰 · 17:15"],[41.8985,12.4675,"마지막 만찬 Per Me · 20:00"] ],
+      [ [41.8902,12.4922,"콜로세움 · 09:00"],[41.8912,12.4864,"포로 로마노·팔라티노 · 10:45"],[41.8948,12.4930,"점심 몬티 · 13:30"],[41.8986,12.4769,"판테온 · 15:30"],[41.9009,12.4833,"트레비 분수 · 16:30"],[41.9058,12.4823,"스페인 계단 · 17:10"],[41.8968,12.4740,"저녁 캄포/판테온 · 19:30"] ],
+      [ [41.9142,12.4923,"보르게세 미술관 · 09:00"],[41.9110,12.4840,"빌라 보르게세(핀치오) · 11:15"],[41.8946,12.4740,"Roscioli 점심 · 12:30"],[41.8894,12.4695,"산타 마리아 인 트라스테베레 · 15:00"],[41.8917,12.4630,"자니콜로 언덕 일몰 · 17:15"],[41.8985,12.4675,"마지막 만찬 · 20:00"] ],
       [ [41.8998,12.4800,"이른 아침 트레비·판테온 · 08:00"],[41.9036,12.4890,"Casa Guttmann 체크아웃 · 10:30"],[41.9055,12.4820,"마지막 점심(스페인계단 인근) · 11:30"],[41.8003,12.2389,"피우미치노 공항 FCO · 18:20"] ]
     ];
     var FOOD = [
@@ -969,8 +976,8 @@
       "저녁 Ⓐ Selene(기념·예약) / Ⓑ Katharos·Aktaion",
       "저녁 Ⓐ Antica Birreria Peroni / Ⓑ Piccolo Arancio",
       "점심 Ⓐ Pizzarium Bonci / Ⓑ 200 Gradi &nbsp;·&nbsp; 저녁 Ⓐ Armando al Pantheon(예약) / Ⓑ Vecchia Roma",
-      "점심 ★ Roscioli(예약 14:30) &nbsp;·&nbsp; 저녁 Ⓐ Osteria da Fortunata / Ⓑ Da Francesco",
-      "점심 Ⓐ Da Enzo al 29 / Ⓑ Da Teo &nbsp;·&nbsp; 저녁 ⭐ Per Me(미슐랭) · Ⓐ Roma Sparita / Ⓑ Tonnarello",
+      "점심 Ⓐ La Carbonara / Ⓑ Alle Carrette &nbsp;·&nbsp; 저녁 Ⓐ Osteria da Fortunata / Ⓑ Da Francesco",
+      "점심 ★ Roscioli(예약 12:30) &nbsp;·&nbsp; 저녁 ⭐ Per Me(미슐랭) 또는 Ⓐ Roma Sparita / Ⓑ Tonnarello",
       "점심 Ⓐ Trattoria Der Pallaro / Ⓑ Pastificio Guerra"
     ];
     var DRIVE = { 0: 1, 3: 1, 4: 1, 6: 1, 8: 1, 9: 1, 13: 1 };
@@ -993,34 +1000,55 @@
       var mapDiv = document.createElement("div");
       mapDiv.className = "daymap";
       mapDiv.id = "daymap-" + i;
-      var stat = document.createElement("div");
-      stat.className = "daymap-static";
-      stat.innerHTML = "🗺️ 동선: " + pts.map(function (p, n) { return (n + 1) + " " + p[2].split(" · ")[0]; }).join(" → ");
       var mode = DRIVE[i] ? "driving" : "walking";
       var gm = "https://www.google.com/maps/dir/?api=1&travelmode=" + mode + "&origin=" + ll(pts[0]) + "&destination=" + ll(pts[pts.length - 1]);
       if (pts.length > 2) gm += "&waypoints=" + pts.slice(1, -1).map(ll).join("|");
+      var listDiv = document.createElement("div");
+      listDiv.className = "daymap-static";
+      listDiv.innerHTML = '<span class="rt-label">🗺️ 동선</span> ' + pts.map(function (p, n) {
+        return '<a class="rt-item" data-i="' + n + '" role="button" tabindex="0">' + (n + 1) + ". " + p[2].split(" · ")[0] + "</a>";
+      }).join('<span class="rt-sep">→</span>');
       var link = document.createElement("a");
       link.className = "dayroute-link";
       link.href = gm; link.target = "_blank"; link.rel = "noopener";
       link.textContent = "🗺️ Google 지도로 이 날 동선 열기";
-      wrap.appendChild(mapDiv); wrap.appendChild(stat); wrap.appendChild(link);
+      wrap.appendChild(mapDiv); wrap.appendChild(listDiv); wrap.appendChild(link);
       rows.parentNode.insertBefore(wrap, rows);
-      if (!window.L) { stat.style.display = "block"; mapDiv.style.display = "none"; return; }
-      try {
-        var map = L.map(mapDiv, { scrollWheelZoom: false, zoomControl: true });
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
-        var latlngs = [];
-        pts.forEach(function (p, n) {
-          L.marker([p[0], p[1]], {
-            icon: L.divIcon({ className: "", html: '<div class="mk-num">' + (n + 1) + "</div>", iconSize: [22, 22], iconAnchor: [11, 11] })
-          }).addTo(map).bindPopup((n + 1) + ". " + p[2]);
-          latlngs.push([p[0], p[1]]);
-        });
-        L.polyline(latlngs, { color: "#bf5137", weight: 3, opacity: 0.85, dashArray: "6 5" }).addTo(map);
-        map.fitBounds(latlngs, { padding: [28, 28] });
-        MAPS.push(map);
-        setTimeout(function () { map.invalidateSize(); map.fitBounds(latlngs, { padding: [28, 28] }); }, 250);
-      } catch (e) { stat.style.display = "block"; mapDiv.style.display = "none"; }
+
+      var map = null, markers = [], latlngs = pts.map(function (p) { return [p[0], p[1]]; });
+      if (window.L) {
+        try {
+          map = L.map(mapDiv, { scrollWheelZoom: false, zoomControl: true });
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
+          pts.forEach(function (p, n) {
+            var mk = L.marker([p[0], p[1]], {
+              icon: L.divIcon({ className: "", html: '<div class="mk-num">' + (n + 1) + "</div>", iconSize: [22, 22], iconAnchor: [11, 11] })
+            }).addTo(map).bindPopup((n + 1) + ". " + p[2]);
+            markers.push(mk);
+          });
+          L.polyline(latlngs, { color: "#bf5137", weight: 3, opacity: 0.85, dashArray: "6 5" }).addTo(map);
+          // 초기 뷰: 1번 마커를 중심으로, 동선 전체가 한눈에 보이는 축척(꽉 채우는 축척에서 한 단계 축소)
+          var applyView = function () {
+            var z = map.getBoundsZoom(L.latLngBounds(latlngs), false, L.point(34, 34));
+            map.setView(latlngs[0], Math.min(15, Math.max(3, z - 1)));
+          };
+          applyView();
+          MAPS.push(map);
+          setTimeout(function () { map.invalidateSize(); applyView(); }, 250);
+        } catch (e) { map = null; mapDiv.style.display = "none"; }
+      } else {
+        mapDiv.style.display = "none";
+      }
+      // 동선 목록의 장소명 클릭 → 해당 마커로 지도 이동(축척 유지)
+      Array.prototype.forEach.call(listDiv.querySelectorAll(".rt-item"), function (el) {
+        var go = function (ev) {
+          if (ev) ev.preventDefault();
+          var n = +el.dataset.i;
+          if (map && markers[n]) { map.panTo(markers[n].getLatLng()); markers[n].openPopup(); }
+        };
+        el.addEventListener("click", go);
+        el.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") go(ev); });
+      });
     });
     // 다른 탭에 있다가 일정 탭으로 돌아오면 지도 크기 재계산
     var planBtn = document.querySelector('.seg button[data-view="plan"]');
