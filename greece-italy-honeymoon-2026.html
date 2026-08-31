@@ -123,6 +123,9 @@
   .dayfood b { color: var(--ink); font-weight: 700; }
   .daymap-wrap { margin: 12px 16px 0; }
   .daymap { height: 230px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; background: #e8e5dd; }
+  .daymap-svg { display: none; margin-top: 8px; }
+  .daymap-svg svg { width: 100%; height: auto; display: block; border-radius: 12px; }
+  .daymap-svg .cap { font-size: 10.5px; color: var(--faint); margin-top: 3px; }
   .daymap-static { display: block; font-size: 12px; color: var(--sub); line-height: 2; padding: 8px 2px 0; }
   .daymap-static .rt-label { font-weight: 700; color: var(--ink); margin-right: 2px; }
   .rt-item { display: inline-block; color: var(--teal); font-weight: 600; cursor: pointer; padding: 1px 6px; margin: 2px 0; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--teal) 32%, transparent); -webkit-tap-highlight-color: transparent; }
@@ -141,6 +144,7 @@
     .view::before { content: attr(data-label); display: block; font-size: 18px; font-weight: 800; margin: 24px 0 4px; padding-top: 12px; border-top: 3px solid #000; }
     .day, .list, .note-card, .sec, .daymap-wrap { break-inside: avoid; page-break-inside: avoid; }
     .daymap, .dayroute-link { display: none !important; }
+    .daymap-svg { display: block !important; }
     .daymap-static { display: block !important; }
     .dayfood { background: #fff; }
     body { background: #fff; color: #000; }
@@ -270,26 +274,28 @@
     <div class="day">
       <div class="day-h">
         <div class="daytag" style="--c: var(--gold)"><div><span class="dow">화</span><div class="dt">10/13</div></div></div>
-        <div><div class="title">국립고고학 박물관 + 수니온 곶 일몰</div><div class="sub">국립고고학 박물관 · (점심) · 포세이돈 신전에서 일몰</div></div>
+        <div><div class="title">수니온 곶 일몰 + 국립고고학 박물관</div><div class="sub">파나티나이코 경기장·국립정원 · 국립고고학 박물관(화요일 13시 개관) · 포세이돈 신전 일몰</div></div>
       </div>
-      <div class="day-intro">🌅 <b>오전은 박물관, 오후는 바다.</b> 세계적인 국립고고학 박물관을 오전에 보고, 오후엔 아테네 남단 <b>수니온 곶 포세이돈 신전</b>에서 에게해로 지는 해를 봅니다. 편하게 가려면 호텔 픽업되는 반나절 선셋 투어를 추천합니다.<br><br><b>💶 오늘 경비(2인)</b> · 🚌 수니온 선셋 투어(호텔 픽업) 또는 KTEL 시외버스: 교통·투어 €100(투어 2인) · 입장 €44(국립고고학박물관 €24·포세이돈 신전 €20) · 식비 €65(점심 €30·야식 €35) → <b>약 €210</b> <span class="en">(DIY 버스 시 교통 €30대로 내려가고 총 €150 안팎)</span></div>
+      <div class="day-intro">🌅 <b>느긋한 오전, 바다로 지는 해.</b> 국립고고학 박물관은 <b>화요일엔 13:00에 문을 열어</b>, 오전은 파나티나이코 경기장·국립정원 산책으로 가볍게 → 점심 뒤 박물관 → 오후엔 <b>수니온 곶 포세이돈 신전</b>에서 일몰. 다음 날 아침이 이른 비행이라 오늘은 여유 위주로, 짐은 밤에 미리 쌉니다.<br><br><b>💶 오늘 경비(2인)</b> · 🚶 오전 도보 + 🚌 수니온 선셋 투어(중앙 픽업): 교통·투어 €100(투어 2인 / DIY 버스면 €30대) · 입장 €54(파나티나이코 €10·국립고고학 €24·포세이돈 €20) · 식비 €65(점심 €30·야식 €35) → <b>약 €220</b></div>
       <div class="stats">
-        <div class="stat"><b>09:15</b><span>출발</span></div>
+        <div class="stat"><b>09:30</b><span>출발</span></div>
         <div class="stat"><b>21:30</b><span>복귀</span></div>
-        <div class="stat"><b>4:00</b><span>이동</span></div>
-        <div class="stat"><b>3.0km</b><span>도보</span></div>
+        <div class="stat"><b>3:40</b><span>이동</span></div>
+        <div class="stat"><b>4.0km</b><span>도보</span></div>
         <div class="stat"><b>3곳</b><span>관광</span></div>
       </div>
       <div class="rows">
-        <div class="row"><div class="time">09:30</div><div class="act">국립고고학 박물관<span class="note">€12. 아가멤논 황금 마스크, 안티키테라 기계, 미노아 프레스코. 2시간. 숙소서 메트로 1호선 Victoria역 또는 택시 15분</span><span class="addr">📍 Εθνικό Αρχαιολογικό Μουσείο, 28is Oktovriou 44</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=National+Archaeological+Museum+Athens" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
-        <div class="row"><div class="time">12:00</div><div class="act">점심 (식당탭 10/13 A/B) · 엑사르헤이아 또는 시내 중앙시장</div></div>
-        <div class="row"><div class="time">15:30</div><div class="act">수니온 곶으로 출발<span class="note">① 반나절 선셋 투어(호텔 픽업, ~€40~55/인, 약 4~5h) — 편함, 추천 ② KTEL 시외버스: 필렐리논街(신타그마 인근) 승차, 편도 €7, 1.5~2h, 약 90분 간격</span></div></div>
-        <div class="row"><div class="time">17:30</div><div class="act">포세이돈 신전 · 일몰<span class="note">일몰 약 18:35. 도착 후 유적 관람(€10) + 사진 + 일몰. 바이런의 낙서가 남은 기둥</span><span class="addr">📍 Ναός Ποσειδώνα, Σούνιο</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Temple+of+Poseidon+Sounion" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
-        <div class="row"><div class="time">19:00</div><div class="act">아테네로 복귀<span class="note">버스면 Sounio발 여름 막차 약 21:00 — 일몰 직후 정류장 확인. 투어면 픽업지점 하차 후 도보</span></div></div>
-        <div class="row"><div class="time">21:00</div><div class="act">가벼운 야식 (식당탭 10/13 저녁 A) 또는 숙소</div></div>
+        <div class="row"><div class="time">09:30</div><div class="act">여유 조식 → 파나티나이코 경기장(칼리마르마로)<span class="note">1회 근대 올림픽 대리석 경기장. €5, 오디오가이드, 트랙 한 바퀴. 코코맷서 도보 12분. 매일 개장</span><span class="addr">📍 Panathenaic Stadium, Vasileos Konstantinou</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Panathenaic+Stadium+Athens" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
+        <div class="row"><div class="time">10:45</div><div class="act">자피온 · 국립정원 산책<span class="note">야자수 길·작은 연못. 제우스 신전을 10/11에 못 봤으면 여기서 묶기. 매일 개방</span><span class="addr">📍 Zappeion Hall, National Garden</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Zappeion+Athens" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
+        <div class="row"><div class="time">12:00</div><div class="act">점심 · 판그라티/신타그마 (식당탭 10/13 A/B)</div></div>
+        <div class="row"><div class="time">13:30</div><div class="act">국립고고학 박물관<span class="note">⚠️ 화요일은 13:00 개관(마지막 입장 19:30). €12. 아가멤논 마스크·안티키테라 기계·미노아 프레스코. 1.5시간. 점심자리서 택시 10분 또는 메트로</span><span class="addr">📍 Εθνικό Αρχαιολογικό Μουσείο, 28is Oktovriou 44</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=National+Archaeological+Museum+Athens" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
+        <div class="row"><div class="time">15:30</div><div class="act">수니온 곶으로 출발<span class="note">① 반나절 선셋 투어(중앙 픽업, ~€45~55/인, 4~5h) — 편함, 추천 ② KTEL 시외버스: 필렐리논街(신타그마 인근), 편도 €7, 1.5~2h, 약 90분 간격. 박물관에서 픽업지점까지 택시 10분</span></div></div>
+        <div class="row"><div class="time">17:30</div><div class="act">포세이돈 신전 · 일몰<span class="note">일몰 약 18:35. 유적 관람 €10 + 사진 + 일몰. 바이런의 낙서가 남은 기둥</span><span class="addr">📍 Ναός Ποσειδώνα, Σούνιο</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Temple+of+Poseidon+Sounion" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
+        <div class="row"><div class="time">19:00</div><div class="act">아테네로 복귀<span class="note">버스면 Sounio발 여름 막차 약 21:00 — 일몰 직후 정류장 확인. 투어면 픽업지점 하차</span></div></div>
+        <div class="row"><div class="time">21:00</div><div class="act">가벼운 야식 (식당탭 10/13 저녁) → <b>오늘 밤 짐 미리 싸기</b> (내일 아침 이른 비행)</div></div>
       </div>
       <div class="alts">
-        <span class="alt">☔ 비/강풍: 수니온 취소하고 베나키 박물관 + 콜로나키 산책 + 파나티나이코 경기장, 저녁 일찍 Strofi 루프탑</span>
+        <span class="alt">☔ 비/강풍: 수니온 취소하고 국립고고학 박물관을 13:00에 넉넉히 + 베나키 이슬람미술관, 저녁 일찍 Strofi 루프탑</span>
         <span class="alt">🈳 늦은 저녁 만석: 신타그마 Ktistakis 기로스 포장 또는 숙소 근처 편의</span>
       </div>
     </div>
@@ -298,27 +304,28 @@
     <div class="day">
       <div class="day-h">
         <div class="daytag" style="--c: var(--indigo)"><div><span class="dow">수</span><div class="dt">10/14</div></div></div>
-        <div><div class="title">아테네 → 산토리니 (오이아) <span class="pill">이동</span></div><div class="sub">오후 항공 ATH→JTR · Armenaki 체크인 · 오이아 첫 일몰</div></div>
+        <div><div class="title">아테네 → 산토리니 (오이아) <span class="pill">이동</span></div><div class="sub">GQ350 ATH 14:00 → JTR 약 14:55 · Armenaki 체크인 · 오이아 첫 일몰</div></div>
       </div>
-      <div class="day-intro">✈️ <b>오전 여유, 오후 이동.</b> 코코맷 체크아웃 후 시내에서 브런치, 오후편으로 산토리니에 들어가 <b>오이아 Armenaki</b>에 짐을 풀고 그 유명한 오이아 일몰을 첫날 저녁에 봅니다.<br><br><b>💶 오늘 경비(2인)</b> · ✈️ 메트로(→ATH) + 국내선 항공 + 택시(→오이아): 교통 €200~250(메트로 €18 + ATH→JTR 항공 2인 €140~190 + JTR→오이아 택시 €40) · 입장 €0 · 식비 €115(브런치 €25·암무디 해산물 디너 €90) → <b>약 €320~370</b> <span class="en">(항공권 포함 · 항공 빼면 €180 안팎)</span></div>
+      <div class="day-intro">✈️ <b>이른 오후 비행, 오이아 정착.</b> GQ350이 14:00 출발이라 아테네 오전은 짐 싸서 공항으로 직행하는 날(시내 관광 없음). 15시 전 산토리니 도착 → 오이아 Armenaki 체크인 → 첫 오이아 일몰(약 18:50)은 여유 있게.<br><br>⚠️ <b>GQ350 시각 재확인:</b> 공개 시간표엔 이 편명이 <b>17:15 출발</b>로도 조회됩니다. e-티켓의 실제 출발·도착 시각을 꼭 확인하세요 — 17:15이면 오전에 아테네 브런치·산책을 넣고 오이아엔 저녁 도착(일몰은 숙소 테라스), <b>암무디 디너는 10/15로</b> 미룹니다.<br><br><b>💶 오늘 경비(2인)</b> · ✈️ 택시(→ATH) + GQ350 + 택시(→오이아): 교통 €215~265(ATH 택시 €40 + GQ350 2인 €130~180 + 위탁수하물 €30 + JTR→오이아 택시 €40) · 입장 €0 · 식비 €110(공항 점심 €20·암무디 디너 €90) → <b>약 €340~390</b> <span class="en">(항공권 포함)</span></div>
       <div class="stats">
-        <div class="stat"><b>11:00</b><span>출발</span></div>
-        <div class="stat"><b>16:30</b><span>정착</span></div>
-        <div class="stat"><b>3:30</b><span>이동</span></div>
-        <div class="stat"><b>1.5km</b><span>도보</span></div>
+        <div class="stat"><b>10:45</b><span>출발</span></div>
+        <div class="stat"><b>16:15</b><span>정착</span></div>
+        <div class="stat"><b>3:20</b><span>이동</span></div>
+        <div class="stat"><b>0.8km</b><span>도보</span></div>
         <div class="stat"><b>2곳</b><span>관광</span></div>
       </div>
       <div class="rows">
-        <div class="row"><div class="time">11:00</div><div class="act">코코맷 체크아웃 · 짐 보관 → 모나스티라키/신타그마 마지막 산책 & 브런치</div></div>
-        <div class="row"><div class="time">12:30</div><div class="act">공항 이동<span class="note">메트로 3호선 Acropoli→공항 €9·40분 / 택시 정액 ~€40. 국내선도 2시간 전 도착 권장(수하물 부치면)</span></div></div>
-        <div class="row"><div class="time">14:00</div><div class="act">ATH → JTR 항공 (예약 필요)<span class="note">오후편: Aegean 약 13~14시대 / Sky Express·Volotea 유사. 비행 약 45~50분. 10월 편도 €55~95/인. 아래 준비탭 참고</span></div></div>
-        <div class="row"><div class="time">15:15</div><div class="act">산토리니 공항(JTR) → 오이아 Armenaki<span class="note">사전 예약 트랜스퍼 또는 택시 €35~45(현금, 섬 택시 40대뿐이라 미리 콜). 25~35분. 숙소에 픽업 요청 가능한지 메일 확인</span><span class="addr">📍 Armenaki, Oia <span class="en">(마을 중심서 150m, 칼데라측)</span></span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Armenaki+Santorini+Oia" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
-        <div class="row"><div class="time">16:30</div><div class="act">체크인 · 숙소 테라스에서 휴식 → 오이아 마을 첫 산책</div></div>
-        <div class="row"><div class="time">18:00</div><div class="act">오이아 일몰<span class="note">일몰 약 18:55. 명당은 비잔틴 성채(Kastro) — 30~40분 전 자리 잡기. 숙소 테라스가 칼데라뷰면 인파 피해 거기서 봐도 최고</span><span class="addr">📍 Byzantine Castle Ruins, Oia</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Oia+Castle+Santorini" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
+        <div class="row"><div class="time">09:30</div><div class="act">여유 조식 · 마지막 짐 정리 (대부분 어젯밤에)</div></div>
+        <div class="row"><div class="time">10:45</div><div class="act">코코맷 체크아웃 → ATH 공항<span class="note">택시 정액 €40, 약 40분 (추천). 메트로는 Acropoli(2호선)→Syntagma 환승→3호선 공항, 50~55분·€9/인 — 짐 있으면 택시</span></div></div>
+        <div class="row"><div class="time">11:45</div><div class="act">ATH 도착 · 체크인 · 수하물 위탁 · 공항 점심<span class="note">Sky Express는 소형 항공사 — 국내선도 90분 전 도착 권장. 온라인 체크인 미리</span></div></div>
+        <div class="row"><div class="time">14:00</div><div class="act">GQ350 ATH → JTR<span class="note">도착 약 14:55 (비행 ~55분, 시차 없음). 수하물: SKY Basic·Joy+=15kg / Enjoy=23kg — 예약 fare 확인, 부족하면 온라인 선결제(공항결제는 2배)</span></div></div>
+        <div class="row"><div class="time">15:20</div><div class="act">산토리니 공항(JTR) → 오이아 Armenaki<span class="note">사전 예약 트랜스퍼 또는 택시 €35~45(현금, 섬 택시 40대뿐이라 미리 콜). 25~35분. 숙소에 픽업 요청 메일</span><span class="addr">📍 Armenaki, Oia <span class="en">(마을 중심서 150m, 칼데라측)</span></span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Armenaki+Santorini+Oia" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
+        <div class="row"><div class="time">16:15</div><div class="act">체크인 · 테라스 휴식 → 오이아 마을 첫 산책</div></div>
+        <div class="row"><div class="time">18:00</div><div class="act">오이아 일몰<span class="note">일몰 약 18:50. 명당은 비잔틴 성채(Kastro) — 30~40분 전 자리. 숙소 테라스가 칼데라뷰면 인파 피해 거기서도 최고</span><span class="addr">📍 Byzantine Castle Ruins, Oia</span><a class="map" href="https://www.google.com/maps/search/?api=1&query=Oia+Castle+Santorini" target="_blank" rel="noopener">🗺️ 지도</a></div></div>
         <div class="row"><div class="time">19:30</div><div class="act">저녁 · 암무디 베이 해산물 (식당탭 10/14 A/B)<span class="note">오이아 절벽 아래 300계단 or 차량. 예약 권장</span></div></div>
       </div>
       <div class="alts">
-        <span class="alt">☔ 흐림/일몰 실패: 다음날·모레도 오이아에 있으니 재도전 가능. 실내는 오이아 해양박물관(소규모)</span>
+        <span class="alt">☔ 흐림/일몰 실패: 다음날·모레도 오이아에 있으니 재도전. 실내는 오이아 해양박물관(소규모)</span>
         <span class="alt">🈳 암무디 만석: 오이아 마을 Roka(전통, 마당) 또는 Skiza(캐주얼·전망)</span>
       </div>
     </div>
@@ -600,7 +607,7 @@
       <div class="list" data-group="prep-now">
         <label class="item"><input type="checkbox" data-k="p-passport" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">여권 유효기간·발급일 확인 <span class="tag hot">필수</span></span><span class="desc">2027-01-23 이후 만료 + 2016-10 이후 발급이면 안전. 갱신 시 2~3주 소요</span></span></label>
         <label class="item"><input type="checkbox" data-k="p-etias" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">솅겐 ETIAS 시행 여부 확인 <span class="tag hot">확인</span></span><span class="desc">한국 여권은 솅겐 90일 무비자. ETIAS(전자여행허가) 시행 시작됐는지 travel-europe.europa.eu에서 확인 후 필요하면 신청(€7, 몇 분)</span></span></label>
-        <label class="item"><input type="checkbox" data-k="p-flight-athjtr" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">ATH→JTR 항공 예약 (10/14 오후편)</span><span class="desc">aegeanair.com / skyexpress.gr / volotea.com 비교. 오후 13~15시 출발, 수하물 포함 요금 확인. 2인 €140~190</span></span></label>
+        <label class="item"><input type="checkbox" data-k="p-flight-athjtr" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">GQ350 확인 (예약 완료) — 시각·수하물 <span class="tag hot">확인</span></span><span class="desc">Sky Express GQ350, 티켓상 ATH 14:00 출발. ⚠️ 공개 시간표엔 17:15로도 조회되니 e-티켓 실제 시각 재확인. 수하물: SKY Basic·Joy+=15kg / Enjoy=23kg / 미포함 fare면 온라인 선결제(€15~40, 공항결제는 2배). 2주 여행이면 23kg 권장. 출발 전 온라인 체크인</span></span></label>
         <label class="item"><input type="checkbox" data-k="p-flight-fr3021" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">FR3021 JTR→FCO 예약 (10/19 17:30 추천)</span><span class="desc">ryanair.com. 위탁수하물·좌석·우선탑승 옵션 각각 유료. 예약 후 앱에서 온라인 체크인(출발 24h 전)</span></span></label>
         <label class="item"><input type="checkbox" data-k="p-acropolis-tour" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">아크로폴리스 소그룹 가이드 투어 예약 (10/12 아침) <span class="tag hot">선택함</span></span><span class="desc">GetYourGuide/Viator ‘Acropolis small group guided tour’. €40~65/인(입장권 포함형으로), 08:00~08:30 시작, 스킵더라인. ‘+아크로폴리스 박물관’ 확장형(3.5~4h)이면 오전 한 번에 끝. 24h 전 무료취소. 신혼여행이면 <b>프라이빗 가이드</b>(2인 €160~250, 플라카까지 묶고 페이스·질문 자유)도 좋은 선택</span></span></label>
         <label class="item"><input type="checkbox" data-k="p-acropolis-ticket-check" /><span class="box"><svg viewBox="0 0 14 14"><path d="M2 7.5 L6 11 L12 3" /></svg></span><span class="txt"><span class="name">가이드 투어에 ‘입장권 포함’인지 확인</span><span class="desc">포함이면 hhticket.gr 별도 구매 <b>불필요</b>. 미포함(‘ticket not included’)이면만 hhticket.gr에서 10/12 08:00 슬롯 €30/인 별도 예약. 아고라·로만아고라 등은 통합권(€30, 7곳 5일) 고려</span></span></label>
@@ -952,8 +959,8 @@
       [ [37.9364,23.9445,"아테네공항 ATH · 22:15"],[37.9668,23.7268,"아테네 스튜디오(마크리야니) · 23:55"] ],
       [ [37.9670,23.7290,"코코맷 BC 짐 보관 · 10:30"],[37.9660,23.7278,"점심(마카리아니) · 12:30"],[37.9693,23.7331,"제우스 신전 · 14:00"],[37.9723,23.7295,"플라카·아나피오티카 · 15:30"],[37.9762,23.7255,"모나스티라키 · 16:30"],[37.9721,23.7248,"아레오파고스 일몰 · 18:00"],[37.9772,23.7238,"저녁(프시리) · 19:30"] ],
       [ [37.9700,23.7285,"아크로폴리스 남측 입구 · 08:00"],[37.9715,23.7267,"파르테논"],[37.9683,23.7286,"아크로폴리스 박물관 · 10:30"],[37.9761,23.7318,"Meat the Greek 점심 · 12:15"],[37.9749,23.7226,"고대 아고라 · 13:30"],[37.9745,23.7263,"로만 아고라·도서관"],[37.9807,23.7419,"리카비토스 언덕 · 17:30"],[37.9713,23.7432,"저녁(판그라티) · 19:30"] ],
-      [ [37.9890,23.7326,"국립고고학 박물관 · 09:30"],[37.9861,23.7331,"점심(엑사르헤이아) · 12:00"],[37.6503,24.0246,"수니온 곶 포세이돈 신전 · 17:30"],[37.9755,23.7345,"저녁/야식(신타그마) · 21:00"] ],
-      [ [36.3992,25.4793,"산토리니공항 JTR · 15:15"],[36.4610,25.3760,"Armenaki 오이아 체크인 · 16:30"],[36.4623,25.3736,"오이아 성채 일몰 · 18:00"],[36.4640,25.3720,"암무디 베이 저녁 · 19:30"] ],
+      [ [37.9682,23.7411,"파나티나이코 경기장 · 09:30"],[37.9697,23.7378,"자피온·국립정원 · 10:45"],[37.9748,23.7355,"점심(판그라티/신타그마) · 12:00"],[37.9890,23.7326,"국립고고학 박물관 · 13:30"],[37.6503,24.0246,"수니온 곶 포세이돈 신전 · 17:30"],[37.9755,23.7345,"복귀·야식 · 21:00"] ],
+      [ [36.3992,25.4793,"산토리니공항 JTR 도착 · 14:55"],[36.4610,25.3760,"Armenaki 오이아 체크인 · 16:15"],[36.4623,25.3736,"오이아 성채 일몰 · 18:00"],[36.4640,25.3720,"암무디 베이 저녁 · 19:30"] ],
       [ [36.4618,25.3753,"오이아 출발 · 10:30"],[36.4155,25.4330,"피라 버스터미널 · 11:00"],[36.4235,25.4270,"피로스테파니 능선 · 11:30"],[36.4318,25.4230,"이메로비글리 전망"],[36.4170,25.4310,"점심 피라 · 13:00"],[36.4165,25.4322,"피라 마을 · 14:30"],[36.4618,25.3753,"저녁 오이아 · 19:30"] ],
       [ [36.4610,25.3760,"Armenaki 체크아웃 · 09:30"],[36.3517,25.4030,"아크로티리 유적 · 10:15"],[36.3382,25.3560,"아크로티리 등대 · 12:00"],[36.3490,25.4360,"점심 남부 · 13:00"],[36.3838,25.4470,"Santo Wines 시음 · 14:45"],[36.4290,25.4245,"Cavo Tagoo 체크인 · 16:30"] ],
       [ [36.4290,25.4245,"Cavo Tagoo 오전 휴양"],[36.4345,25.4210,"Skaros Rock · 13:30"],[36.3757,25.4470,"피르고스 마을 · 15:30"],[36.4318,25.4230,"이메로비글리 일몰 · 18:00"],[36.4235,25.4270,"저녁 피로스테파니 · 19:30"] ],
@@ -968,8 +975,8 @@
       null,
       "점심 Ⓐ Mani Mani / Ⓑ Kalimarmaro &nbsp;·&nbsp; 저녁 Ⓐ Klimataria / Ⓑ To Kafeneio",
       "점심 Ⓐ Meat the Greek / Ⓑ Kostas &nbsp;·&nbsp; 저녁 Ⓐ To Mavro Provato / Ⓑ Oikonomou",
-      "점심 Ⓐ Diporto / Ⓑ Nikitas &nbsp;·&nbsp; 저녁 Ⓐ Strofi(전망) / Ⓑ Ktistakis(야식)",
-      "저녁 Ⓐ Dimitris Ammoudi / Ⓑ Sunset Ammoudi &nbsp;(예약)",
+      "점심 Ⓐ Kalimarmaro(판그라티) / Ⓑ Nikitas &nbsp;·&nbsp; 저녁 Ⓐ Strofi(전망) / Ⓑ Ktistakis(야식)",
+      "저녁 Ⓐ Dimitris Ammoudi / Ⓑ Sunset Ammoudi &nbsp;(예약) &nbsp;— GQ350이 17:15면 이 디너는 10/15로",
       "점심 Ⓐ Nikolas Tavern / Ⓑ Mama Thira &nbsp;·&nbsp; 저녁 Ⓐ Roka / Ⓑ Skiza·Terpsi",
       "점심 Ⓐ Metaxi Mas(예약) / Ⓑ To Psaraki &nbsp;·&nbsp; 저녁 Ⓐ Aktaion / Ⓑ Cavo Tagoo 다이닝",
       "저녁 Ⓐ Mylos(예약) / Ⓑ Anogi",
@@ -983,6 +990,29 @@
     var DRIVE = { 0: 1, 3: 1, 4: 1, 6: 1, 8: 1, 9: 1, 13: 1 };
     var MAPS = [];
     function ll(p) { return p[0] + "," + p[1]; }
+    // 오프라인/PDF용 스키매틱 지도(SVG) — 타일 없이 좌표만으로 동선·번호·순서를 그린다
+    function buildSvg(pts) {
+      var W = 640, H = 300, pad = 30;
+      var lats = pts.map(function (p) { return p[0]; }), lngs = pts.map(function (p) { return p[1]; });
+      var minLat = Math.min.apply(null, lats), maxLat = Math.max.apply(null, lats);
+      var minLng = Math.min.apply(null, lngs), maxLng = Math.max.apply(null, lngs);
+      var kx = Math.cos((minLat + maxLat) / 2 * Math.PI / 180) || 1;
+      var spanX = Math.max((maxLng - minLng) * kx, 1e-9), spanY = Math.max(maxLat - minLat, 1e-9);
+      var scale = Math.min((W - 2 * pad) / spanX, (H - 2 * pad) / spanY);
+      var offX = (W - spanX * scale) / 2, offY = (H - spanY * scale) / 2;
+      function X(lng) { return (offX + (lng - minLng) * kx * scale).toFixed(1); }
+      function Y(lat) { return (offY + (maxLat - lat) * scale).toFixed(1); }
+      var poly = pts.map(function (p) { return X(p[1]) + "," + Y(p[0]); }).join(" ");
+      var dots = pts.map(function (p, n) {
+        var x = X(p[1]), y = Y(p[0]);
+        return '<circle cx="' + x + '" cy="' + y + '" r="12" fill="#bf5137" stroke="#fff" stroke-width="2.5"/>' +
+          '<text x="' + x + '" y="' + y + '" fill="#fff" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="central">' + (n + 1) + "</text>";
+      }).join("");
+      return '<svg viewBox="0 0 ' + W + " " + H + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="이 날 동선 지도">' +
+        '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#f0eee7" stroke="#d3cfc3"/>' +
+        '<polyline points="' + poly + '" fill="none" stroke="#bf5137" stroke-width="2.5" stroke-dasharray="7 5" stroke-linejoin="round"/>' +
+        dots + "</svg>";
+    }
     var days = document.querySelectorAll("#view-plan .day");
     Array.prototype.forEach.call(days, function (dayEl, i) {
       var rows = dayEl.querySelector(".rows");
@@ -1008,11 +1038,14 @@
       listDiv.innerHTML = '<span class="rt-label">🗺️ 동선</span> ' + pts.map(function (p, n) {
         return '<a class="rt-item" data-i="' + n + '" role="button" tabindex="0">' + (n + 1) + ". " + p[2].split(" · ")[0] + "</a>";
       }).join('<span class="rt-sep">→</span>');
+      var svgDiv = document.createElement("div");
+      svgDiv.className = "daymap-svg";
+      svgDiv.innerHTML = buildSvg(pts) + '<div class="cap">오프라인·인쇄용 개략 동선도 (도로·해안선 없음, 번호·순서·방향만)</div>';
       var link = document.createElement("a");
       link.className = "dayroute-link";
       link.href = gm; link.target = "_blank"; link.rel = "noopener";
       link.textContent = "🗺️ Google 지도로 이 날 동선 열기";
-      wrap.appendChild(mapDiv); wrap.appendChild(listDiv); wrap.appendChild(link);
+      wrap.appendChild(mapDiv); wrap.appendChild(svgDiv); wrap.appendChild(listDiv); wrap.appendChild(link);
       rows.parentNode.insertBefore(wrap, rows);
 
       var map = null, markers = [], latlngs = pts.map(function (p) { return [p[0], p[1]]; });
@@ -1035,9 +1068,10 @@
           applyView();
           MAPS.push(map);
           setTimeout(function () { map.invalidateSize(); applyView(); }, 250);
-        } catch (e) { map = null; mapDiv.style.display = "none"; }
+        } catch (e) { map = null; mapDiv.style.display = "none"; svgDiv.style.display = "block"; }
       } else {
         mapDiv.style.display = "none";
+        svgDiv.style.display = "block";
       }
       // 동선 목록의 장소명 클릭 → 해당 마커로 지도 이동(축척 유지)
       Array.prototype.forEach.call(listDiv.querySelectorAll(".rt-item"), function (el) {
